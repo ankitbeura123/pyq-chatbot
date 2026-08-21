@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PYQ Exam Prep Chatbot</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 { text-align: center; color: #333; }
+        select, input, button {
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        #subject-select { width: 100%; }
+        #chat-box {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            height: 500px;
+            overflow-y: auto;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+        }
+        .message { margin: 10px 0; padding: 10px; border-radius: 8px; white-space: pre-wrap; }
+        .user { background: #007bff; color: white; margin-left: 20%; }
+        .assistant { background: #e9ecef; color: #333; margin-right: 20%; }
+        #input-row { display: flex; gap: 10px; }
+        #user-input { flex: 1; }
+        button { background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #999; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>📚 PYQ Exam Prep Chatbot</h1>
+
+    <select id="subject-select">
+        <option value="">All Subjects</option>
+        {% for subject in subjects %}
+            <option value="{{ subject.name }}">{{ subject.semester }} - {{ subject.name }}</option>
+        {% endfor %}
+    </select>
+
+    <div id="chat-box"></div>
+
+    <div id="input-row">
+        <input type="text" id="user-input" placeholder="Ask about probable questions, topics, or specific concepts..." />
+        <button id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const subject = document.getElementById('subject-select').value;
+            const chatBox = document.getElementById('chat-box');
+            const sendBtn = document.getElementById('send-btn');
+
+            chatBox.innerHTML += `<div class="message user">${message}</div>`;
+            input.value = '';
+            sendBtn.disabled = true;
+            chatBox.innerHTML += `<div class="message assistant" id="loading">Thinking...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, subject: subject })
+                });
+                const data = await response.json();
+
+                document.getElementById('loading').remove();
+                chatBox.innerHTML += `<div class="message assistant">${data.response || data.error}</div>`;
+            } catch (err) {
+                document.getElementById('loading').remove();
+                chatBox.innerHTML += `<div class="message assistant">Error: ${err}</div>`;
+            }
+
+            sendBtn.disabled = false;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
