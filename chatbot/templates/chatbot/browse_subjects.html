@@ -1,0 +1,39 @@
+{% extends "chatbot/base.html" %}
+{% block title %}Browse Papers — PYQ Prep{% endblock %}
+
+{% block extra_style %}
+<style>
+  .sem-group { margin-bottom: 26px; }
+  .sem-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 8px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+  .subject-card {
+    display: block; background: var(--paper-raised); border: 1.5px solid var(--ink); border-radius: 5px;
+    padding: 13px 14px; box-shadow: 3px 3px 0 rgba(31,42,60,0.06);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .subject-card:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 rgba(31,42,60,0.1); }
+  .subject-card .name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; margin-bottom: 3px; }
+  .subject-card .count { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--ink-soft); }
+</style>
+{% endblock %}
+
+{% block content %}
+  {% regroup subjects by semester as semester_list %}
+  {% for sem in semester_list %}
+    <div class="sem-group">
+      <div class="sem-label">{{ sem.grouper }}</div>
+      <div class="subject-grid">
+        {% for subject in sem.list %}
+          <a class="plain subject-card" href="{% url 'browse_documents' subject.id %}">
+            <div class="name">{{ subject.name }}</div>
+            <div class="count">{{ subject.documents.count }} document{{ subject.documents.count|pluralize }}</div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+{% endblock %}

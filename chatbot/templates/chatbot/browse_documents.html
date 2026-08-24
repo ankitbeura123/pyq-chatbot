@@ -1,0 +1,55 @@
+{% extends "chatbot/base.html" %}
+{% block title %}{{ subject.name }} — PYQ Prep{% endblock %}
+
+{% block extra_style %}
+<style>
+  .back-link { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--ink-soft); text-decoration: none; display: inline-block; margin-bottom: 10px; }
+  .back-link:hover { color: var(--ink); }
+  .subject-title { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 600; margin: 0 0 4px; }
+  .subject-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 18px; }
+  .syllabus-note { background: #fff8e8; border: 1px solid var(--amber); border-radius: 4px; padding: 10px 14px; font-size: 0.82rem; margin-bottom: 18px; }
+  table { width: 100%; border-collapse: collapse; background: var(--paper-raised); border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden; }
+  th { text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); padding: 10px 14px; border-bottom: 1.5px solid var(--ink); }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--rule); font-size: 0.87rem; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fbf3e2; }
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; padding: 2px 7px; border-radius: 3px; background: var(--ink); color: var(--paper); }
+  .tag.mid { background: var(--amber-dark); }
+  a.doc-link { color: var(--ink); text-decoration: none; font-weight: 500; }
+  a.doc-link:hover { text-decoration: underline; }
+  .download-icon { margin-left: 8px; text-decoration: none; color: var(--ink-soft); font-size: 0.85rem; }
+  .download-icon:hover { color: var(--amber-dark); }
+</style>
+{% endblock %}
+
+{% block content %}
+  <a class="back-link" href="{% url 'browse_subjects' %}">← All subjects</a>
+  <div class="subject-title">{{ subject.name }}</div>
+  <div class="subject-sub">{{ subject.semester }} · {{ documents.count }} paper{{ documents.count|pluralize }}</div>
+
+  {% if syllabus %}
+    <div class="syllabus-note">📘 Syllabus on file and indexed for this subject.</div>
+  {% endif %}
+
+  <table>
+    <tr><th>Year</th><th>Exam</th><th>File</th></tr>
+    {% for doc in documents %}
+      <tr>
+        <td>{{ doc.year|default:"—" }}</td>
+        <td>
+          {% if doc.exam_type == "Midsem" %}
+            <span class="tag mid">{{ doc.exam_type }}</span>
+          {% elif doc.exam_type %}
+            <span class="tag">{{ doc.exam_type }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          <a class="doc-link" href="{% url 'view_document' doc.id %}">{{ doc.file_name }}</a>
+          <a class="download-icon" href="{% url 'download_document' doc.id %}" title="Download PDF">⬇</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="3">No documents found for this subject.</td></tr>
+    {% endfor %}
+  </table>
+{% endblock %}

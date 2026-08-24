@@ -1,0 +1,26 @@
+{% extends "chatbot/base.html" %}
+{% block title %}{{ document.file_name }} — PYQ Prep{% endblock %}
+
+{% block extra_style %}
+<style>
+  .back-link { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--ink-soft); text-decoration: none; display: inline-block; margin-bottom: 10px; }
+  .back-link:hover { color: var(--ink); }
+  .doc-title { font-family: 'Fraunces', serif; font-size: 1.25rem; font-weight: 600; margin: 0 0 4px; }
+  .doc-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 16px; }
+  .doc-body {
+    background: var(--paper-raised); border: 1.5px solid var(--ink); border-radius: 6px;
+    padding: 24px; white-space: pre-wrap; font-size: 0.88rem; line-height: 1.7;
+    max-height: 65vh; overflow-y: auto; box-shadow: 4px 4px 0 rgba(31,42,60,0.08);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <a class="back-link" href="{% url 'browse_documents' document.subject.id %}">← {{ document.subject.name }}</a>
+  <div class="doc-title">{{ document.file_name }}</div>
+  <div class="doc-meta">
+    {{ document.year|default:"Year unknown" }} · {{ document.exam_type|default:"Type unknown" }}
+    · <a href="{% url 'download_document' document.id %}" style="color: var(--amber-dark); font-weight: 600;">Download PDF ⬇</a>
+  </div>
+  <div class="doc-body">{{ text }}</div>
+{% endblock %}
