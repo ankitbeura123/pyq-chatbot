@@ -3,102 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}PYQ Prep{% endblock %}</title>
+<title>{% block title %}KIIT PYQ Prep{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
 <style>
   :root {
-    --paper: #f2ede2;
-    --paper-raised: #fbf8f1;
-    --ink: #1f2a3c;
-    --ink-soft: #4a5568;
-    --rule: #d8cfba;
-    --amber: #d98e2e;
-    --amber-dark: #b8721c;
-    --card-user: #1f2a3c;
-    --card-user-text: #f2ede2;
+    --bg: #ffffff;
+    --bg-soft: #f8f9fa;
+    --border: #e5e7eb;
+    --text: #111827;
+    --text-soft: #6b7280;
+    --green: #16a34a;
+    --green-soft: #dcfce7;
+    --blue-soft: #dbeafe;
+    --blue-text: #1d4ed8;
+    --amber-soft: #fef3c7;
+    --amber-text: #92400e;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--paper);
-    background-image: linear-gradient(var(--rule) 1px, transparent 1px);
-    background-size: 100% 2.1em;
-    color: var(--ink);
+    background: var(--bg-soft);
+    color: var(--text);
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    padding: 32px 16px;
   }
-  .sheet { width: 100%; max-width: 760px; }
-  header {
+  .topbar {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 6px;
-    padding-bottom: 14px;
-    border-bottom: 2px solid var(--ink);
+    align-items: center;
+    gap: 28px;
   }
-  header h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.7rem; margin: 0; letter-spacing: -0.01em; }
-  header h1 span { color: var(--amber-dark); }
-  header .tagline { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); }
-
-  nav.tabs {
-    display: flex;
-    gap: 4px;
-    margin: 18px 0 20px;
-    border-bottom: 1.5px solid var(--rule);
-  }
-  nav.tabs a {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+  .topbar .brand {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text);
     text-decoration: none;
-    color: var(--ink-soft);
-    padding: 9px 4px 10px;
-    margin-right: 22px;
-    border-bottom: 2.5px solid transparent;
-    transition: color 0.15s ease, border-color 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
-  nav.tabs a:hover { color: var(--ink); }
-  nav.tabs a.active { color: var(--ink); border-bottom-color: var(--amber); font-weight: 600; }
+  .topbar .brand .accent { color: var(--green); }
+  .topbar nav { display: flex; gap: 20px; flex: 1; }
+  .topbar nav a {
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 6px 0;
+    border-bottom: 2px solid transparent;
+  }
+  .topbar nav a:hover { color: var(--text); }
+  .topbar nav a.active { color: var(--text); border-bottom-color: var(--green); }
+
+  .page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
 
   .card {
-    background: var(--paper-raised);
-    border: 1.5px solid var(--ink);
-    border-radius: 6px;
-    padding: 20px;
-    box-shadow: 4px 4px 0 rgba(31,42,60,0.08);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
   }
 
   a.plain { color: inherit; text-decoration: none; }
 
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 4px; }
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+  .tag.green { background: var(--green-soft); color: #15803d; }
+  .tag.blue { background: var(--blue-soft); color: var(--blue-text); }
+  .tag.amber { background: var(--amber-soft); color: var(--amber-text); }
 
-  @media (max-width: 560px) {
-    header { flex-direction: column; align-items: flex-start; gap: 4px; }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  @media (max-width: 620px) {
+    .topbar { flex-wrap: wrap; gap: 12px 20px; }
   }
 </style>
 {% block extra_style %}{% endblock %}
 </head>
 <body>
-  <div class="sheet">
-    <header>
-      <h1>PYQ<span>·</span>Prep</h1>
-      <div class="tagline">Exam Archive Assistant</div>
-    </header>
-
-    <nav class="tabs">
-      <a href="{% url 'chat_page' %}" class="{% if request.resolver_match.url_name == 'chat_page' %}active{% endif %}">Chat</a>
-      <a href="{% url 'browse_subjects' %}" class="{% if 'browse' in request.resolver_match.url_name %}active{% endif %}">Browse Papers</a>
+  <div class="topbar">
+    <a href="{% url 'chat_page' %}" class="brand">📚 KIIT<span class="accent">PYQ</span></a>
+    <nav>
+      <a href="{% url 'chat_page' %}" class="{% if request.resolver_match.url_name == 'chat_page' %}active{% endif %}">Chat Assistant</a>
+      <a href="{% url 'browse_subjects' %}" class="{% if 'browse' in request.resolver_match.url_name %}active{% endif %}">Browse PYQs</a>
     </nav>
+  </div>
 
+  <div class="page">
     {% block content %}{% endblock %}
   </div>
+
 {% block extra_script %}{% endblock %}
 </body>
 </html>
