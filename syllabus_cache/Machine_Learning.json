@@ -1,0 +1,72 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Machine learning: What and why?",
+        "Types of Machine Learning",
+        "Supervised Learning",
+        "Unsupervised Learning",
+        "The Curse of dimensionality",
+        "Over and under fitting",
+        "Model selection",
+        "Error analysis and validation",
+        "Parametric vs. non-parametric models"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Machine Learning",
+      "topics": [
+        "Types of Machine Learning",
+        "Supervised Learning",
+        "Classification models",
+        "Na\u00efve Bayes Classifier",
+        "Decision trees",
+        "Support Vector Machines",
+        "KNN model",
+        "Dimensionality reduction",
+        "PCA"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Clustering",
+      "topics": [
+        "Clustering approaches",
+        "Mean Shift clustering",
+        "Clustering data points and features",
+        "Bi-clustering",
+        "Multi-view clustering",
+        "K-Means clustering",
+        "K-medians clustering",
+        "Expectation Maximization (EM)"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Neural Networks",
+      "topics": [
+        "Neural networks",
+        "Biological motivation for Neural Network",
+        "Neural network Representation",
+        "Perceptron",
+        "Feed forward networks",
+        "Multilayer Networks and Back Propagation Algorithms",
+        "Hidden layer representation",
+        "Application of neural network"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Applications and Tools",
+      "topics": [
+        "Linear models for regression",
+        "Reinforcement Learning",
+        "Machine Learning Tools",
+        "Engineering applications"
+      ]
+    }
+  ]
+}

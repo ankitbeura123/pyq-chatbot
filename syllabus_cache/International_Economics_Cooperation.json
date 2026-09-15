@@ -1,0 +1,60 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Theories of International Trade",
+      "topics": [
+        "Classical Theories of International Trade- Mercantilism",
+        "Absolute Advantage",
+        "Comparative advantage Theory",
+        "Gains from international trade",
+        "Terms of trade",
+        "Theory of Reciprocal Demand",
+        "Modern Theories of International Trade-Heckscher-Ohlin theory"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Free Trade, Protection and Balance of Payment",
+      "topics": [
+        "Free trade and protection in developing countries",
+        "Forms, methods and effects of protection",
+        "Introduction of BoP",
+        "Structure of BoP",
+        "Disequilibrium in BoP",
+        "Measures to overcome disequilibrium in BoP.",
+        "Tariff",
+        "Trade creation vs Trade diversion"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "International Organizations",
+      "topics": [
+        "International Monetary Fund",
+        "World Trade Organasation",
+        "Regional Trade Agreements",
+        "Trade Blocs"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Foreign Exchange",
+      "topics": [
+        "Foreign Exchange Market",
+        "Theories of foreign exchange",
+        "Factors affecting exchange rate",
+        "Fixed and flexible exchange rate",
+        "FERA and FEMA"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "EXIM Policies",
+      "topics": [
+        "Recent budgetary policies and programs relating to inequality",
+        "Analysis of Economic Survey data"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Introduction",
+        "Classes of computers",
+        "Defining Computer Architecture",
+        "Trends in Technology",
+        "Trends in Power and Energy in Integrated Circuits",
+        "Trends in Cost",
+        "Dependability",
+        "Measuring, Reporting and Summarizing Performance",
+        "Quantitative Principles of Computer Design"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Basic and Intermediate pipelining Concepts",
+      "topics": [
+        "Basic and Intermediate pipelining Concepts",
+        "The Major Hurdle of Pipelining",
+        "Pipeline Hazards",
+        "Pipelining Implementation",
+        "Implementation issues that makes Pipelining hard",
+        "Extending the MIPS Pipeline to Handle Multicycle Operations",
+        "The MIPS R4000 Pipeline"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Instruction, Level Parallelism",
+      "topics": [
+        "Instruction, Level Parallelism: Concepts and Challenges",
+        "Basic Compiler Techniques for Exposing ILP",
+        "Reducing Branch Costs with Prediction",
+        "Overcoming Data Hazards with Dynamic Scheduling",
+        "Dynamic Scheduling",
+        "Hardware, Based Speculation",
+        "Exploiting ILP Using Multiple Issue and Static Scheduling",
+        "Exploiting ILP",
+        "Advanced Techniques for Instruction Delivery and Speculation",
+        "Studies of the Limitations of ILP"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Vector Architecture",
+      "topics": [
+        "Vector Architecture",
+        "SIMD Instruction Set Extensions for Multimedia",
+        "Graphics Processing Units",
+        "Detecting and Enhancing Loop-Level Parallelism",
+        "Centralized Shared-Memory Architectures",
+        "Performance of Shared-Memory Multiprocessors",
+        "Distributed Shared Memory",
+        "Models of Memory Consistency",
+        "Multicore Processors and their Performance"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Review of Memory Hierarchy Design",
+      "topics": [
+        "Review of Memory Hierarchy Design",
+        "Cache Performance",
+        "Basic Cache Optimizations",
+        "Virtual Memory",
+        "Protection and Examples of Virtual Memory",
+        "Advanced Optimizations of Cache Performance",
+        "Memory Technology and Optimizations",
+        "Protection: Virtual Memory and Virtual Machines",
+        "Crosscutting Issues: The Design of Memory Hierarchies",
+        "Case Studies / Lab Exercises"
+      ]
+    }
+  ]
+}

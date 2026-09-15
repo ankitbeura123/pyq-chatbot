@@ -1,0 +1,48 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Semiconductors, Diodes and Transistors",
+      "topics": [
+        "Properties of semiconductor materials",
+        "Applications of semiconductors as p-n junction diode",
+        "Diode characteristics and breakdown mechanisms",
+        "Half-wave and full-wave rectifiers with filters",
+        "Zener diode",
+        "Transistor constructions, operations and their characteristics",
+        "Transistor biasing, amplifiers, and load line analysis",
+        "Concepts of JFET and MOSFET"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Operational Amplifier (Op-amp) and applications",
+      "topics": [
+        "Introduction to Op-amp and its Characteristics",
+        "Application of Op-Amp as Inverting amplifier",
+        "Non-inverting Amplifier",
+        "Summing",
+        "Difference amplifier and comparator"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Introduction to Digital Electronics",
+      "topics": [
+        "Different number systems and its conversions",
+        "Logic gates and truth tables of OR, AND, NAND, EX-OR",
+        "Combinational circuit and Sequential circuit"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Miscellaneous Electronic Devices",
+      "topics": [
+        "SCR",
+        "Opto-electronic devices and fiber techniques",
+        "Introduction and description of sensor performance",
+        "Fundamentals of analog communication techniques (AM and FM)"
+      ]
+    }
+  ]
+}

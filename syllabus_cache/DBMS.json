@@ -1,0 +1,79 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Purpose of Database System",
+        "Views of data",
+        "Data Models",
+        "Database Languages",
+        "Database System Architecture",
+        "Components of DBMS",
+        "Entity",
+        "Relationship model (E-R model )",
+        "E-R Diagram notation",
+        "EER notations",
+        "Examples"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Relational Model",
+      "topics": [
+        "Relational Data Model",
+        "Concept of relations",
+        "Schema-instance distinction",
+        "keys",
+        "integrity rules",
+        "Relational algebra operators",
+        "SQL: Data definition",
+        "Data manipulation",
+        "Aggregate function",
+        "Null Values",
+        "Nested sub queries",
+        "Joined relations"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Database Design",
+      "topics": [
+        "Dependencies and Normal forms",
+        "Dependency theory",
+        "Functional dependencies",
+        "Armstrong's axioms for FD's",
+        "Closure of a set of FD's",
+        "minimal covers",
+        "Definitions of 1NF, 2NF, 3NF and BCNF, 4NF, 5NF",
+        "Decompositions and desirable properties of them"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Transaction Management",
+      "topics": [
+        "ACID properties",
+        "Serializability and concurrency control",
+        "Lock based concurrency control (2PL)",
+        "Timestamp ordering protocol",
+        "Database recovery management"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Implementation Techniques",
+      "topics": [
+        "Overview of Physical Storage Media",
+        "Magnetic Disks",
+        "RAID",
+        "Tertiary storage",
+        "Organization of Records in Files",
+        "Indexing and Hashing",
+        "Ordered Indices",
+        "primary",
+        "Secondary index structures"
+      ]
+    }
+  ]
+}

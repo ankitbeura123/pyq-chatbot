@@ -1,0 +1,65 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Concepts of Thermodynamics",
+      "topics": [
+        "Systems, properties, state, and cycle",
+        "Thermodynamic equilibrium and quasistatic process",
+        "First law of thermodynamics for closed system",
+        "First law of thermodynamics for open/flow systems",
+        "Second law of thermodynamics",
+        "Kelvin Plank statement",
+        "Clausius statement",
+        "Basic concept of entropy"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Fluid Mechanics and Hydraulic Machines",
+      "topics": [
+        "Introduction to fluids",
+        "Properties of fluids",
+        "Pressure variation with depth",
+        "Bernoulli\u2019s equation and its applications",
+        "Introduction to hydraulic turbines and pumps"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Mechanics of Materials",
+      "topics": [
+        "Stress",
+        "Strain",
+        "Stress-Strain diagrams for ductile and brittle materials",
+        "Elastic constants",
+        "Hooks Law",
+        "Factor of Safety",
+        "One-dDimensional loading of members of varying vross sections"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Power Transmission",
+      "topics": [
+        "Gear, Belt, and Chain Drives",
+        "Shaft under varying loading conditions",
+        "Introduction to robots",
+        "Applications of robotics",
+        "Basic robot motions",
+        "Sensors and Actuators"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Manufacturing Processes",
+      "topics": [
+        "Introduction to engineering materials",
+        "Types and classification of materials",
+        "Properties of materials",
+        "Introduction to casting, forming, forging, rolling, extrusion and welding",
+        "Introduction to machine tools, NC, CNC, and 3-D Printing"
+      ]
+    }
+  ]
+}

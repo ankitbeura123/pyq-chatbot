@@ -1,0 +1,58 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Cellular Organization of a Living Organism",
+      "topics": [
+        "Biology in engineering",
+        "The Living World: Biodiversity of living world",
+        "Microorganisms",
+        "Cell as the basic unit of life",
+        "Cell theory",
+        "Structure and function of Prokaryotic and Eukaryotic cells",
+        "Cell growth and reproduction",
+        "Homeostasis",
+        "Concept of gene",
+        "Basic structure and function of chromosomes"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Molecular and Biochemical Basis of an Organism",
+      "topics": [
+        "Chemical Context of Life: Water, Carbon, Structure and Function, Types of bonding",
+        "Bio- macromolecules (Carbohydrates, Proteins, Amino acids, Lipids and Nucleic acids)",
+        "Protein synthesis",
+        "Cell differentiation",
+        "Stem cells and their applications"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Enzymes, Photosynthesis, Metabolism and Bioenergetics",
+      "topics": [
+        "Enzymes: Introduction, structure, properties, Classification, Mechanism of enzyme actions, Factors affecting enzyme action, Strategies utilized by enzymes to affect catalysis",
+        "Photosynthesis: Introduction, pigments, process of photosynthesis, Mechanism of photosynthesis (light reaction and dark reaction)",
+        "Metabolism and Bioenergetics: Anabolism and catabolism"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Nervous system, Immune system and Cell Signaling",
+      "topics": [
+        "Nervous system: Introduction, History of neuroscience, Types of glial cells, Nerve cells - Neurons, Organization of the nervous system, Action potential, Diseases of the nervous system, Computer-based Neural Networks",
+        "Immune system: Introduction, Innate Immunity, Adaptive or acquired immunity, Diseases of the immune system, Immune engineering",
+        "Cell signaling: General principles of cell signaling"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Molecular Machines, Biosensor and Bioremediation",
+      "topics": [
+        "Molecular Machines: Introduction, Molecular motors and Machines, F0F1ATP synthase motors, Cytoskeleton associated motors",
+        "Biosensors: Concept of biosensor, Working principle, Types of biosensors, Glucose biosensors, Biodetectors: DNA detection biosensor, Detection of pollutants, Biosensor in food industry",
+        "Bioremediation: Introduction, Role of microorganisms, Factors determining bioremediation, Types \u2013 in situ/ex situ, Advantages and disadvantages, Biofuel"
+      ]
+    }
+  ]
+}

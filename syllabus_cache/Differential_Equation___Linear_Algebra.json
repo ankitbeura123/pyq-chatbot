@@ -1,0 +1,82 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Ordinary Differential Equations of First Order",
+      "topics": [
+        "Introduction and formation of differential equations",
+        "Overview: Variable separable",
+        "homogeneous",
+        "equations reducible to homogeneous form",
+        "Exact differential equations",
+        "equations reducible to exact form",
+        "linear differential equations",
+        "equations reducible to linear form (Bernoulli\u2019s equation)",
+        "Applications of differential equations: Growth-Decay Problem, Newton\u2019s Law of Cooling, Mixing problem, Orthogonal trajectories"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Linear Differential Equations of second order",
+      "topics": [
+        "Second order linear homogeneous equations with constant coefficients",
+        "differential operators",
+        "solutions of homogeneous equations",
+        "Euler-Cauchy equation",
+        "linear dependence and independence",
+        "Wronskian",
+        "Solutions of nonhomogeneous equations: general solution, complementary function, particular integral",
+        "solution by variation of parameters",
+        "undetermined coefficients",
+        "Applications of 2nd order differential equations in Electric circuit"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Special Functions",
+      "topics": [
+        "Improper Integrals for one variable",
+        "some test for convergence of improper integrals",
+        "Gamma function",
+        "Properties",
+        "Beta function",
+        "Relation between Gamma and Beta functions",
+        "Radius of convergence of power series",
+        "Legendre equation",
+        "Legendre polynomial",
+        "Recurrence relations and Orthogonality property of Legendre polynomial",
+        "Bessel\u2019s equation",
+        "Bessel\u2019s function",
+        "Recurrence relation"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "System of Linear Equations and Vector Space",
+      "topics": [
+        "Linear system of equations",
+        "rank of matrix",
+        "consistency of linear systems",
+        "Solution of system of linear equations: Gauss elimination, inverse of a matrix by Gauss Jordan method",
+        "Vector Space",
+        "Sub-space",
+        "Basis and dimension",
+        "linear dependence and independence",
+        "Linear transformation"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Matrix-Eigen value problems",
+      "topics": [
+        "Eigen values",
+        "Eigen vectors",
+        "Eigen basis",
+        "quadratic form",
+        "Hermitian, SkewHermitian forms",
+        "similar matrices",
+        "Diagonalization of matrices"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Development of Algorithms",
+        "Notations and analysis",
+        "Storage structures for arrays",
+        "Sparse matrices",
+        "Stacks and Queues: Representations and applications"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Linked List, Stacks, and Queues",
+      "topics": [
+        "Linked Lists",
+        "Linked stacks and queues",
+        "Operations on polynomials",
+        "Doubly linked lists",
+        "Circularly linked lists",
+        "Dynamic storage management",
+        "Garbage collection and compaction"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Trees",
+      "topics": [
+        "Tree representation",
+        "Binary Trees",
+        "Binary search trees",
+        "Tree traversal",
+        "Expression manipulation",
+        "Symbol table construction",
+        "Height balanced trees",
+        "AVL trees"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Graphs",
+      "topics": [
+        "Graphs",
+        "Representation of graphs",
+        "BFS",
+        "DFS",
+        "Topological sort",
+        "String representation and manipulations",
+        "Pattern matching"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Sorting and Searching",
+      "topics": [
+        "Sorting Techniques: Selection, Bubble, Insertion, Merge, Heap, Quick, Radix sort",
+        "Linear search",
+        "Binary search",
+        "Hash table methods"
+      ]
+    }
+  ]
+}

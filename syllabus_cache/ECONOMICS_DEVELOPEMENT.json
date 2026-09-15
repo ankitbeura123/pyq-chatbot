@@ -1,0 +1,77 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Economic Growth and Development",
+      "topics": [
+        "Meaning of development and Economic growth",
+        "Characteristics of less developed countries",
+        "Factors in Economic development",
+        "Measuring development and development gap",
+        "per capita income",
+        "inequality of income and wealth",
+        "Gini coefficient",
+        "Human Development Index",
+        "Physical Quality of Life Index",
+        "other indices of development"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Theories of Economic Growth and Development",
+      "topics": [
+        "Theories of Economic Development: Classical (Smith, Ricardo, Malthus)",
+        "Marxian \u2013 Theory of Social change",
+        "immutable laws",
+        "Crisis in capitalism",
+        "Schumpeter and capitalist development",
+        "Rostow\u2019s stages of growth",
+        "Partial theories of growth and development: Vicious circle of Poverty",
+        "Big push",
+        "balanced growth",
+        "unbalanced growth"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "International aspects of Economic Development",
+      "topics": [
+        "International trade as an engine of growth",
+        "Static and dynamic gains from trade",
+        "Prebisch, Singer and Myrdal theses vs. free trade",
+        "Export-led growth",
+        "Tariffs and effective protection",
+        "WTO and developing countries",
+        "External resources",
+        "FDI",
+        "Aid vs. trade"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Development and Environment",
+      "topics": [
+        "Economy linkage",
+        "Environment as a necessity and luxury",
+        "Population environment linkage",
+        "Allocation problem",
+        "Market failure for environmental goods",
+        "environment as a public good"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Sustainable Development",
+      "topics": [
+        "Concept and indicators of sustainable development",
+        "Common Property Resources",
+        "Property right approach to environmental problem-property rights approach",
+        "property rights and environmental problems",
+        "Externalities and Pigovian tax",
+        "Coase theorem",
+        "Coase theorem and transaction cost",
+        "Prevention, control and abatement of pollution"
+      ]
+    }
+  ]
+}

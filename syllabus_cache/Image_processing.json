@@ -1,0 +1,88 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Introduction to Digital Image Processing",
+        "Characteristics of Digital Image",
+        "Basic relationship between pixels",
+        "Image sampling and quantization",
+        "Color models",
+        "Basic Geometric Transformations",
+        "Fourier Transform",
+        "Cosine, Sine and Hartley Transform",
+        "Hadamard-Haar-Slant Transform",
+        "Discrete Fourier Transform"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Image Enhancement Techniques",
+      "topics": [
+        "Spatial Domain Methods",
+        "Basic Grey Level Transformation",
+        "Histogram Processing",
+        "Image subtraction",
+        "Im Agile Software Development age averaging",
+        "Spatial filtering",
+        "Smoothing",
+        "Sharpening filters",
+        "Laplacian filters",
+        "Frequency domain filters",
+        "Smoothing",
+        "Sharpening filters",
+        "Homomorphic filtering"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Image Restoration",
+      "topics": [
+        "Model of Image Degradation/restoration process",
+        "Noise models",
+        "Spatial and Frequency Filters",
+        "Inverse filtering & Wiener Filtering",
+        "Least mean square filtering",
+        "Constrained least mean square filtering"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Image Compression Fundamentals",
+      "topics": [
+        "Image Compression Models",
+        "Lossless compression: Variable length coding",
+        "LZW coding",
+        "Bit plane coding",
+        "Predictive coding",
+        "DPCM",
+        "Lossy Compression: Lossy Predictive Coding",
+        "Transform coding",
+        "Wavelet coding"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Image Segmentation & Analysis",
+      "topics": [
+        "Image Segmentation techniques",
+        "Edge detection",
+        "Thresholding",
+        "Region",
+        "Boundary Extraction & Representation",
+        "Region",
+        "Moment representation",
+        "chain codes",
+        "Polygonal approximation",
+        "Texture",
+        "Pattern Recognition",
+        "Applications",
+        "Finger print/iris recognition",
+        "Remote sensing",
+        "Automatic character recognition",
+        "Medical image processing"
+      ]
+    }
+  ]
+}

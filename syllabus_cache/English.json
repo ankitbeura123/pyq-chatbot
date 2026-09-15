@@ -1,0 +1,51 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Professional Communication",
+      "topics": [
+        "Process of Communication: Definition, Explanation & Diagram",
+        "Difference Between General and Technical Communication",
+        "Methods of Communication (Verbal & Non-Verbal)",
+        "Non-Verbal Communication (Kinesics, Proxemics, Chronemics, Oculesics, Olfactics, Gustorics, Haptics, and Iconics)",
+        "Paralanguage",
+        "Flow of Communication (Formal & Informal)",
+        "Levels of Communication",
+        "Barriers of Communication (Intrapersonal, Interpersonal, and Organizational)"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Basics of Grammar and Writing Skills",
+      "topics": [
+        "Error Detection in Sentences: Articles, Prepositions, Tense, Subject-Verb Agreement, Active and Passive Voice",
+        "Use of Punctuation: Full Stop, Comma, Colon, Semi-colon, Single & Double Inverted Commas, Exclamation & Interrogation Marks, Hyphens and Dashes, and Ampersand",
+        "Paragraph Writing \u2013 Components",
+        "Writing Bias-free English",
+        "Business Letters: Enquiry, Claim/Complaint, and Order",
+        "Technical Reports: Formats, Style & Referencing",
+        "Reading Techniques: Skimming, Scanning, Intensive & Extensive Reading"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Basic Sounds of English",
+      "topics": [
+        "Hearing & Listening: Types of Listening \u2013 Appreciative, Empathetic, Critical, Comprehensive, Superficial, Differences between Listening & Hearing",
+        "Introduction to Basic Sounds of IPA: Symbols of IPA, Types of Vowels & Consonants",
+        "Problem Sounds & Mother Tongue Influence: Concept of MTI with Examples"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "English Literature",
+      "topics": [
+        "Short Story \u2013 O. Henry: \u2018Gift of the Magi\u2019",
+        "Short Story \u2013 Ismat Chughtai: \u2018Sacred Duty\u2019",
+        "Poem \u2013 Robert Frost: \u2018Stopping by Woods on a Snowy Evening\u2019",
+        "Poem \u2013 Tennessee Williams: \u2018We Have Not Long to Love\u2019",
+        "Drama: William Shakespeare: Merchant of Venice"
+      ]
+    }
+  ]
+}

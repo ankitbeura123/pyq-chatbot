@@ -1,0 +1,68 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Scientific Approaches to Public Health",
+      "topics": [
+        "Health and public health concepts",
+        "Science and practice of applied public health: Scientific disciplines as part of interdisciplinary public health",
+        "Examples of use of behavioral model in changing the community perception of public health interventions"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Social and Behavioral Sciences in Public Health",
+      "topics": [
+        "Social and behavioral determinants of health and disease",
+        "WHO and CDC models of social determinants of health",
+        "Disease and social status",
+        "Disease and poverty",
+        "Social interventions for good health",
+        "Health behavior change models for public health interventions",
+        "Health Belief Model",
+        "Transtheoretical Model",
+        "The theory of planned behavior",
+        "Health communication to improve the outcome of public health interventions"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Environment Health Sciences in Public Health",
+      "topics": [
+        "Environment & climate change",
+        "Ecosystem",
+        "Lifestyle and dietary effects on health",
+        "food safety and sanitation",
+        "Environmental pollution",
+        "waste disposal and treatment"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Epidemiology and Data Science in Public Health",
+      "topics": [
+        "Epidemiology and achievements in public health",
+        "Measurements in Epidemiology\u2014Incidence and prevalence",
+        "Causation and association",
+        "Measures of association",
+        "Outline of study designs (including cross-sectional study design, case-control study design, cohort study design and randomized control trials)",
+        "Introduction to confounding and bias",
+        "Screening tests- validity and reliability methods"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Management and Economic Sciences in Public Health",
+      "topics": [
+        "Systems approach (input, process and outcome) in public health",
+        "Health management information system",
+        "Horizontal and vertical integration of public health interventions",
+        "Public-Private mix",
+        "Understanding community",
+        "Community health related needs assessment",
+        "Community orientation and Community mobilization",
+        "Introduction to digital health"
+      ]
+    }
+  ]
+}

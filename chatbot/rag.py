@@ -7,13 +7,23 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-gemini_model = genai.GenerativeModel("gemini-3.6-flash")
+api_key = os.getenv("GEMINI_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHROMA_PATH = os.path.join(BASE_DIR, "chroma_db")
 
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
+_embedder = None
+
+
+def get_embedder():
+    global _embedder
+    if _embedder is None:
+        _embedder = SentenceTransformer('all-MiniLM-L6-v2')
+    return _embedder
+
+
 chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
 collection = chroma_client.get_or_create_collection(name="pyq_chunks")
 
@@ -42,12 +52,15 @@ def extract_query_filters(query):
 
 def detect_subject_from_query(query):
     """Check if any known subject name appears in the user's query text."""
-    from .models import Subject
-    query_lower = query.lower()
-    all_subjects = Subject.objects.values_list('name', flat=True).distinct()
-    for subject_name in all_subjects:
-        if subject_name.lower() in query_lower:
-            return subject_name
+    try:
+        from .models import Subject
+        query_lower = query.lower()
+        all_subjects = Subject.objects.values_list('name', flat=True).distinct()
+        for subject_name in all_subjects:
+            if subject_name.lower() in query_lower:
+                return subject_name
+    except Exception:
+        pass
     return None
 
 
@@ -72,7 +85,12 @@ def build_where_clause(subject_filter, query_filters):
 
 def retrieve_relevant_chunks(query, subject_filter=None, top_k=12):
     """Embed the query and search ChromaDB, using exact filters when detected."""
-    query_embedding = embedder.encode(query).tolist()
+    try:
+        query_embedding = get_embedder().encode(query).tolist()
+    except Exception as e:
+        print(f"Error encoding query: {e}")
+        query_embedding = [0.0] * 384
+
     query_filters = extract_query_filters(query)
 
     if not subject_filter:
@@ -82,28 +100,45 @@ def retrieve_relevant_chunks(query, subject_filter=None, top_k=12):
 
     where_clause = build_where_clause(subject_filter, query_filters)
 
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=top_k,
-        where=where_clause
-    )
-
     chunks = []
-    if results["documents"] and results["documents"][0]:
-        for doc, meta in zip(results["documents"][0], results["metadatas"][0]):
-            chunks.append({"text": doc, "metadata": meta})
-
-    # Fallback: if a strict filter found nothing, retry with just the subject filter
-    fallback_where = {"subject": subject_filter} if subject_filter else None
-    if not chunks and where_clause != fallback_where:
+    try:
         results = collection.query(
             query_embeddings=[query_embedding],
             n_results=top_k,
-            where=fallback_where
+            where=where_clause
         )
         if results["documents"] and results["documents"][0]:
             for doc, meta in zip(results["documents"][0], results["metadatas"][0]):
                 chunks.append({"text": doc, "metadata": meta})
+    except Exception as e:
+        print(f"ChromaDB query with strict where failed: {e}")
+
+    # Fallback 1: retry with just subject filter if strict filters found nothing
+    if not chunks and subject_filter:
+        try:
+            results = collection.query(
+                query_embeddings=[query_embedding],
+                n_results=top_k,
+                where={"subject": subject_filter}
+            )
+            if results["documents"] and results["documents"][0]:
+                for doc, meta in zip(results["documents"][0], results["metadatas"][0]):
+                    chunks.append({"text": doc, "metadata": meta})
+        except Exception as e:
+            print(f"ChromaDB subject fallback failed: {e}")
+
+    # Fallback 2: global search without filter if still no chunks
+    if not chunks:
+        try:
+            results = collection.query(
+                query_embeddings=[query_embedding],
+                n_results=top_k
+            )
+            if results["documents"] and results["documents"][0]:
+                for doc, meta in zip(results["documents"][0], results["metadatas"][0]):
+                    chunks.append({"text": doc, "metadata": meta})
+        except Exception as e:
+            print(f"ChromaDB global search failed: {e}")
 
     return chunks, query_filters
 
@@ -111,11 +146,11 @@ def retrieve_relevant_chunks(query, subject_filter=None, top_k=12):
 def build_prompt(user_question, retrieved_chunks, query_filters):
     context_parts = []
     for chunk in retrieved_chunks:
-        meta = chunk["metadata"]
+        meta = chunk.get("metadata", {})
         source_info = f"[{meta.get('doc_type', 'unknown')} | {meta.get('subject', '')} | Year: {meta.get('year', 'N/A')} | {meta.get('exam_type', 'N/A')} | Q{meta.get('question_number', '')}]"
         context_parts.append(f"{source_info}\n{chunk['text']}")
 
-    context_text = "\n\n---\n\n".join(context_parts)
+    context_text = "\n\n---\n\n".join(context_parts) if context_parts else "No specific context available."
 
     filter_note = ""
     if query_filters:
@@ -133,11 +168,11 @@ Student's question: {user_question}
 Instructions:
 - If the student is asking for probable/likely exam questions, analyze patterns across the PYQs provided and suggest topics or specific question types that are likely to appear, referencing which years/exams they've appeared in.
 - If asking for insight on a specific question or topic, explain the concept clearly and mention how it has been asked in the past.
-- If the student asks for "the answer" to a specific past question, note that PYQ papers typically contain only questions, not official solutions — but you can still provide a well-reasoned answer to the question yourself, clearly stating it's your own explanation, not an official answer key.
+- If the student asks for "the answer" to a specific past question, provide a clear, well-reasoned explanation and step-by-step solution.
 - If the exact year/question requested isn't in the retrieved context, say so honestly, then offer the closest available match instead of refusing entirely.
 - Do not use LaTeX formatting (no $ symbols or \\frac, \\times etc.). Write formulas and equations in plain readable text instead, e.g. "Tm = ΔH / ΔS" or "k2/k1 = ...".
 - Be specific and reference the actual retrieved questions where relevant.
-- Keep your answer focused and well-organized.
+- Keep your answer focused, beautifully organized, and easy for students to read.
 """
     return prompt
 
@@ -145,13 +180,25 @@ Instructions:
 def get_chatbot_response(user_question, subject_filter=None):
     chunks, query_filters = retrieve_relevant_chunks(user_question, subject_filter=subject_filter)
 
-    if not chunks:
-        return "I couldn't find any relevant PYQs or syllabus content for this question. Try rephrasing, or check if the subject has been ingested."
-
     prompt = build_prompt(user_question, chunks, query_filters)
 
-    try:
-        response = gemini_model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        return f"Error calling Gemini API: {e}"
+    # Try supported free-tier models in fallback sequence
+    models_to_try = [
+        "gemini-3.5-flash-lite",
+        "gemini-3.6-flash",
+        "gemini-3.5-flash",
+        "gemini-flash-latest",
+    ]
+    last_error = None
+
+    for model_name in models_to_try:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(prompt)
+            if response and response.text:
+                return response.text
+        except Exception as e:
+            last_error = e
+            continue
+
+    return f"Error contacting AI service: {last_error}"

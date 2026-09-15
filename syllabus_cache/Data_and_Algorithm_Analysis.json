@@ -1,0 +1,68 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Concepts in algorithm analysis & design motivation",
+        "Space and Time Complexity of algorithm",
+        "Asymptotic Notations (Big Oh, Omega, Theta)",
+        "Analysis of time complexity of Insertion Sort by step count method",
+        "Solving recurrences using Iterative, Substitution, Recurrence Tree, Master theorem"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Divide & Conquer and Greedy Approaches",
+      "topics": [
+        "Divide and Conquer method",
+        "Greedy method",
+        "Huffman code",
+        "Minimum spanning trees",
+        "Dijkstra algorithm",
+        "Knapsack problem",
+        "Job sequencing with deadlines"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Dynamic Programming Approaches",
+      "topics": [
+        "Dynamic Programming",
+        "Knapsack problem",
+        "Matrix Chain Multiplication",
+        "longest common subsequence Multistage graphs",
+        "All pair\u2019s shortest paths",
+        "Optimal binary search trees",
+        "Travelling salesman problem"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Amortization",
+      "topics": [
+        "Randomized Algorithms and Amortized Analysis",
+        "Las Vegas and Monte Carlo types",
+        "Randomized quick sort and its analysis",
+        "Min-Cut algorithm"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "NP Problems",
+      "topics": [
+        "NP-Hard and NP-complete problems",
+        "Basic concepts",
+        "Reducibility",
+        "Vertex cover",
+        "3CNF_SAT",
+        "clique",
+        "Hamiltonian cycle",
+        "TSP",
+        "Approximation algorithms",
+        "Vertex cover",
+        "TSP"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction to Organizational Behaviour",
+      "topics": [
+        "Organizational Behaviour- nature and scope",
+        "Need for studying OB",
+        "contributing disciplines to OB",
+        "evolution of OB",
+        "OB approaches and models",
+        "OB opportunities and disruptions"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Individual Perspective",
+      "topics": [
+        "Introduction to Individual behaviour",
+        "Personality- concept, determinants, types and theories/models",
+        "Personality and OB",
+        "Perception- meaning, perceptual process, factors affecting perception",
+        "perception and its application in OB",
+        "Attitude- nature, components, formation and types",
+        "Values- concepts, types and formation",
+        "attitude, values and behaviour"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Individual Perspective",
+      "topics": [
+        "Learning- meaning, determinants, theories and principles",
+        "learning and behaviour",
+        "Motivation- nature, importance, process and theories",
+        "managerial implication of motivation- job design, quality of work life and employee engagement",
+        "organizational citizenship behaviour- meaning, theoretical perspective, determinants and predictors"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Group Perspective",
+      "topics": [
+        "Foundation of group behaviour",
+        "meaning and characteristics of group",
+        "why do people form and join groups",
+        "types and groups",
+        "stages of group development",
+        "group decision making",
+        "Team building- meaning and types of team",
+        "team building process",
+        "Meaning, sources and types of conflict",
+        "conflict management and negotiation strategies",
+        "Leadership- meaning and importance",
+        "differentiating between leader and manager",
+        "leadership styles",
+        "leadership theories"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Organizational Perspective",
+      "topics": [
+        "Organizational structure- meaning and elements",
+        "Organizational culture- meaning, types and functions of culture",
+        "creating, sustaining and changing a culture",
+        "Organizational change- meaning and need",
+        "managing resistance to change",
+        "Organizational development- meaning, objectives, models and interventions"
+      ]
+    }
+  ]
+}

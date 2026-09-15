@@ -1,0 +1,77 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Fundamentals of Distributed Systems",
+      "topics": [
+        "Introduction to distributed systems",
+        "Goals of Distributed Systems",
+        "Hardware Concepts",
+        "Software Concepts",
+        "Design Issues",
+        "Network Operating Systems",
+        "True Distributed System and Time sharing Multiprocessor Operating System",
+        "System Architectures"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Communication in Distributed Systems",
+      "topics": [
+        "Basics of Communication Systems",
+        "Layered Protocols",
+        "ATM Models",
+        "Client Server Model",
+        "Blocking Primitives and Non Blocking Primitives",
+        "Buffered Primitives and Unbuffered Primitives",
+        "Reliable and Unreliable primitives",
+        "Message Passing",
+        "Remote Procedure Call"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Synchronization and Processes",
+      "topics": [
+        "Clock Synchronization",
+        "Mutual Exclusion",
+        "Election Algorithm",
+        "Atomic Transactions",
+        "Deadlock in Distributed Systems",
+        "Process and Threads",
+        "System Models",
+        "Processor Allocation",
+        "Process Scheduling"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Consistency, Replication and Fault Tolerance",
+      "topics": [
+        "Data Centric Consistency Models",
+        "Client-Centric Consistency Models",
+        "Replica Management",
+        "Consistency protocols",
+        "Fault Tolerance",
+        "Process Resilience",
+        "Distributed Commit",
+        "Reliable Client Server Communication",
+        "Reliable Client Server Communication"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Overview of shared memory",
+      "topics": [
+        "Architecture",
+        "Algorithm",
+        "Protocols",
+        "Design Issues",
+        "consistency model",
+        "Page based Distributed Shared Memory",
+        "Shared variable Distributed shared Memory",
+        "Object based Distributed Shared Memory"
+      ]
+    }
+  ]
+}

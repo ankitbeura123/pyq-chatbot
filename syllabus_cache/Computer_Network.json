@@ -1,0 +1,70 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Data Communications",
+      "topics": [
+        "Data Transmission",
+        "Multiplexing",
+        "Data Encoding Techniques",
+        "Introduction to computer networks",
+        "Network",
+        "Topologies",
+        "Reference Models: ISO/OSI Model and TCP/IP Model"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Physical Layer",
+      "topics": [
+        "Transmission Media",
+        "Analog signals",
+        "Digital Signals",
+        "Data Link Layer",
+        "Error Detection and Correction",
+        "Parity",
+        "LRC",
+        "CRC",
+        "Hamming Code",
+        "Flow Control and Error Control",
+        "Stop and wait",
+        "ARQ",
+        "Sliding window \u2013 IEEE",
+        "Ethernet"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Network Layer",
+      "topics": [
+        "Packet Switching and Circuit Switching",
+        "IP addressing methods",
+        "Subnetting",
+        "Supernetting",
+        "Routing Protocols: IP, ARP, RARP, DHCP",
+        "Routing Algorithms: Distance Vector Routing, Link State Routing"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Transport Layer",
+      "topics": [
+        "Transport Services",
+        "UDP",
+        "TCP",
+        "Congestion Control",
+        "Quality of Services (QOS)"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Application Layer",
+      "topics": [
+        "Domain Name Space (DNS)",
+        "Electronic Mail",
+        "HTTP",
+        "WWW"
+      ]
+    }
+  ]
+}

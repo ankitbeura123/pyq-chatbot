@@ -1,0 +1,75 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Need for Operating Systems",
+        "Computer Systems",
+        "OS Operations",
+        "Abstract view of OS",
+        "Virtualization",
+        "Computing Environments",
+        "OS Services",
+        "OS Structures",
+        "System Calls",
+        "Building and Booting OS",
+        "Process",
+        "Threads",
+        "Multithreading"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Process Management",
+      "topics": [
+        "Process Scheduling",
+        "Process Co-ordination",
+        "Synchronization",
+        "Semaphores",
+        "Monitors",
+        "Hardware Synchronization",
+        "Deadlocks",
+        "Methods for Handling Deadlocks"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Memory Management",
+      "topics": [
+        "Memory Management Strategies",
+        "Contiguous and Non-Contiguous allocation",
+        "Virtual memory Management",
+        "Demand Paging",
+        "Page Placement and Replacement Policies"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "File Management",
+      "topics": [
+        "File System",
+        "Basic concepts",
+        "File System design and Implementation",
+        "Case Study: Linux File Systems",
+        "Mass Storage Structure",
+        "Disk Scheduling",
+        "Disk Management",
+        "I/O Systems",
+        "System Protection and Security"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Distributed Systems",
+      "topics": [
+        "Distributed Systems",
+        "Distributed operating systems",
+        "Distributed file systems",
+        "Distributed Synchronization",
+        "OS architecture",
+        "Case study on LINUX and Windows OS"
+      ]
+    }
+  ]
+}

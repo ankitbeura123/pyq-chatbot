@@ -1,0 +1,61 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction to Economics and Engineering Economics",
+      "topics": [
+        "Basic concepts of Engineering Economics",
+        "Demand Analysis",
+        "Supply Analysis",
+        "Market Equilibrium",
+        "Revenue Analysis",
+        "Demand Forecasting- Quantitative Methods",
+        "Consumer\u2019s Equilibrium"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Production and Cost Analysis",
+      "topics": [
+        "Short Run and Long Run Production Functions",
+        "Producer\u2019s Equilibrium condition",
+        "Cobb-Douglas Production Function",
+        "Cost Concepts",
+        "Short Run and Long Run Cost analyses",
+        "Break-Even Analysis",
+        "Market: Concepts and Types",
+        "Perfect Competition",
+        "Monopoly"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Time Value of Money",
+      "topics": [
+        "Interest Formulae and their applications with cash flow diagram",
+        "Evaluation of Investment Proposals - Present Worth, Future worth and Annual Equivalent Method of comparison"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Economic Appraisal Techniques",
+      "topics": [
+        "Net Present Value (NPV)",
+        "Internal Rate of Return (IRR)",
+        "Cost Benefit analysis",
+        "Depreciation calculation",
+        "Meaning and Definition",
+        "Methods"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Macroeconomic policies",
+      "topics": [
+        "Functions of commercial banks and central bank",
+        "Fundamentals of Business cycle",
+        "Macroeconomic policies for stabilization"
+      ]
+    }
+  ]
+}

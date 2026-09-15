@@ -1,0 +1,91 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Introduction",
+        "Soft Computing constituents and Conventional AI",
+        "Neuro-Fuzzy and Soft Computing characteristics"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Artificial Neural Networks",
+      "topics": [
+        "Introduction to ANN",
+        "Perceptrons and MLP",
+        "Adaline and Madaline",
+        "Backpropagation Multilayer Perceptrons (BPMLP)",
+        "Radial Basis Function Networks (RBF)",
+        "Kohonen Self-Organizing Networks",
+        "Learning Vector Quantization",
+        "Hebbian Learning",
+        "Hopfield networks"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Fuzzy Set Theory",
+      "topics": [
+        "Fuzzy sets",
+        "Basic Definition and Terminology",
+        "Set-theoretic Operations",
+        "Member Function Formulation and Parameterization",
+        "More on Union, Intersection and Complement",
+        "Extension Principle and Fuzzy Relations",
+        "Fuzzy If-Then Rules",
+        "Fuzzy Reasoning",
+        "Fuzzy Inference Systems",
+        "Mamdani Fuzzy Models",
+        "Sugeno Fuzzy Models",
+        "Tsukamoto Fuzzy Models",
+        "Adaptive NeuroFuzzy Inference Systems(ANFIS)",
+        "ANFIS Architecture",
+        "Hybrid Learning Algorithm"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Particle Swarm Optimization",
+      "topics": [
+        "PSO Model",
+        "Global Best",
+        "Local Best",
+        "Velocity Update Equations",
+        "Position Update Equations",
+        "Velocity Clamping",
+        "Inertia Weight",
+        "Constriction Coefficients",
+        "Synchronous and Asynchronous Updates",
+        "Binary PSO"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Differential Evolution",
+      "topics": [
+        "DE as modified GA",
+        "generation of population",
+        "operators and their implementation"
+      ]
+    },
+    {
+      "unit": "Unit 6",
+      "title": "Ant Colony Optimization",
+      "topics": [
+        "Basic Concepts",
+        "Ant System",
+        "Application"
+      ]
+    },
+    {
+      "unit": "Unit 7",
+      "title": "Artificial Bee Colony",
+      "topics": [
+        "Historical Development",
+        "Types of Bees and Their Role in the Optimization Process"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Deep Networks",
+      "topics": [
+        "Deep Feedforward Networks",
+        "Learning XOR",
+        "Gradient Based learning",
+        "Hidden Units",
+        "Back-propagation and other Differential Algorithms",
+        "Regularization for Deep Learning",
+        "Optimization for training Deep Models"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Convolutional Networks",
+      "topics": [
+        "Convolution operation",
+        "Motivation",
+        "Pooling",
+        "Convolution and Pooling as strong prior",
+        "Efficient convolution algorithms",
+        "Unsupervised features",
+        "Sequence Modeling: Recurrent and Recursive Nets",
+        "LSTM Networks",
+        "Applications",
+        "Computer Vision",
+        "Speech Recognition",
+        "Natural Language Processing"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Linear factor Models",
+      "topics": [
+        "Probabilistic PCA and Factor Analysis",
+        "Independent Component Analysis (ICA)",
+        "Auto encoders",
+        "Regularized Auto encoders",
+        "Representational Power",
+        "Layer size and Depth",
+        "Stochastic Auto encoders",
+        "Applications"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Representation Learning",
+      "topics": [
+        "Greedy Layer-wise Unsupervised Pre-Training",
+        "Transfer learning and Domain Adaptation",
+        "Deep Generative Models"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Deep Learning with Python",
+      "topics": [
+        "Introduction to Keras and Tensor flow",
+        "Deep Learning for computer vision, convnets",
+        "Deep Learning for Text and Sequences",
+        "Generative Deep Learning",
+        "Text Generation with LSTM",
+        "DeepDream",
+        "Neural Style Transfer",
+        "Generating images with variational auto encoders",
+        "Generative Adversarial Networks (GAN)"
+      ]
+    }
+  ]
+}

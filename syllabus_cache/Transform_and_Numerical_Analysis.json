@@ -1,0 +1,71 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Laplace Transforms and Fourier Series and Transform",
+      "topics": [
+        "Laplace Transform",
+        "Inverse Laplace Transform",
+        "Linearity",
+        "Transform of derivatives and integrals",
+        "Unit Step function",
+        "Dirac delta function",
+        "Second shifting theorem",
+        "Differentiation and integration of transforms",
+        "Convolution",
+        "Solution of ODEs and integral equation by Laplace transform",
+        "Fourier series",
+        "Arbitrary periods",
+        "Even and odd functions",
+        "Half range expansions",
+        "Fourier integral",
+        "Cosine and sine transforms",
+        "Fourier Transform",
+        "Inverse Fourier Transform",
+        "Linearity",
+        "Fourier Transform of derivative",
+        "Convolution"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Approximations & Errors and Numerical solution of Nonlinear equations",
+      "topics": [
+        "Approximation of numbers by truncation and rounding-off",
+        "Types of errors",
+        "Solutions by Bisection Method",
+        "Fixed Point Iteration Method",
+        "Newton-Raphson Method",
+        "Regula-Falsi and Secant Method",
+        "Rate of Convergence of Secant & Newton-Raphson Method"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Interpolation & Approximation and Numerical Differentiation & Integration",
+      "topics": [
+        "Finite Differences",
+        "Operators and Relation between them",
+        "Newton's forward and backward difference interpolation",
+        "Newton's divided difference interpolation and Lagrange interpolation",
+        "Numerical differentiation of first- and second-order equations using difference table",
+        "Trapezoidal rule",
+        "Simpson's 1/3rd and 3/8th rules",
+        "Gauss-Legendre\u2019s two-point and three-point formulae",
+        "Error in Numerical Integration"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Numerical Solution to ODE and Solution of System of Linear Equations",
+      "topics": [
+        "Taylor\u2019s series Method",
+        "Euler's Method",
+        "Modified Euler's Method",
+        "Runge-Kutta Methods of order 2 and 4",
+        "Reduction of second-order ODE to system of first-order ODEs and its solution by R-K method of order four",
+        "Solutions by Gauss-Seidel and Gauss-Jacobi methods"
+      ]
+    }
+  ]
+}

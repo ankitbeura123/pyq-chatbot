@@ -1,0 +1,66 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Chemical Equilibrium and Thermodynamics",
+      "topics": [
+        "Introduction",
+        "Internal energy",
+        "Enthalpy",
+        "Entropy and free energy",
+        "Dependence of free energy on temperature and pressure",
+        "Gibbs-Helmholtz equation",
+        "Free energy change and equilibrium constants",
+        "Van\u2019t Hoff isotherm and isochore",
+        "Clapeyron- Clausius equation",
+        "Partial molar properties",
+        "Chemical potential",
+        "Gibbs-Duhem equation"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Chemical Kinetics",
+      "topics": [
+        "Rate of reaction and rate laws of multiple reactions (steady-state approximation), and of parallel, opposing and consecutive reactions",
+        "Theories of reaction rate: Collision theory, Lindemann modification, Absolute reaction rate",
+        "Catalysis: Types, theories, and kinetics of enzyme catalysis (MichaelisMenten mechanism)"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Spectroscopy",
+      "topics": [
+        "UV-Vis spectroscopy: Beer-Lamberts law, Types of transition, Concept of auxochrome and chromophores, Factors affecting max and, Woodward-Fieser rules for calculation of max in diene systems",
+        "IR spectroscopy: Types of vibration, Hooks law, detection of functional groups like C=C, -OH, -NH2 and C=O"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "NMR Spectroscopy",
+      "topics": [
+        "Basics of NMR Spectroscopy: Theory, Chemical shift, Shilding-deshilding effect, Structural elucidation of simple compounds"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Electrochemical Energy Systems",
+      "topics": [
+        "Types of electrodes, electrode/cell potential",
+        "Nernst equation and application to: find electrode and cell potential, equilibrium constant, solubility product and pH",
+        "Modern batteries: Fuel cells (AFCs, PEMFs, SOFCs, MCFCs), Zn-air battery, Li-ion battery, Na-ion battery, Ni-MH battery"
+      ]
+    },
+    {
+      "unit": "Unit 6",
+      "title": "Smart and Intelligent Materials",
+      "topics": [
+        "Introduction to smart materials",
+        "Properties and types of smart materials",
+        "Structures, System intelligence- components and classification of smart structures",
+        "Common smart materials and associated stimulus-response",
+        "Application areas of smart systems"
+      ]
+    }
+  ]
+}

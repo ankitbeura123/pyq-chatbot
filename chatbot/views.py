@@ -1,17 +1,31 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, FileResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
+from collections import defaultdict
 import json
 import os
 import pypdf
 
 from .rag import get_chatbot_response
 from .models import Subject, Document, ChatMessage
+from . import analytics
+
+
+def _subjects_grouped():
+    """Returns subjects grouped by semester as {semester: [{id, name}, ...]}."""
+    subjects = Subject.objects.all().order_by('semester', 'name')
+    grouped = defaultdict(list)
+    for s in subjects:
+        grouped[s.semester].append({"id": s.id, "name": s.name})
+    return dict(grouped)
 
 
 def chat_page(request):
     subjects = Subject.objects.all().order_by('semester', 'name')
-    return render(request, 'chatbot/chat.html', {'subjects': subjects})
+    return render(request, 'chatbot/chat.html', {
+        'subjects': subjects,
+        'subjects_by_semester_json': json.dumps(_subjects_grouped()),
+    })
 
 
 @csrf_exempt
@@ -19,18 +33,26 @@ def chat_api(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
 
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+
     user_message = data.get('message', '').strip()
     subject_filter = data.get('subject', '').strip() or None
 
     if not user_message:
         return JsonResponse({'error': 'Empty message'}, status=400)
 
-    ChatMessage.objects.create(role='user', content=user_message)
-    bot_response = get_chatbot_response(user_message, subject_filter=subject_filter)
-    ChatMessage.objects.create(role='assistant', content=bot_response)
-
-    return JsonResponse({'response': bot_response})
+    try:
+        subj_obj = Subject.objects.filter(name=subject_filter).first() if subject_filter else None
+        ChatMessage.objects.create(role='user', content=user_message, subject=subj_obj)
+        bot_response = get_chatbot_response(user_message, subject_filter=subject_filter)
+        ChatMessage.objects.create(role='assistant', content=bot_response, subject=subj_obj)
+        return JsonResponse({'response': bot_response})
+    except Exception as e:
+        print(f"Chat API error: {e}")
+        return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
 
 
 def browse_subjects(request):
@@ -91,3 +113,53 @@ def view_document(request, doc_id):
     except Exception as e:
         text = f"Could not load file: {e}"
     return render(request, 'chatbot/view_document.html', {'document': document, 'text': text})
+
+
+# ---------------- Knowledge Discovery ----------------
+
+def knowledge_discovery_page(request):
+    subjects = Subject.objects.all().order_by('semester', 'name')
+    return render(request, 'chatbot/knowledge_discovery.html', {
+        'subjects': subjects,
+        'subjects_by_semester_json': json.dumps(_subjects_grouped()),
+    })
+
+
+def discovery_data_api(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    stats = analytics.get_knowledge_stats(subject.name)
+    return JsonResponse(stats)
+
+
+# ---------------- Score Predictor ----------------
+
+def score_predictor_page(request):
+    subjects = Subject.objects.all().order_by('semester', 'name')
+    return render(request, 'chatbot/score_predictor.html', {
+        'subjects': subjects,
+        'subjects_by_semester_json': json.dumps(_subjects_grouped()),
+    })
+
+
+def topics_api(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    topics = analytics.get_topics_for_subject(subject.name)
+    return JsonResponse({'topics': topics})
+
+
+@csrf_exempt
+def predict_score_api(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+
+    subject_id = data.get('subject_id')
+    studied_topics = data.get('studied_topics', [])
+    total_marks = data.get('total_marks', 50)
+
+    subject = get_object_or_404(Subject, id=subject_id)
+    result = analytics.predict_score(subject.name, studied_topics, total_marks=total_marks)
+    return JsonResponse(result)

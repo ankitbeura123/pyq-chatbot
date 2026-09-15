@@ -1,0 +1,58 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "The Fourth Industrial Revolution",
+        "Difference between conventional automation and Industry 4.0",
+        "Case Studies: Health, Agriculture, Manufacturing"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Industry 4.0 and its components",
+      "topics": [
+        "Internet of Things (IoT) & Industrial Internet of Things (IIoT)",
+        "Internet of Services",
+        "Value chains in manufacturing companies",
+        "Digital Twins"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Digital Manufacturing and Design",
+      "topics": [
+        "Cyber Physical Systems and Next Generation sensors",
+        "Collaborative Platform and Product Life-cycle Management",
+        "Robotics and Automation"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Industrial IoT",
+      "topics": [
+        "Cloud Computing",
+        "Big Data Analytic",
+        "AI & ML",
+        "Virtual and Augmented Reality",
+        "Block-chain"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Challenges & Opportunities in Industry 4.0",
+      "topics": [
+        "A Digital Strategy alongside Resource Scarcity",
+        "Standards and Data security",
+        "Financing conditions",
+        "availability of skilled workers",
+        "Comprehensive broadband infra- structure",
+        "Legal framework",
+        "protection of corporate data",
+        "liability",
+        "handling personal data"
+      ]
+    }
+  ]
+}

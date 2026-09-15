@@ -1,0 +1,97 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Finite Automata",
+      "topics": [
+        "Alphabets, Strings and Languages",
+        "Automata and Grammars",
+        "Deterministic Finite Automata (DFA)",
+        "Formal Definition",
+        "Simplified notation: State transition graph, Transition table",
+        "Language of DFA",
+        "Non-deterministic Finite Automata (NFA)",
+        "NFA with epsilon transition",
+        "Language of NFA",
+        "Equivalence of NFA and DFA",
+        "Minimization of Finite Automata",
+        "Distinguishing one string from other",
+        "Myhill Nerode Theorem"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Regular Expression (RE)",
+      "topics": [
+        "Definition",
+        "Operators of regular expression and their precedence",
+        "Algebraic laws for Regular expressions",
+        "Kleen\u2019s Theorem",
+        "Regular expression to FA",
+        "DFA to Regular expression",
+        "Arden Theorem",
+        "Non Regular Languages",
+        "Pumping Lemma for regular Languages",
+        "Application of Pumping Lemma",
+        "Closure properties of Regular Languages",
+        "Decision properties of Regular Languages",
+        "FA with output: Moore and Mealy machine",
+        "Equivalence of Moore and Mealy Machine",
+        "Applications and Limitation of FA"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Context Free Grammar (CFG) and Context Free Languages",
+      "topics": [
+        "Definition",
+        "Examples",
+        "Derivation",
+        "Derivation trees",
+        "Ambiguity in Grammar",
+        "Inherent ambiguity",
+        "Ambiguous to Unambiguous CFG",
+        "Useless symbols",
+        "Simplification of CFGs",
+        "Normal forms for CFGs: CNF and GNF",
+        "Closure properties of CFLs",
+        "Decision Properties of CFLs: Emptiness, Finiteness and Membership",
+        "Pumping lemma for CFLs"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Push Down Automata (PDA)",
+      "topics": [
+        "Description and definition",
+        "Instantaneous Description",
+        "Language of PDA",
+        "Acceptance by Final state",
+        "Acceptance by empty stack",
+        "Deterministic PDA",
+        "Equivalence of acceptance by empty stack and final state",
+        "Conversion of CFG to PDA and PDA to CFG"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Turing Machines (TM) and Undecidability",
+      "topics": [
+        "Basic model, definition and representation",
+        "Instantaneous Description",
+        "Language acceptance by TM",
+        "Variants of Turing Machine",
+        "TM as Computer of Integer functions",
+        "Universal TM",
+        "Church\u2019s Thesis",
+        "Recursive and recursively enumerable languages",
+        "Halting problem",
+        "Introduction to Undecidability",
+        "Undecidable problems about TMs",
+        "Post correspondence problem (PCP)",
+        "Modified PCP and undecidable nature of post correspondence problem",
+        "Introduction to recursive function theory"
+      ]
+    }
+  ]
+}

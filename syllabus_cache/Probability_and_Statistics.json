@@ -1,0 +1,79 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Probability and random variables",
+      "topics": [
+        "Basic concepts of sample space",
+        "events(with example)",
+        "Axiom of Probability",
+        "Conditional Probability",
+        "Bayes\u2019 Theorem and its applications",
+        "Discrete random variable",
+        "probability mass function",
+        "cumulative distribution function and Moment Generating function for discrete random variable",
+        "some special distributions likeUniform distribution, Geometric distribution, Binomial distribution, Negative Binomial distribution, Poisson distribution, Hypergeometric distribution",
+        "mean and variance",
+        "Continuous random variable",
+        "density function",
+        "cumulative distribution function and Moment Generating function",
+        "Uniform distribution",
+        "normal distribution",
+        "mean, variance, percentile and critical value of normal distribution",
+        "normal approximation of the binomial distributionand exponential distribution"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Joint probability and distributions",
+      "topics": [
+        "Joint probability mass function and marginal probability mass function",
+        "joint probability density function and marginal probability density function",
+        "concept of independent random variable(joint probability)",
+        "conditional probability mass function and conditional probability density function",
+        "Expected value, covariance and correlation for jointly distributed random variable(both continuous and discrete)"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Descriptive Statistics",
+      "topics": [
+        "Frequency distribution",
+        "pictorial and tabular representation of data",
+        "stem and leaf display",
+        "dot plots",
+        "histogram",
+        "box plots and comparative box plots",
+        "Basic conceptson mean, median and mode",
+        "Skewness",
+        "Kurtosis",
+        "Correlation",
+        "Coefficient of Correlation",
+        "rank correlation",
+        "Regression Analysis: Least square method"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Inferential statistics",
+      "topics": [
+        "Population",
+        "sample",
+        "random sample",
+        "sampling distribution",
+        "distribution of sample mean",
+        "central limit theorem",
+        "point estimator",
+        "point estimation of parameter using method of maximum likelihood estimation",
+        "confidence interval",
+        "confidence interval for the mean of a normal population with known and unknown variance",
+        "confidence interval for the variance of a normal population",
+        "hypothesis testing",
+        "one sided and two sided alternatives",
+        "Tests for mean of the normal distribution with known variance",
+        "Tests for mean of the normal distribution with unknown variance",
+        "tests for variance of the normal distribution"
+      ]
+    }
+  ]
+}

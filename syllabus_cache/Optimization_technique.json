@@ -1,0 +1,34 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Linear Programming",
+      "topics": [
+        "Mathematical foundations and basic definitions",
+        "Linear optimization: Formulation and graphical solution of linear programming problems",
+        "Simplex method",
+        "Duality"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Transportation",
+      "topics": [
+        "General structure of a transportation problem",
+        "Finding initial basic feasible solution by North-West corner rule",
+        "Least-Cost method and Vogel\u2019s Approximation Method",
+        "Testing for optimality"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Assignment Problem",
+      "topics": [
+        "Hungarian assignment method",
+        "Unbalanced assignment problems",
+        "Restrictions in assignment",
+        "Travelling Salesman model"
+      ]
+    }
+  ]
+}

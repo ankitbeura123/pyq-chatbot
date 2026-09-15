@@ -1,0 +1,100 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "HCI Foundations",
+      "topics": [
+        "Input\u2013output channels",
+        "Human memory",
+        "Thinking: reasoning and problem solving",
+        "Emotion",
+        "Individual differences",
+        "Psychology and the design of interactive systems",
+        "Text entry devices",
+        "Positioning, pointing and drawing",
+        "Display devices",
+        "Devices for virtual reality and 3D interaction",
+        "Physical controls",
+        "Sensors and special devices",
+        "Paper: Printing and scanning"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Designing, Programming Interactive systems",
+      "topics": [
+        "Models of interaction",
+        "Frameworks and HCI",
+        "Ergonomics",
+        "Interaction styles",
+        "Elements of the WIMP interface",
+        "The context of the interaction",
+        "Experience, Engagement and fun",
+        "Paradigms for interaction",
+        "Cantered Design and testing",
+        "Interaction design basics",
+        "The process of design",
+        "User focus",
+        "Scenarios",
+        "Navigation design",
+        "Screen design and layout",
+        "Iteration and prototyping"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "HCI in the software process",
+      "topics": [
+        "Iterative design and prototyping",
+        "Design rules",
+        "Principles to support usability",
+        "Standards and Guidelines",
+        "Golden rules and heuristics",
+        "HCI patterns",
+        "Implementation support",
+        "Elements of windowing systems",
+        "Programming the application",
+        "Using toolkits",
+        "User interface management systems"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Evaluation techniques",
+      "topics": [
+        "Evaluation through expert analysis",
+        "Evaluation through user participation",
+        "Universal design",
+        "User support",
+        "Models and Theories",
+        "Cognitive models",
+        "Goal and task hierarchies",
+        "Linguistic models",
+        "The challenge of display- based systems",
+        "Physical and device models",
+        "Cognitive architectures"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Collaboration and communication",
+      "topics": [
+        "Face-to-face communication",
+        "Conversation",
+        "Text-based communication",
+        "Group working",
+        "Dialog design notations",
+        "Diagrammatic notations",
+        "Textual dialog notations",
+        "Dialog semantics",
+        "Dialog analysis and design Human factors and security",
+        "Groupware",
+        "Meeting and decision support systems",
+        "Shared applications and artifacts",
+        "Frameworks for groupware",
+        "Implementing synchronous groupware",
+        "Mixed, Augmented and Virtual Reality"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "SPM Concepts",
+      "topics": [
+        "Definition",
+        "Components of SPM",
+        "Challenges and opportunities",
+        "Tools and techniques",
+        "Managing human resource and technical resource",
+        "Costing and pricing of projects",
+        "Training and development",
+        "Project management techniques"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Software Measurements",
+      "topics": [
+        "Monitoring & measurement of SW development",
+        "Cost, Size and time metrics",
+        "Methods and tools for metrics",
+        "Issues of metrics in multiple projects"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Software Quality",
+      "topics": [
+        "Quality in SW development",
+        "Quality assurance",
+        "Quality standards and certifications",
+        "The process and issues in obtaining certifications",
+        "The benefits and implications for the organization and its customers",
+        "Change management"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Risk Issues",
+      "topics": [
+        "The risk issues in SW development and implementation",
+        "Identification of risks",
+        "Resolving and avoiding risks",
+        "Tools and methods for identifying risk management"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "SPM Tools",
+      "topics": [
+        "Software project management using Primavera & Redmine",
+        "Case study on SPM tools"
+      ]
+    }
+  ]
+}

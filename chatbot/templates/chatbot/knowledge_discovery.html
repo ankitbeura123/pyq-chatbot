@@ -1,0 +1,360 @@
+{% extends "chatbot/base.html" %}
+{% block title %}Knowledge Discovery — Observatory{% endblock %}
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+<div class="card" style="padding: 20px; margin-bottom: 18px;">
+  <h2 style="font-family:'Cormorant Garamond',serif; margin:0 0 12px; font-size:24px;">🔭 Knowledge Discovery</h2>
+  <p style="color:var(--text-soft); font-size:12px; margin:0 0 14px;">
+    Real patterns mined from ChromaDB. Closer & bigger planet = more frequently asked unit. Hover to inspect.
+  </p>
+
+  <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+    <div style="display:flex; flex-direction:column; gap:4px;">
+      <label style="font-size:9.5px; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-soft);">Semester</label>
+      <select id="semesterSelect" class="styled-select">
+        <option value="">Select semester…</option>
+      </select>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:4px;">
+      <label style="font-size:9.5px; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-soft);">Subject</label>
+      <select id="subjectSelect" class="styled-select" disabled>
+        <option value="">Select semester first…</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<style>
+  .styled-select {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--starlight);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-edge);
+    border-radius: 10px;
+    padding: 9px 12px;
+    min-width: 260px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23E7ECFA'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .styled-select:disabled { opacity: 0.4; cursor: not-allowed; }
+  .styled-select option { background: #0B0E18; color: var(--starlight); }
+
+  .visual-card { position: relative; display:flex; justify-content:center; padding: 10px; }
+
+  .orbit-ring { fill:none; stroke:rgba(226,231,245,0.10); stroke-width: 1; }
+  .orbit-group { transform-origin: center; }
+  .planet-body { cursor: pointer; transition: filter 0.2s; }
+  .planet-body:hover { filter: brightness(1.3); }
+  .sun-glow { filter: drop-shadow(0 0 18px rgba(228,182,103,0.9)) drop-shadow(0 0 36px rgba(228,182,103,0.4)); }
+
+  .hover-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(10,12,22,0.95);
+    border: 1px solid var(--glass-edge);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--starlight);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+    white-space: nowrap;
+  }
+  .hover-tooltip.visible { opacity: 1; }
+  .hover-tooltip .tt-title { color: var(--gold); font-weight: 700; margin-bottom: 3px; display:block; }
+  .hover-tooltip .tt-count { color: var(--cyan); }
+
+  @media (prefers-reduced-motion: reduce) { .orbit-group { animation: none !important; } }
+</style>
+
+<div id="statusMsg" style="color:var(--text-soft); font-size:12px; padding: 14px 4px 4px;"></div>
+
+<div id="chartsWrap" style="display:none;">
+  <div class="card" style="padding:20px; margin-bottom:16px;">
+    <h3 style="font-size:14px; margin:0 0 14px; font-family:'Cormorant Garamond',serif; color:var(--gold);">🪐 Unit Map — orbital frequency</h3>
+    <div class="visual-card">
+      <svg id="unitSvg" width="100%" viewBox="0 0 560 560" style="max-width:560px;"></svg>
+      <div class="hover-tooltip" id="unitTooltip"></div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:20px;">
+    <h3 style="font-size:14px; margin:0 0 14px; font-family:'Cormorant Garamond',serif; color:var(--gold);">🌌 Topic Map</h3>
+    <div class="visual-card">
+      <svg id="topicSvg" width="100%" viewBox="0 0 440 440" style="max-width:440px;"></svg>
+      <div class="hover-tooltip" id="topicTooltip"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUBJECTS_BY_SEMESTER = {{ subjects_by_semester_json|safe }};
+const PALETTE = ['#6FD3D9','#9C8CF0','#E4B667','#E76F9C','#7EC8E3','#B39CD0','#F4A261','#8FD9A8','#F2B5D4','#A0C4FF','#FFADAD','#CAFFBF'];
+
+const semSelect = document.getElementById('semesterSelect');
+const subjSelect = document.getElementById('subjectSelect');
+
+Object.keys(SUBJECTS_BY_SEMESTER).forEach(sem => {
+  const opt = document.createElement('option');
+  opt.value = sem; opt.textContent = sem;
+  semSelect.appendChild(opt);
+});
+
+semSelect.addEventListener('change', () => {
+  const sem = semSelect.value;
+  subjSelect.innerHTML = '';
+  if (!sem) {
+    subjSelect.disabled = true;
+    subjSelect.innerHTML = '<option value="">Select semester first…</option>';
+    subjSelect.dispatchEvent(new Event('change'));
+    return;
+  }
+  subjSelect.disabled = false;
+  subjSelect.innerHTML = '<option value="">Select subject…</option>';
+  (SUBJECTS_BY_SEMESTER[sem] || []).forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id; opt.textContent = s.name;
+    subjSelect.appendChild(opt);
+  });
+  subjSelect.dispatchEvent(new Event('change'));
+});
+
+function showTooltip(tooltipEl, containerEl, evt, title, count, extra) {
+  const rect = containerEl.getBoundingClientRect();
+  const x = evt.clientX - rect.left;
+  const y = evt.clientY - rect.top;
+  tooltipEl.innerHTML = `<span class="tt-title">${title}</span><span class="tt-count">${count} question${count === 1 ? '' : 's'}</span>${extra ? `<br><span style="color:var(--text-soft);">${extra}</span>` : ''}`;
+  tooltipEl.style.left = (x + 16) + 'px';
+  tooltipEl.style.top = (y - 10) + 'px';
+  tooltipEl.classList.add('visible');
+}
+function hideTooltip(tooltipEl) {
+  tooltipEl.classList.remove('visible');
+}
+
+// ---------------- Unit Map: Orbital System ----------------
+function renderOrbitalMap(svgId, tooltipId, items) {
+  const svg = d3.select(`#${svgId}`);
+  svg.selectAll('*').remove();
+  const tooltipEl = document.getElementById(tooltipId);
+  const containerEl = tooltipEl.parentElement;
+
+  const CENTER = 280;
+  const MAX_ORBIT_R = 250;
+  const MIN_ORBIT_R = 65;
+
+  if (!items.length) {
+    svg.append('text').attr('x', CENTER).attr('y', CENTER).attr('text-anchor', 'middle')
+      .attr('fill', '#8892b0').attr('font-size', 12).text('No data');
+    return;
+  }
+
+  const sorted = [...items].sort((a, b) => b.value - a.value);
+  const n = sorted.length;
+  const maxVal = sorted[0].value;
+  const minVal = sorted[n - 1].value;
+  const orbitStep = (MAX_ORBIT_R - MIN_ORBIT_R) / Math.max(n - 1, 1);
+  const planetScale = d3.scaleSqrt().domain([minVal, maxVal]).range([10, 28]);
+
+  const defs = svg.append('defs');
+
+  const sunGrad = defs.append('radialGradient').attr('id', 'sunGrad');
+  sunGrad.append('stop').attr('offset', '0%').attr('stop-color', '#FFF6DE');
+  sunGrad.append('stop').attr('offset', '55%').attr('stop-color', '#F0C374');
+  sunGrad.append('stop').attr('offset', '100%').attr('stop-color', '#B3833F');
+
+  // per-planet radial gradient for a lit-sphere look
+  sorted.forEach((item, i) => {
+    const base = d3.color(PALETTE[i % PALETTE.length]);
+    const grad = defs.append('radialGradient').attr('id', `planetGrad${i}`).attr('cx', '35%').attr('cy', '30%');
+    grad.append('stop').attr('offset', '0%').attr('stop-color', base.brighter(1.4));
+    grad.append('stop').attr('offset', '60%').attr('stop-color', base);
+    grad.append('stop').attr('offset', '100%').attr('stop-color', base.darker(1.2));
+  });
+
+  // faint starfield dots inside the svg for depth
+  const rng = d3.randomUniform(0, 560);
+  for (let s = 0; s < 40; s++) {
+    svg.append('circle')
+      .attr('cx', rng()).attr('cy', rng()).attr('r', Math.random() * 1.2)
+      .attr('fill', 'rgba(226,231,245,0.5)');
+  }
+
+  // orbit rings
+  sorted.forEach((item, i) => {
+    const r = MIN_ORBIT_R + i * orbitStep;
+    svg.append('circle').attr('class', 'orbit-ring').attr('cx', CENTER).attr('cy', CENTER).attr('r', r);
+  });
+
+  // sun with corona
+  svg.append('circle').attr('cx', CENTER).attr('cy', CENTER).attr('r', 34).attr('fill', 'url(#sunGrad)').attr('opacity', 0.25);
+  svg.append('circle').attr('class', 'sun-glow').attr('cx', CENTER).attr('cy', CENTER).attr('r', 22).attr('fill', 'url(#sunGrad)');
+
+  // planets — randomized direction & speed, rings on some, hover-to-pause + tooltip
+  const styleTag = document.createElement('style');
+  let keyframeCSS = '';
+
+  sorted.forEach((item, i) => {
+    const r = MIN_ORBIT_R + i * orbitStep;
+    const pr = planetScale(item.value);
+    const startAngle = Math.random() * 360;
+    const duration = (10 + Math.random() * 22).toFixed(1); // randomized speed 10-32s
+    const direction = Math.random() < 0.5 ? 'normal' : 'reverse';
+    const animName = `orbit${svgId}_${i}`;
+
+    keyframeCSS += `
+      @keyframes ${animName} {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(${direction === 'normal' ? 360 : -360}deg); }
+      }
+    `;
+
+    const orbitG = svg.append('g')
+      .attr('class', 'orbit-group')
+      .attr('id', `${animName}_group`)
+      .attr('transform', `rotate(${startAngle} ${CENTER} ${CENTER})`)
+      .style('animation', `${animName} ${duration}s linear infinite`);
+
+    const planetX = CENTER + r;
+    const planetY = CENTER;
+
+    // ~1 in 3 planets get a Saturn-style ring for visual variety
+    const hasRing = (i % 3 === 1);
+    if (hasRing) {
+      orbitG.append('ellipse')
+        .attr('cx', planetX).attr('cy', planetY)
+        .attr('rx', pr * 1.9).attr('ry', pr * 0.55)
+        .attr('fill', 'none')
+        .attr('stroke', PALETTE[i % PALETTE.length])
+        .attr('stroke-opacity', 0.55)
+        .attr('stroke-width', 2)
+        .attr('transform', `rotate(-18 ${planetX} ${planetY})`);
+    }
+
+    const planet = orbitG.append('circle')
+      .attr('class', 'planet-body')
+      .attr('cx', planetX).attr('cy', planetY)
+      .attr('r', pr)
+      .attr('fill', `url(#planetGrad${i})`)
+      .attr('stroke', PALETTE[i % PALETTE.length])
+      .attr('stroke-opacity', 0.4)
+      .attr('stroke-width', 1);
+
+    planet
+      .on('mouseenter', function(event) {
+        document.getElementById(`${animName}_group`).style.animationPlayState = 'paused';
+        showTooltip(tooltipEl, containerEl, event, item.label, item.value, `Orbit rank #${i + 1} of ${n}`);
+      })
+      .on('mousemove', function(event) {
+        showTooltip(tooltipEl, containerEl, event, item.label, item.value, `Orbit rank #${i + 1} of ${n}`);
+      })
+      .on('mouseleave', function() {
+        document.getElementById(`${animName}_group`).style.animationPlayState = 'running';
+        hideTooltip(tooltipEl);
+      });
+  });
+
+  styleTag.textContent = keyframeCSS;
+  document.head.appendChild(styleTag);
+}
+
+// ---------------- Topic Map: Pie Chart ----------------
+function renderPieChart(svgId, tooltipId, items) {
+  const svg = d3.select(`#${svgId}`);
+  svg.selectAll('*').remove();
+  const tooltipEl = document.getElementById(tooltipId);
+  const containerEl = tooltipEl.parentElement;
+
+  const WIDTH = 440, HEIGHT = 440, RADIUS = 175;
+
+  if (!items.length) {
+    svg.append('text').attr('x', WIDTH/2).attr('y', HEIGHT/2).attr('text-anchor', 'middle')
+      .attr('fill', '#8892b0').attr('font-size', 12).text('No data');
+    return;
+  }
+
+  const total = items.reduce((s, d) => s + d.value, 0);
+  const g = svg.append('g').attr('transform', `translate(${WIDTH/2},${HEIGHT/2})`);
+
+  const defs = svg.append('defs');
+  items.forEach((item, i) => {
+    const base = d3.color(PALETTE[i % PALETTE.length]);
+    const grad = defs.append('radialGradient').attr('id', `sliceGrad${i}`);
+    grad.append('stop').attr('offset', '0%').attr('stop-color', base.brighter(0.8));
+    grad.append('stop').attr('offset', '100%').attr('stop-color', base);
+  });
+
+  const pie = d3.pie().value(d => d.value).sort(null);
+  const arc = d3.arc().innerRadius(RADIUS * 0.42).outerRadius(RADIUS);
+  const arcHover = d3.arc().innerRadius(RADIUS * 0.42).outerRadius(RADIUS + 10);
+
+  const arcs = pie(items);
+
+  g.selectAll('path')
+    .data(arcs)
+    .enter()
+    .append('path')
+    .attr('d', arc)
+    .attr('fill', (d, i) => `url(#sliceGrad${i})`)
+    .attr('stroke', 'var(--void)')
+    .attr('stroke-width', 2)
+    .style('cursor', 'pointer')
+    .style('transition', 'filter 0.15s')
+    .on('mouseenter', function(event, d) {
+      d3.select(this).transition().duration(150).attr('d', arcHover);
+      d3.select(this).style('filter', 'brightness(1.25)');
+      const pct = ((d.data.value / total) * 100).toFixed(1);
+      showTooltip(tooltipEl, containerEl, event, d.data.label, d.data.value, `${pct}% of tagged questions`);
+    })
+    .on('mousemove', function(event, d) {
+      const pct = ((d.data.value / total) * 100).toFixed(1);
+      showTooltip(tooltipEl, containerEl, event, d.data.label, d.data.value, `${pct}% of tagged questions`);
+    })
+    .on('mouseleave', function() {
+      d3.select(this).transition().duration(150).attr('d', arc);
+      d3.select(this).style('filter', 'brightness(1)');
+      hideTooltip(tooltipEl);
+    });
+
+  // center label
+  g.append('text').attr('text-anchor', 'middle').attr('dy', '-4')
+    .attr('font-family', "'Cormorant Garamond', serif").attr('font-size', 22)
+    .attr('fill', 'var(--starlight)').text(total);
+  g.append('text').attr('text-anchor', 'middle').attr('dy', '16')
+    .attr('font-family', "'Space Mono', monospace").attr('font-size', 9)
+    .attr('fill', 'var(--text-soft)').text('TOTAL Q\'S');
+}
+
+subjSelect.addEventListener('change', async (e) => {
+  const id = e.target.value;
+  const statusMsg = document.getElementById('statusMsg');
+  const wrap = document.getElementById('chartsWrap');
+  if (!id) { wrap.style.display = 'none'; statusMsg.textContent = ''; return; }
+
+  statusMsg.textContent = 'Loading real data from ChromaDB…';
+  wrap.style.display = 'none';
+
+  const res = await fetch(`/api/discover/${id}/`);
+  const data = await res.json();
+
+  if (data.error || !data.total_questions) {
+    statusMsg.textContent = data.error || 'No data available for this subject yet.';
+    return;
+  }
+
+  statusMsg.textContent = `${data.classified_questions} of ${data.total_questions} questions classified`;
+  wrap.style.display = 'block';
+
+  renderOrbitalMap('unitSvg', 'unitTooltip', data.unit_map);
+  renderPieChart('topicSvg', 'topicTooltip', data.topic_map);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Introduction",
+        "Definition",
+        "Future of Artificial Intelligence",
+        "Characteristics of Intelligent Agents",
+        "Typical Intelligent Agents",
+        "Problem Solving Approach to Typical AI problems"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Problem Solving Methods",
+      "topics": [
+        "Problem solving Methods",
+        "Search Strategies",
+        "Uninformed",
+        "Informed",
+        "Heuristics",
+        "Local Search Algorithms and Optimization Problems",
+        "Searching with Partial Observations",
+        "Backtracking Search",
+        "Performance of search algorithms"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Knowledge Representation",
+      "topics": [
+        "First Order Predicate Logic",
+        "Unification",
+        "Forward Chaining",
+        "Backward Chaining",
+        "Resolution",
+        "Knowledge Representation using First order Predicate logic",
+        "Reasoning Systems"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Planning",
+      "topics": [
+        "Planning with state-space search",
+        "Partial-order planning",
+        "Planning graphs",
+        "planning and acting in the real world",
+        "Plan generation systems"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Uncertain Knowledge and Reasoning",
+      "topics": [
+        "Uncertainty",
+        "Review of probability",
+        "Probabilistic Reasoning",
+        "Bayesian networks",
+        "Inferences in Bayesian networks",
+        "Temporal models",
+        "Hidden Markov models"
+      ]
+    }
+  ]
+}

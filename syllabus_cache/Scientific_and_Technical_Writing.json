@@ -1,0 +1,63 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Forms and features of creative, technical, scientific, and science writing",
+        "Audience types (general and specific experts, technicians, managers, laypersons, and mixed audience)",
+        "Examples of documents for technical, professional, and scientific communications",
+        "Characteristics of effective technical writing: Accuracy, clarity, conciseness, coherence, appropriateness, and readability"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Language Issues",
+      "topics": [
+        "Revisiting English grammar",
+        "Punctuation (period, comma, colon, semicolon, question mark, exclamatory mark, apostrophe, quotation marks, hyphen, dash, parentheses, and brackets)",
+        "Mechanics (capitalization, italics, abbreviations, acronyms)",
+        "Latin terms used popularly in English texts",
+        "Informal and colloquial English",
+        "Dangling modifiers",
+        "Faulty parallelism",
+        "Judicious use of common words and phrases",
+        "Active and passive voice",
+        "Nominalization",
+        "Common English errors",
+        "Pitfalls in writing",
+        "Adapting texts to issues of gender, race, and ethnicity",
+        "Guarding against Plagiarism",
+        "Paragraphing: Unity of idea, topic sentence, logical and verbal bridges through use of signposts, transitions, and link words",
+        "Patterns of development of an idea",
+        "Lists"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Structure of Scientific Documents",
+      "topics": [
+        "Prefatory Materials: Title, Copyright Notice, Declaration and Certificates, Abstract, Keywords, Acknowledgements and Conflict of Interest Statement, Symbols and Abbreviations, and Table of Contents",
+        "Body of Scientific Documents: Introductory Materials\u2014Context, problem and current response, research questions, hypotheses, and objectives and scope",
+        "Literature Review\u2014Presentation styles, citations and referencing systems, quoting, paraphrasing, and summarizing",
+        "Materials and Methods\u2014 Mathematical Materials: Methodology, methods, tools, and techniques; Quantitative, qualitative, experimental, and mixed methods; Numbers and numerals, engineering and scientific notations of numbers, mathematical operators, equations, flowcharts, algorithms, SI units, significant digits and order of magnitude, figures, tables, and photographs; Experimental apparatus, materials, specifications, measuring instruments, procedure, data analysis",
+        "Concluding Materials\u2014Conclusions, implications, generalization, limitations, scope for further work, and contributions of the work",
+        "End Matters: References, Appendixes, and Supplementary materials"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Structure of Selected Technical Documents",
+      "topics": [
+        "PowerPoint presentation",
+        "Abstract of a paper",
+        "Laboratory reports",
+        "Progress report",
+        "Project proposal",
+        "Minutes of a meeting",
+        "Brochure",
+        "News items"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Bimolecular",
+      "topics": [
+        "Overview of DNA, RNA, and Proteins",
+        "Chromosomal structure & mutations",
+        "DNA polymorphisms",
+        "Gene and Genetic errors"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Molecular Basis of Diseases",
+      "topics": [
+        "Infectious, non-infectious",
+        "Diagnosis- traditional, modern tools",
+        "Concepts of molecular diagnostics"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Molecular Diagnosis and Techniques",
+      "topics": [
+        "DNA fingerprinting",
+        "Auto-antibody fingerprinting",
+        "Southern blotting",
+        "PCR",
+        "Real-time PCR and variations",
+        "Nucleic acid sequencing: New generations of automated sequencers",
+        "CRISPR technology and its use in diagnostics and gene editing"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Protein Diagnostics Techniques",
+      "topics": [
+        "Antigen-antibody reactions",
+        "ELISA",
+        "variations of ELISA",
+        "Western blotting"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Point-of-Care Devices",
+      "topics": [
+        "Biosensors and nano-biosensors for disease and metabollites detection"
+      ]
+    }
+  ]
+}

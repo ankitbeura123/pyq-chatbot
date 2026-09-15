@@ -1,0 +1,99 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction: Evolution",
+      "topics": [
+        "Clustering",
+        "Grid computing",
+        "Virtualization",
+        "Basic concepts",
+        "Benefits and Risks",
+        "Roles and Boundaries",
+        "Characteristics",
+        "XaaS based service offerings",
+        "Basic Deployment models"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Enabling Technologies",
+      "topics": [
+        "Networks: ISPs",
+        "Connectionless Packet Switching",
+        "Router-based Interconnectivity",
+        "Technical and Business Considerations",
+        "Data Center: Standardization and Modularity",
+        "Automation",
+        "Remote Operation",
+        "High Availability",
+        "Hardware Virtualization: Hardware Independence",
+        "Server Consolidation",
+        "Resource Replication",
+        "OS and hardware based Virtualization",
+        "Web Technology",
+        "Multitenant Technology",
+        "Service Technology"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Computing Mechanisms",
+      "topics": [
+        "Infrastructure: Logical Network Perimeter",
+        "Virtual Server",
+        "Storage Device",
+        "Usage Monitor",
+        "Resource Replication",
+        "Specialized: Automated Scaling Listener",
+        "Load Balancer",
+        "Monitors",
+        "Failover System",
+        "Hypervisor",
+        "Resource Cluster",
+        "Multi-Device Broker",
+        "State Management Database",
+        "Management: Resource",
+        "SLA",
+        "Billing",
+        "Remote Administration",
+        "Security"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Cloud Providers & Software Platforms",
+      "topics": [
+        "Globally available public clouds (Microsoft Azure, Amazon Web Services, Google Cloud Platform): Overview and Comparison",
+        "Instances",
+        "Images",
+        "Networking and Security",
+        "Storage",
+        "Monitoring and Automation",
+        "Introduction to Open-source softwares: Eucalyptus",
+        "Open Nebula",
+        "Open Stack",
+        "Apache Cloud Stack"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Programming Models & Advances",
+      "topics": [
+        "Introduction to Map Reduce",
+        "Apache Spark",
+        "Tensor Flow",
+        "Inter cloud: Architecture",
+        "Resource Provisioning",
+        "Billing",
+        "Security",
+        "Mobile Cloud Computing: Resource Allocation",
+        "Security",
+        "Business Aspects",
+        "Application",
+        "Future Scope",
+        "Introduction to Edge and Fog Computing"
+      ]
+    }
+  ]
+}

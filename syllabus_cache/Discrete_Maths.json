@@ -1,0 +1,91 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Logic",
+      "topics": [
+        "Proposition",
+        "Truth values",
+        "Connectives",
+        "Logical equivalence of composite statement (using truth table & without truth table)",
+        "Predicates and Quantifiers",
+        "Rules of Inference",
+        "Methods of Induction"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Set, Relation & Function",
+      "topics": [
+        "Set",
+        "Operations on set",
+        "Principles of Inclusion and Exclusion",
+        "Relation",
+        "Types of relations",
+        "Properties on Binary Relation",
+        "Equivalence relation",
+        "partial ordering relation",
+        "Hasse diagram",
+        "Lattice",
+        "Definition of function",
+        "Injection",
+        "Bijection",
+        "Surjection",
+        "Permutation function"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Recurrence Relation and their solutions",
+      "topics": [
+        "principles of counting",
+        "Discrete numeric function and their manipulation",
+        "Generating Function",
+        "Concept of Recurrence Relation with constant coefficients",
+        "Solution of Recurrence Relations (Substitution and generating function methods)"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Groups and Rings",
+      "topics": [
+        "Concept of binary operations",
+        "Algebraic structures",
+        "Semigroup",
+        "monoid",
+        "Group",
+        "Abelian group with examples",
+        "Properties of groups",
+        "Cyclic groups and its generator",
+        "Sub group",
+        "cosets",
+        "Normal subgroup",
+        "Lagrange\u2019s Theorem",
+        "Homomorphism and Isomorphism",
+        "ring",
+        "field",
+        "Integral domain (Definition with examples)"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Graph Theory",
+      "topics": [
+        "Basic Terminology",
+        "Adjacency & Incident Matrix",
+        "graph Isomorphic Test",
+        "Paths",
+        "Circuit",
+        "Eulerian path and Eulerian Circuit",
+        "Hamiltonian path and circuit",
+        "shortest path Algorithms (Dijkstra)",
+        "Tree",
+        "Rooted Tree",
+        "Binary Tree",
+        "spanning tree",
+        "Minimal Spanning Tree (MST) Algorithms(Prim\u2019s& Kruskal\u2019sAlgorithms)",
+        "Planar and Nonplanar Graphs"
+      ]
+    }
+  ]
+}

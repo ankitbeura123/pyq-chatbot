@@ -1,0 +1,106 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Oscillation",
+      "topics": [
+        "Damped Harmonic Oscillation (under damped, over damped and critically damped)",
+        "Energy decay",
+        "Relaxation time",
+        "Quality factor",
+        "Forced oscillation",
+        "Resonance",
+        "Coupled oscillations",
+        "Applications"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Waves and Interference",
+      "topics": [
+        "Wave equation",
+        "Superposition of waves",
+        "Interference of light",
+        "Types of interference: Division of wave front and division of amplitude"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Interference in thin films",
+      "topics": [
+        "Wedge shaped thin film",
+        "Newton\u2019s rings and their applications",
+        "Michelson interferometer",
+        "Applications"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Diffraction",
+      "topics": [
+        "Diffraction and its applications",
+        "Types of diffraction",
+        "Fraunhofer diffraction by a single slit",
+        "Plane diffraction grating (condition of maxima, minima)",
+        "Maximum order of observable spectra",
+        "Absent spectra",
+        "Dispersive power",
+        "Applications"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Quantum Mechanics",
+      "topics": [
+        "Dual nature of radiation and matter",
+        "de Broglie hypothesis for matter waves",
+        "Phase velocity and Group velocity",
+        "Heisenberg\u2019s uncertainty principle and applications",
+        "Wave function and its interpretation",
+        "Concepts of operators",
+        "Schrodinger\u2019s time-dependent and time-independent equations",
+        "Postulates of Quantum mechanics",
+        "Particle in one-dimensional box and applications",
+        "Quantum tunnelling and applications"
+      ]
+    },
+    {
+      "unit": "Unit 6",
+      "title": "Electromagnetic Theory",
+      "topics": [
+        "Vector calculus: scalar and vector field",
+        "Gradient, divergence and curl",
+        "Line, surface and volume integrals",
+        "Gauss divergence and Stoke\u2019s theorem",
+        "Maxwell's equations in differential and integral form with necessary derivations",
+        "Electromagnetic wave equations",
+        "Transverse nature of electromagnetic waves"
+      ]
+    },
+    {
+      "unit": "Unit 7",
+      "title": "Laser and Fiber Optics",
+      "topics": [
+        "LASER: Properties and applications",
+        "Spontaneous and stimulated emission",
+        "Meta-stable state",
+        "Population inversion",
+        "Pumping",
+        "Three and four-level Laser",
+        "Ruby Laser"
+      ]
+    },
+    {
+      "unit": "Unit 8",
+      "title": "Optical fiber",
+      "topics": [
+        "Principle",
+        "Construction",
+        "Types of optical fiber",
+        "Acceptance angle",
+        "Numerical aperture",
+        "Applications"
+      ]
+    }
+  ]
+}

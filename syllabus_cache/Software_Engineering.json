@@ -1,0 +1,90 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Role of Software Engineer",
+        "Software Components",
+        "Software Characteristics",
+        "Software Crisis",
+        "Software Engineering Processes",
+        "Similarity and Differences from Conventional Engineering Processes",
+        "Quality Attributes",
+        "How Software Engineering Changes?",
+        "Software Development Life Cycle (SDLC) Models: Water Fall Model, Prototype Model, Spiral Model, Evolutionary Development Models, Iterative Enhancement Models",
+        "Choosing a social relevant problem",
+        "Summary Team Report"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Requirement Engineering Process",
+      "topics": [
+        "Elicitation",
+        "Analysis",
+        "Documentation",
+        "Review and Management of User Needs",
+        "Feasibility Study",
+        "Information Modeling",
+        "Data Flow Diagrams",
+        "Entity Relationship Diagrams",
+        "Designing the architecture",
+        "Impact of Requirement Engineering in their problem",
+        "Decision Tables",
+        "SRS Document",
+        "IEEE Standards for SRS",
+        "Architectural design",
+        "component level design",
+        "user interface design",
+        "WebApp Design",
+        "Submission of SRS Document for Team Project"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Quality concepts",
+      "topics": [
+        "Review techniques",
+        "Software Quality Assurance (SQA): Verification and Validation, SQA Plans, Software Quality Frameworks",
+        "Framing SQA Plan",
+        "ISO 9000 Models",
+        "SEI-CMM Model and their relevance to project Management",
+        "Other emerging models like People CMM"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Testing Objectives",
+      "topics": [
+        "Unit Testing",
+        "Integration Testing",
+        "Acceptance Testing",
+        "Regression Testing",
+        "Testing for Functionality and Testing for Performance",
+        "Top-Down and Bottom-Up Testing",
+        "Software Testing Strategies",
+        "Strategies: Test Drivers and Test Stubs",
+        "Structural Testing (White Box Testing)",
+        "Functional Testing (Black Box Testing)",
+        "Testing conventional applications, object oriented applications, Web applications",
+        "Formal modeling and verification",
+        "Software configuration management",
+        "Product metrics",
+        "Team Analysis in Metrics Calculation"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Project Management Concepts",
+      "topics": [
+        "Process and Project Metrics",
+        "Estimation for Software projects",
+        "Project Scheduling",
+        "Risk Management",
+        "Maintenance and Re-engineering",
+        "Preparation of Risk mitigation plan"
+      ]
+    }
+  ]
+}

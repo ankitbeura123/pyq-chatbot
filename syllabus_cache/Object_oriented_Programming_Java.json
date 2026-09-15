@@ -1,0 +1,76 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Evolution of Programming Paradigm",
+      "topics": [
+        "Procedure oriented programming vs Objects oriented programming",
+        "Object oriented programming concepts: Object, Classes, Encapsulation and abstraction, Inheritance, Polymorphism"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Java Overview",
+      "topics": [
+        "JDK, JRE, Java Virtual Machine",
+        "Byte code",
+        "Java Characteristics",
+        "Data types",
+        "Operators",
+        "Control statements",
+        "Class fundamentals",
+        "Objects",
+        "Methods",
+        "Parameterized method",
+        "Use of static keyword",
+        "Input stream reader",
+        "Scanner class",
+        "Command Line Argument",
+        "Constructors",
+        "Overloading",
+        "Array"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Inheritance",
+      "topics": [
+        "Basics of Inheritance",
+        "Use of super and final keywords",
+        "Method overriding",
+        "Abstract classes",
+        "Dynamic Method Dispatch",
+        "Defining and importing packages",
+        "Access protection",
+        "Interfaces",
+        "Inner class",
+        "Exception handling: Exception fundamentals, Types, Understanding different keywords (try, catch, finally, throw, throws), User defined exception handling",
+        "String Handling: Basics of String handling, String class, String Buffer class, constructor and methods of both classes"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Multithreading",
+      "topics": [
+        "Basic thread concept",
+        "Life cycle of thread",
+        "Thread Model",
+        "Thread Priorities",
+        "Synchronization",
+        "Thread Class and Runnable Interface",
+        "Inter Thread Communication",
+        "Input/Output: Stream classes, Byte stream, Character stream, Reading and writing from console, Files, Reading and writing onto file using Byte stream and character stream, Random Access File"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "GUI Programming",
+      "topics": [
+        "Introduction to Swing",
+        "Swing controls",
+        "Event handling: Delegation event model, Event classes, Sources, Listeners, Adapter class",
+        "JDBC: JDBC API, Comparison between JDBC & ODBC, Type of JDBC Drivers, JDBC Architecture, JDBC classes and interfaces, Basic steps in Developing JDBC Applications, Working with DataBase, Result Set, Statement & Prepared Statement interfaces, Result Set MetaData"
+      ]
+    }
+  ]
+}

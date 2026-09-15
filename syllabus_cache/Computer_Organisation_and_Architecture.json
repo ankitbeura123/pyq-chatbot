@@ -1,0 +1,82 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Basic Structure of Computers",
+      "topics": [
+        "Computer Types",
+        "Functional Units",
+        "Basic Operational Concepts",
+        "Bus Structures",
+        "Machine Instructions and Programs",
+        "Memory Locations and Addresses",
+        "Memory Operations",
+        "Encoding of Machine Instructions",
+        "Addressing Modes",
+        "Instruction Types",
+        "Instruction Format",
+        "Instruction Length",
+        "Assembly Language",
+        "Subroutines",
+        "Additional Instructions",
+        "RISC vs CISC"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Basic Processing Unit",
+      "topics": [
+        "Fundamental Concepts",
+        "Execution of a Complete Instruction",
+        "Single and Multiple Bus CPU Organization",
+        "Hard-wired Control",
+        "Micro programmed Control unit"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Memory System",
+      "topics": [
+        "Basic Concepts",
+        "Semiconductor RAM Memories",
+        "Read Only Memories",
+        "Speed, Size, and Cost",
+        "memory module design",
+        "Memory Hierarchy",
+        "Cache Memories",
+        "Mapping Functions",
+        "Replacement Algorithms",
+        "Memory Performance Considerations",
+        "Memory interleaving",
+        "Virtual Memories"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Arithmetic",
+      "topics": [
+        "Design of fast adders",
+        "Multiplication of Positive Numbers",
+        "Signed Operand Multiplication",
+        "Fast Multiplication",
+        "Integer Division",
+        "Floating-point Numbers and Operations"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Input/ Output Organization",
+      "topics": [
+        "Accessing I/O Devices",
+        "Modes of I/O Transfer",
+        "Program Controlled I/O",
+        "Interrupts \u2013 Interrupt Hardware",
+        "Enabling and Disabling Interrupts",
+        "Handling Multiple Devices",
+        "Controlling Device Requests",
+        "Exceptions",
+        "Direct Memory Access"
+      ]
+    }
+  ]
+}

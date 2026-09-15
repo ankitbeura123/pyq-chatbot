@@ -1,0 +1,61 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Overview of the Environment",
+      "topics": [
+        "Overview of the environment",
+        "terminologies",
+        "Components of Earth: Lithosphere, atmosphere, hydrosphere and biosphere",
+        "Concept of black body radiation and albedo",
+        "eZro-dimensional energy balance model"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Air Pollution and Control",
+      "topics": [
+        "Primary and secondary air pollutants",
+        "CFC",
+        "Smog (oxidizing and reducing)",
+        "Important environmental issues: Depletion of the ozone layer, Acid Rain, Greenhouse effect and global warming",
+        "Control measures: Baghouse filter, Cyclone separator, Electrostatic precipitator, Catalytic converter, and Scrubber"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Water Pollution and Control",
+      "topics": [
+        "Types and sources of water pollutants",
+        "wastewater treatment techniques: Ultrafiltration, aerobic and anaerobic treatment, Reverse osmosis, Electrodialysis",
+        "Ddisinfection by chlorination",
+        "Ozonization",
+        "Modern water purification system",
+        "Water quality parameters like hardness",
+        "Water softening process (permutit)",
+        "WHO guidelines for drinking water"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Soil Pollution and Solid Waste Management",
+      "topics": [
+        "Soil pollution: Sources of pollutants and mitigation measures",
+        "Types of solid wastes: Heavy metal, bio-medical and radioactive wastes",
+        "Toxic and biochemical effects of solid wastes",
+        "Solid waste management (landfilling, incineration, and composting)"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Green Chemistry and EIA",
+      "topics": [
+        "Basic principles of green chemistry with examples",
+        "Matrices to explain greenness",
+        "R4M4 model",
+        "life cycle analysis",
+        "Importance, scope and principles of EIA with a case study"
+      ]
+    }
+  ]
+}

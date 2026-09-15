@@ -1,0 +1,76 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction",
+      "topics": [
+        "Role of civil engineers in designing, building, and maintaining infrastructure and improving quality of life",
+        "Specializations in the civil engineering and their specific roles"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Surveying",
+      "topics": [
+        "Plans",
+        "maps",
+        "scales",
+        "divisions of surveying",
+        "classification of surveying",
+        "leveling",
+        "advanced methods of surveying"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Construction Materials & Structural Engineering",
+      "topics": [
+        "Different construction materials and their uses",
+        "structural analysis and design philosophy"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Geotechnical Engineering",
+      "topics": [
+        "Overview on origin of soil",
+        "engineering properties and their classification",
+        "Soil exploration",
+        "Foundations: Their importance and purpose",
+        "Factors to consider in foundation design and stability of slopes",
+        "Improving site soils for foundation use"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Hydraulics & Water Resources Engineering",
+      "topics": [
+        "Overview of fluid properties",
+        "open channel flow",
+        "surface and groundwater hydrology",
+        "irrigation infrastructures"
+      ]
+    },
+    {
+      "unit": "Unit 6",
+      "title": "Environmental Engineering",
+      "topics": [
+        "Types of waste water",
+        "Principles of wastewater management",
+        "Types of solid waste",
+        "Principles of solid waste management"
+      ]
+    },
+    {
+      "unit": "Unit 7",
+      "title": "Transportation Engineering",
+      "topics": [
+        "Classification of highways",
+        "Typical construction methods of roads",
+        "traffic surveys and their applications in traffic planning",
+        "Railways",
+        "Ports and Harbours"
+      ]
+    }
+  ]
+}

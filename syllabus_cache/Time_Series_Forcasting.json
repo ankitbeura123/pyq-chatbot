@@ -1,0 +1,55 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction to time series forecasting",
+      "topics": [
+        "Introduction: Examples of time series, Stationary models and auto correlation function, Estimation and elimination of trend and seasonal components",
+        "Stationary Process and ARMA Models: Basic properties and linear processes, Introduction to ARMA models, Properties of sample mean and autocorrelation function, Forecasting stationary time series, ARMA (p, q) processes, ACF and PACF, Forecasting of ARMA processes"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Spectral Analysis",
+      "topics": [
+        "Spectral densities, Time-invariant linear filters, the spectral density of an ARMA process",
+        "Modeling and Forecasting with ARMA Processes: Preliminary estimation, Maximum likelihood estimation, Diagnostics, Forecasting, Order selection"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Non-stationary and Seasonal Time Series Models",
+      "topics": [
+        "ARIMA models",
+        "Identification techniques",
+        "Unit roots in time series",
+        "Forecasting ARIMA models",
+        "Seasonal ARIMA models",
+        "Regression with ARMA errors"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Multivariate Time Series",
+      "topics": [
+        "Second-order properties of multivariate time series",
+        "Estimation of the mean and covariance",
+        "Multivariate ARMA processes",
+        "Best linear predictors of second-order random vectors",
+        "Modeling and forecasting"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "State-Space Models",
+      "topics": [
+        "State-space representations",
+        "The basic structure model",
+        "State-space representation of ARIMA models",
+        "The Kalman Recursions",
+        "Estimation for state-space models",
+        "Forecasting Techniques: The ARAR algorithm, The Holt-Winter algorithm, The Holt-Winter seasonal algorithm"
+      ]
+    }
+  ]
+}

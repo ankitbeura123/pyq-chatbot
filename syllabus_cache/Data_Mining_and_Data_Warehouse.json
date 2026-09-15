@@ -1,0 +1,78 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction to Data Mining Systems",
+      "topics": [
+        "Knowledge Discovery Process",
+        "Data Mining Techniques",
+        "Issues",
+        "applications",
+        "Data Objects and attribute types",
+        "Statistical description of data",
+        "Data Preprocessing: Cleaning, Integration, Reduction, Transformation and discretization",
+        "Data Visualization",
+        "Data similarity and dissimilarity measures"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Data Warehousing and Online Analytical Processing",
+      "topics": [
+        "Basic Concepts",
+        "Data Warehousing Architecture",
+        "Multidimensional Data Model",
+        "Data Warehouse Schemas for Decision Support",
+        "Building a Data Warehouse",
+        "Concept Hierarchies",
+        "Characteristics of OLAP Systems",
+        "Typical OLAP Operations",
+        "OLAP and OLTP"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Frequent Pattern Analysis",
+      "topics": [
+        "Mining Frequent Patterns",
+        "Market Basket Analysis: The Apriori Algorithm: Finding Frequent Itemsets Using Candidate Generation",
+        "Generating Association Rules from Frequent Itemsets",
+        "Improving the Efficiently of Apriori",
+        "Mining Frequent Itemsets without Candidate Generation",
+        "Measuring the Quality of Rules",
+        "Association Mining to Correlation Analysis"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Classification and Prediction",
+      "topics": [
+        "Issues Regarding Classification and Prediction",
+        "Classification by Decision Tree Introduction",
+        "Na\u00efve Bayesian Classification",
+        "Rule Based Classification",
+        "Classification by Back propagation",
+        "Support Vector Machines",
+        "Lazy Learners",
+        "Other Classification Methods",
+        "Prediction: Simple linear regression",
+        "Accuracy and Error Measures",
+        "Evaluating the Accuracy of a Classifier or Predictor"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Clustering",
+      "topics": [
+        "Types of Data in Cluster Analysis",
+        "A Categorization of Major Clustering Methods",
+        "Partitioning Methods: K-Means, K-medoids",
+        "Hierarchical methods: Agglomerative and Divisive Hierarchical Clustering",
+        "Density, Based Methods",
+        "Grid-Based Methods",
+        "Model-Based Clustering Methods",
+        "Clustering High, Dimensional Data"
+      ]
+    }
+  ]
+}

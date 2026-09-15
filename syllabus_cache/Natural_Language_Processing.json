@@ -1,0 +1,81 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Lexical Analysis",
+      "topics": [
+        "Lexical Analysis",
+        "Regular expression and Automata for string matching",
+        "Words and Word Forms",
+        "Morphology fundamentals",
+        "Morphological Diversity of Indian Languages",
+        "Morphology Paradigms",
+        "Finite State Machine",
+        "Transducers Based Morphology",
+        "Automatic Morphology Learning",
+        "Parts of Speech",
+        "N-gram Models",
+        "Hidden Markov Models"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Speech Processing",
+      "topics": [
+        "Biology of Speech Processing",
+        "Place and Manner of Articulation",
+        "Word Boundary Detection",
+        "Argmax based computations",
+        "HMM and Speech Recognition",
+        "Text to Speech Synthesis",
+        "Rule based",
+        "Concatenative based approach"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Parsing",
+      "topics": [
+        "Theories of Parsing",
+        "Parsing Algorithms",
+        "Earley Parser",
+        "CYK Parser",
+        "Probabilistic Parsing",
+        "CYK",
+        "Resolving attachment and structural ambiguity",
+        "Shallow Parsing",
+        "Dependency Parsing",
+        "Named Entity Recognition",
+        "Maximum Entropy Models",
+        "Conditional Random Fields"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Lexical Knowledge Networks",
+      "topics": [
+        "Meaning: Lexical Knowledge Networks",
+        "Wordnet Theory",
+        "Indian Language Wordnets and Multilingual Dictionaries",
+        "Semantic Roles",
+        "Word Sense Disambiguation",
+        "WSD and Multilinguality",
+        "Metaphors",
+        "Coreference and Anaphora Resolution"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Applications",
+      "topics": [
+        "Applications: Sentiment Analysis",
+        "Text Entailment",
+        "Machine Translation",
+        "Question Answering System",
+        "Information Retrieval",
+        "Information Extraction",
+        "Cross Lingual Information Retrieval (CLIR)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "D. C. Circuits",
+      "topics": [
+        "Kirchhoff\u2019s law",
+        "Source transformation",
+        "Star-delta transformation and equivalent resistance of the circuits",
+        "Mesh and Nodal analysis",
+        "Superposition theorem"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "A.C. Circuits",
+      "topics": [
+        "Peak, average, R.M.S. values of sinusoidal quantities",
+        "Peak factor",
+        "Form factor",
+        "Phase difference",
+        "Phasor representation",
+        "AC through R, L, C",
+        "AC Series Circuit (RL, RC, RLC)",
+        "Three-phase AC circuits: Voltage, current and power in star and delta connections"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Electromagnetic Circuits",
+      "topics": [
+        "Magnetizing Force",
+        "Reluctance",
+        "Permeance",
+        "Magnetic field",
+        "Magnetic permeability",
+        "Analogy between Electric Circuits and Magnetic Circuits",
+        "Series magnetic circuit",
+        "BH curve"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Scope and Safety Measures",
+      "topics": [
+        "Electrical Energy Scenario in India",
+        "Application of Transformer",
+        "Three-phase and single-phase induction Motors",
+        "Power ratings of air conditioners, PCs, laptops, printers, refrigerator, washing machine, different lamps",
+        "electricity tariff",
+        "calculation of electricity bill for domestic consumer"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Personal Safety Measures",
+      "topics": [
+        "Electric Shock",
+        "Earthing and its types",
+        "Safety Precautions to avoid shock"
+      ]
+    },
+    {
+      "unit": "Unit 6",
+      "title": "Equipment Safety Measures",
+      "topics": [
+        "Working principles of fuse and miniature circuit breaker (MCB)",
+        "Residual Current Circuit Breaker (RCCB)"
+      ]
+    }
+  ]
+}

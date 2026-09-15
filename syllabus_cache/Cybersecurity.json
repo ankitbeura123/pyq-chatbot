@@ -1,0 +1,78 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Introduction to Network Security",
+      "topics": [
+        "Introduction to Network security",
+        "Model for Network security",
+        "Model for Network access security",
+        "Real-time Communication Security: Introduction to TCP/ IP protocol stack",
+        "Implementation layers for security protocols and implications",
+        "IPsec: AH and ESP",
+        "IPsec: IKE"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Cyber Security",
+      "topics": [
+        "Introduction to cyber security",
+        "Media-Based-Vulnerabilities",
+        "Network Device Vulnerabilities",
+        "Back Doors",
+        "Denial of Service (DoS)",
+        "Spoofing",
+        "Man-in-the-Middle, and replay",
+        "Protocol-Based Attacks",
+        "DNS Attack",
+        "DNS Spoofmg",
+        "DNS Poisoning",
+        "ARP Poisoning",
+        "TCP/ IP Hijacking",
+        "Virtual LAN (VLAN)",
+        "Demilitarization Zone (DMZ)",
+        "Network Access Control (NAC)",
+        "Proxy Server",
+        "Honey Pot",
+        "Network Intrusion Detection Systems (NIDS) and HostNetwork Intrusion Prevention Systems Protocol Analyzers",
+        "Internet Content Filters"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Cyber Law and Ethics",
+      "topics": [
+        "Policy vs. Law",
+        "Types of Law",
+        "General Computer crime laws",
+        "U.S. copyright law",
+        "U.K. computer security laws",
+        "Ethics and education",
+        "Codes of ethics of professional organizations"
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Authentication",
+      "topics": [
+        "Kerberos",
+        "X.509 Authentication Service",
+        "Scanning: Port Scanning",
+        "Port Knocking- Advantages, Disadvantages",
+        "Peer to Peer security",
+        "Electronic Mail Security: Distribution lists, Establishing keys, Privacy, source authentication, message integrity, non-repudiation, proof of submission, proof of delivery, message flow confidentiality, anonymity, Pretty Good Privacy (PGP)"
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Firewalls and Web Security",
+      "topics": [
+        "Packet filters",
+        "Application level gateways",
+        "Encrypted tunnels",
+        "Cookies"
+      ]
+    }
+  ]
+}

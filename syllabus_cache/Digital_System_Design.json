@@ -1,0 +1,65 @@
+{
+  "units": [
+    {
+      "unit": "Unit 1",
+      "title": "Basic VLSI System Design",
+      "topics": [
+        "Introduction to digital systems and VLSI design",
+        "Moore\u2019s Law",
+        "VLSI Design flow",
+        "Design hierarchy",
+        "Introduction to Verilog HDL",
+        "operators and Modelling techniques (gate-level, data-flow,and behavioral )"
+      ]
+    },
+    {
+      "unit": "Unit 2",
+      "title": "Binary Codes & Boolean Algebra",
+      "topics": [
+        "Signed Binary numbers and its arithmetic (1\u2019s and 2\u2019s complement form)",
+        "Binary codes (Weighted and non-weighted codes, Gray codes, BCD codes)",
+        "Boolean Algebra-Laws and Axioms",
+        "SOP and POS (Min-term and Max-term)",
+        "K-Maps (2-,3-,4- variables with don\u2019t care condition)"
+      ]
+    },
+    {
+      "unit": "Unit 3",
+      "title": "Combinational Circuits",
+      "topics": [
+        "Adders (Half adder, Full adders, Binary Parrallel Adders)",
+        "Subtractor (Half Subtractor, Full Subtractor)",
+        "Code conversion algorithms",
+        "Combined AdderSubtractor Block",
+        "Design of code converters",
+        "Decoders and Encoders",
+        "Multiplexer and Demultiplexer",
+        "Implementation of Combinational Circuits using Gate-level and Data-flow level of modelling."
+      ]
+    },
+    {
+      "unit": "Unit 4",
+      "title": "Sequential Circuits",
+      "topics": [
+        "Basic latch",
+        "Flip-flops (SR, D, JK, T, Master-Slave)",
+        "Triggering of flip-flops",
+        "FF conversions",
+        "Shift Registers (SISO, SIPO, PISO, PIPO)",
+        "Counter Design (Synchronous and Asynchronous)",
+        "Implementation of sequential circuits using Behavioral level of modelling."
+      ]
+    },
+    {
+      "unit": "Unit 5",
+      "title": "Advanced Concepts",
+      "topics": [
+        "Overview of CMOS",
+        "CMOS level gate design (Basic and Universal gates)",
+        "Design of general Boolean circuits using CMOS gates",
+        "CMOS level design of latches and flip-flops",
+        "Verilog description of CMOS level design."
+      ]
+    }
+  ]
+}
