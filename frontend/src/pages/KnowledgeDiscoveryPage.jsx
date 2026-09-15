@@ -1,0 +1,422 @@
+import React, { useState, useEffect, useRef } from 'react';
+import * as d3 from 'd3';
+
+const PALETTE = [
+  '#6FD3D9', '#9C8CF0', '#E4B667', '#E76F9C',
+  '#7EC8E3', '#B39CD0', '#F4A261', '#8FD9A8',
+  '#F2B5D4', '#A0C4FF', '#FFADAD', '#CAFFBF'
+];
+
+export default function KnowledgeDiscoveryPage() {
+  const [subjectsBySemester, setSubjectsBySemester] = useState({});
+  const [selectedSemester, setSelectedSemester] = useState('');
+  const [selectedSubjectId, setSelectedSubjectId] = useState('');
+  const [statusMsg, setStatusMsg] = useState('');
+  const [discoveryData, setDiscoveryData] = useState(null);
+
+  const unitSvgRef = useRef(null);
+  const topicSvgRef = useRef(null);
+  const unitTooltipRef = useRef(null);
+  const topicTooltipRef = useRef(null);
+  const dynamicStylesRef = useRef(null);
+
+  useEffect(() => {
+    async function loadSubjects() {
+      try {
+        const res = await fetch('/api/subjects/');
+        const data = await res.json();
+        setSubjectsBySemester(data.subjects_by_semester || {});
+      } catch (err) {
+        console.error('Failed to load subjects:', err);
+      }
+    }
+    loadSubjects();
+  }, []);
+
+  const handleSemesterChange = (e) => {
+    const sem = e.target.value;
+    setSelectedSemester(sem);
+    setSelectedSubjectId('');
+    setDiscoveryData(null);
+    setStatusMsg('');
+  };
+
+  const handleSubjectChange = async (e) => {
+    const id = e.target.value;
+    setSelectedSubjectId(id);
+    setDiscoveryData(null);
+
+    if (!id) {
+      setStatusMsg('');
+      return;
+    }
+
+    setStatusMsg('Loading real data from ChromaDB…');
+
+    try {
+      const res = await fetch(`/api/discover/${id}/`);
+      const data = await res.json();
+
+      if (data.error || !data.total_questions) {
+        setStatusMsg(data.error || 'No data available for this subject yet.');
+        return;
+      }
+
+      setStatusMsg(`${data.classified_questions} of ${data.total_questions} questions classified`);
+      setDiscoveryData(data);
+    } catch (err) {
+      setStatusMsg(`Failed to load discovery data: ${err.message}`);
+    }
+  };
+
+  const showTooltip = (tooltipEl, containerEl, evt, title, count, extra) => {
+    if (!tooltipEl || !containerEl) return;
+    const rect = containerEl.getBoundingClientRect();
+    const x = evt.clientX - rect.left;
+    const y = evt.clientY - rect.top;
+    tooltipEl.innerHTML = `
+      <span class="tt-title">${title}</span>
+      <span class="tt-count">${count} question${count === 1 ? '' : 's'}</span>
+      ${extra ? `<br><span style="color:var(--text-soft);">${extra}</span>` : ''}
+    `;
+    tooltipEl.style.left = `${x + 16}px`;
+    tooltipEl.style.top = `${y - 10}px`;
+    tooltipEl.classList.add('visible');
+  };
+
+  const hideTooltip = (tooltipEl) => {
+    if (tooltipEl) {
+      tooltipEl.classList.remove('visible');
+    }
+  };
+
+  // Render D3 Orbital Unit Map & Topic Pie Chart whenever discoveryData changes
+  useEffect(() => {
+    if (!discoveryData) return;
+
+    // 1. Render Orbital Map
+    const unitSvg = d3.select(unitSvgRef.current);
+    unitSvg.selectAll('*').remove();
+    const unitTooltipEl = unitTooltipRef.current;
+    const unitContainerEl = unitTooltipEl ? unitTooltipEl.parentElement : null;
+
+    const CENTER = 280;
+    const MAX_ORBIT_R = 250;
+    const MIN_ORBIT_R = 65;
+    const items = discoveryData.unit_map || [];
+
+    if (!items.length) {
+      unitSvg.append('text')
+        .attr('x', CENTER).attr('y', CENTER).attr('text-anchor', 'middle')
+        .attr('fill', '#8892b0').attr('font-size', 12).text('No data');
+    } else {
+      const sorted = [...items].sort((a, b) => b.value - a.value);
+      const n = sorted.length;
+      const maxVal = sorted[0].value;
+      const minVal = sorted[n - 1].value;
+      const orbitStep = (MAX_ORBIT_R - MIN_ORBIT_R) / Math.max(n - 1, 1);
+      const planetScale = d3.scaleSqrt().domain([minVal, maxVal]).range([10, 28]);
+
+      const defs = unitSvg.append('defs');
+
+      const sunGrad = defs.append('radialGradient').attr('id', 'sunGrad');
+      sunGrad.append('stop').attr('offset', '0%').attr('stop-color', '#FFF6DE');
+      sunGrad.append('stop').attr('offset', '55%').attr('stop-color', '#F0C374');
+      sunGrad.append('stop').attr('offset', '100%').attr('stop-color', '#B3833F');
+
+      sorted.forEach((item, i) => {
+        const base = d3.color(PALETTE[i % PALETTE.length]);
+        const grad = defs.append('radialGradient')
+          .attr('id', `planetGrad${i}`)
+          .attr('cx', '35%')
+          .attr('cy', '30%');
+        grad.append('stop').attr('offset', '0%').attr('stop-color', base.brighter(1.4));
+        grad.append('stop').attr('offset', '60%').attr('stop-color', base);
+        grad.append('stop').attr('offset', '100%').attr('stop-color', base.darker(1.2));
+      });
+
+      // Starfield dots
+      const rng = d3.randomUniform(0, 560);
+      for (let s = 0; s < 40; s++) {
+        unitSvg.append('circle')
+          .attr('cx', rng()).attr('cy', rng()).attr('r', Math.random() * 1.2)
+          .attr('fill', 'rgba(226,231,245,0.5)');
+      }
+
+      // Orbit rings
+      sorted.forEach((item, i) => {
+        const r = MIN_ORBIT_R + i * orbitStep;
+        unitSvg.append('circle')
+          .attr('class', 'orbit-ring')
+          .attr('cx', CENTER).attr('cy', CENTER).attr('r', r);
+      });
+
+      // Sun with corona
+      unitSvg.append('circle')
+        .attr('cx', CENTER).attr('cy', CENTER).attr('r', 34)
+        .attr('fill', 'url(#sunGrad)').attr('opacity', 0.25);
+      unitSvg.append('circle')
+        .attr('class', 'sun-glow')
+        .attr('cx', CENTER).attr('cy', CENTER).attr('r', 22)
+        .attr('fill', 'url(#sunGrad)');
+
+      // Keyframes
+      let keyframeCSS = '';
+
+      sorted.forEach((item, i) => {
+        const r = MIN_ORBIT_R + i * orbitStep;
+        const pr = planetScale(item.value);
+        const startAngle = Math.random() * 360;
+        const duration = (10 + Math.random() * 22).toFixed(1);
+        const direction = Math.random() < 0.5 ? 'normal' : 'reverse';
+        const animName = `orbit_react_${i}`;
+
+        keyframeCSS += `
+          @keyframes ${animName} {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(${direction === 'normal' ? 360 : -360}deg); }
+          }
+        `;
+
+        const orbitG = unitSvg.append('g')
+          .attr('class', 'orbit-group')
+          .attr('id', `${animName}_group`)
+          .attr('transform', `rotate(${startAngle} ${CENTER} ${CENTER})`)
+          .style('animation', `${animName} ${duration}s linear infinite`);
+
+        const planetX = CENTER + r;
+        const planetY = CENTER;
+
+        const hasRing = (i % 3 === 1);
+        if (hasRing) {
+          orbitG.append('ellipse')
+            .attr('cx', planetX).attr('cy', planetY)
+            .attr('rx', pr * 1.9).attr('ry', pr * 0.55)
+            .attr('fill', 'none')
+            .attr('stroke', PALETTE[i % PALETTE.length])
+            .attr('stroke-opacity', 0.55)
+            .attr('stroke-width', 2)
+            .attr('transform', `rotate(-18 ${planetX} ${planetY})`);
+        }
+
+        const planet = orbitG.append('circle')
+          .attr('class', 'planet-body')
+          .attr('cx', planetX).attr('cy', planetY)
+          .attr('r', pr)
+          .attr('fill', `url(#planetGrad${i})`)
+          .attr('stroke', PALETTE[i % PALETTE.length])
+          .attr('stroke-opacity', 0.4)
+          .attr('stroke-width', 1);
+
+        planet
+          .on('mouseenter', function(event) {
+            const groupEl = document.getElementById(`${animName}_group`);
+            if (groupEl) groupEl.style.animationPlayState = 'paused';
+            showTooltip(unitTooltipEl, unitContainerEl, event, item.label, item.value, `Orbit rank #${i + 1} of ${n}`);
+          })
+          .on('mousemove', function(event) {
+            showTooltip(unitTooltipEl, unitContainerEl, event, item.label, item.value, `Orbit rank #${i + 1} of ${n}`);
+          })
+          .on('mouseleave', function() {
+            const groupEl = document.getElementById(`${animName}_group`);
+            if (groupEl) groupEl.style.animationPlayState = 'running';
+            hideTooltip(unitTooltipEl);
+          });
+      });
+
+      if (dynamicStylesRef.current) {
+        dynamicStylesRef.current.textContent = keyframeCSS;
+      }
+    }
+
+    // 2. Render Topic Pie Chart
+    const topicSvg = d3.select(topicSvgRef.current);
+    topicSvg.selectAll('*').remove();
+    const topicTooltipEl = topicTooltipRef.current;
+    const topicContainerEl = topicTooltipEl ? topicTooltipEl.parentElement : null;
+
+    const WIDTH = 440, HEIGHT = 440, RADIUS = 175;
+    const topicItems = discoveryData.topic_map || [];
+
+    if (!topicItems.length) {
+      topicSvg.append('text')
+        .attr('x', WIDTH / 2).attr('y', HEIGHT / 2).attr('text-anchor', 'middle')
+        .attr('fill', '#8892b0').attr('font-size', 12).text('No data');
+    } else {
+      const total = topicItems.reduce((s, d) => s + d.value, 0);
+      const g = topicSvg.append('g').attr('transform', `translate(${WIDTH / 2},${HEIGHT / 2})`);
+
+      const defs = topicSvg.append('defs');
+      topicItems.forEach((item, i) => {
+        const base = d3.color(PALETTE[i % PALETTE.length]);
+        const grad = defs.append('radialGradient').attr('id', `sliceGrad${i}`);
+        grad.append('stop').attr('offset', '0%').attr('stop-color', base.brighter(0.8));
+        grad.append('stop').attr('offset', '100%').attr('stop-color', base);
+      });
+
+      const pie = d3.pie().value(d => d.value).sort(null);
+      const arc = d3.arc().innerRadius(RADIUS * 0.42).outerRadius(RADIUS);
+      const arcHover = d3.arc().innerRadius(RADIUS * 0.42).outerRadius(RADIUS + 10);
+
+      const arcs = pie(topicItems);
+
+      g.selectAll('path')
+        .data(arcs)
+        .enter()
+        .append('path')
+        .attr('d', arc)
+        .attr('fill', (d, i) => `url(#sliceGrad${i})`)
+        .attr('stroke', 'var(--void)')
+        .attr('stroke-width', 2)
+        .style('cursor', 'pointer')
+        .style('transition', 'filter 0.15s')
+        .on('mouseenter', function(event, d) {
+          d3.select(this).transition().duration(150).attr('d', arcHover);
+          d3.select(this).style('filter', 'brightness(1.25)');
+          const pct = ((d.data.value / total) * 100).toFixed(1);
+          showTooltip(topicTooltipEl, topicContainerEl, event, d.data.label, d.data.value, `${pct}% of tagged questions`);
+        })
+        .on('mousemove', function(event, d) {
+          const pct = ((d.data.value / total) * 100).toFixed(1);
+          showTooltip(topicTooltipEl, topicContainerEl, event, d.data.label, d.data.value, `${pct}% of tagged questions`);
+        })
+        .on('mouseleave', function() {
+          d3.select(this).transition().duration(150).attr('d', arc);
+          d3.select(this).style('filter', 'brightness(1)');
+          hideTooltip(topicTooltipEl);
+        });
+
+      // Center label
+      g.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '-4')
+        .attr('font-family', "'Cormorant Garamond', serif")
+        .attr('font-size', 22)
+        .attr('fill', 'var(--starlight)')
+        .text(total);
+
+      g.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '16')
+        .attr('font-family', "'Space Mono', monospace")
+        .attr('font-size', 9)
+        .attr('fill', 'var(--text-soft)')
+        .text("TOTAL Q'S");
+    }
+  }, [discoveryData]);
+
+  const availableSubjects = selectedSemester
+    ? subjectsBySemester[selectedSemester] || []
+    : [];
+
+  return (
+    <>
+      <style ref={dynamicStylesRef} />
+      <style>{`
+        .visual-card { position: relative; display:flex; justify-content:center; padding: 10px; }
+
+        .orbit-ring { fill:none; stroke:rgba(226,231,245,0.10); stroke-width: 1; }
+        .orbit-group { transform-origin: center; }
+        .planet-body { cursor: pointer; transition: filter 0.2s; }
+        .planet-body:hover { filter: brightness(1.3); }
+        .sun-glow { filter: drop-shadow(0 0 18px rgba(228,182,103,0.9)) drop-shadow(0 0 36px rgba(228,182,103,0.4)); }
+
+        .hover-tooltip {
+          position: absolute;
+          pointer-events: none;
+          background: rgba(10,12,22,0.95);
+          border: 1px solid var(--glass-edge);
+          border-radius: 10px;
+          padding: 8px 12px;
+          font-family: 'Space Mono', monospace;
+          font-size: 11px;
+          color: var(--starlight);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+          opacity: 0;
+          transition: opacity 0.15s;
+          z-index: 10;
+          white-space: nowrap;
+        }
+        .hover-tooltip.visible { opacity: 1; }
+        .hover-tooltip .tt-title { color: var(--gold); font-weight: 700; margin-bottom: 3px; display:block; }
+        .hover-tooltip .tt-count { color: var(--cyan); }
+
+        @media (prefers-reduced-motion: reduce) { .orbit-group { animation: none !important; } }
+      `}</style>
+
+      <div className="card" style={{ padding: 20, marginBottom: 18 }}>
+        <h2 style={{ fontFamily: "'Cormorant Garamond',serif", margin: '0 0 12px', fontSize: 24 }}>
+          🔭 Knowledge Discovery
+        </h2>
+        <p style={{ color: 'var(--text-soft)', fontSize: 12, margin: '0 0 14px' }}>
+          Real patterns mined from ChromaDB. Closer & bigger planet = more frequently asked unit. Hover to inspect.
+        </p>
+
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={{ fontSize: 9.5, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-soft)' }}>
+              Semester
+            </label>
+            <select
+              id="semesterSelect"
+              className="styled-select"
+              value={selectedSemester}
+              onChange={handleSemesterChange}
+            >
+              <option value="">Select semester…</option>
+              {Object.keys(subjectsBySemester).map(sem => (
+                <option key={sem} value={sem}>{sem}</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={{ fontSize: 9.5, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-soft)' }}>
+              Subject
+            </label>
+            <select
+              id="subjectSelect"
+              className="styled-select"
+              disabled={!selectedSemester}
+              value={selectedSubjectId}
+              onChange={handleSubjectChange}
+            >
+              <option value="">{selectedSemester ? 'Select subject…' : 'Select semester first…'}</option>
+              {availableSubjects.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="statusMsg" style={{ color: 'var(--text-soft)', fontSize: 12, padding: '14px 4px 4px' }}>
+        {statusMsg}
+      </div>
+
+      {discoveryData && (
+        <div id="chartsWrap">
+          <div className="card" style={{ padding: 20, marginBottom: 16 }}>
+            <h3 style={{ fontSize: 14, margin: '0 0 14px', fontFamily: "'Cormorant Garamond',serif", color: 'var(--gold)' }}>
+              🪐 Unit Map — orbital frequency
+            </h3>
+            <div className="visual-card">
+              <svg ref={unitSvgRef} id="unitSvg" width="100%" viewBox="0 0 560 560" style={{ maxWidth: 560 }} />
+              <div ref={unitTooltipRef} className="hover-tooltip" id="unitTooltip" />
+            </div>
+          </div>
+
+          <div className="card" style={{ padding: 20 }}>
+            <h3 style={{ fontSize: 14, margin: '0 0 14px', fontFamily: "'Cormorant Garamond',serif", color: 'var(--gold)' }}>
+              🌌 Topic Map
+            </h3>
+            <div className="visual-card">
+              <svg ref={topicSvgRef} id="topicSvg" width="100%" viewBox="0 0 440 440" style={{ maxWidth: 440 }} />
+              <div ref={topicTooltipRef} className="hover-tooltip" id="topicTooltip" />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse, FileResponse, Http404
+from django.http import JsonResponse, FileResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from collections import defaultdict
 import json
 import os
@@ -20,11 +21,28 @@ def _subjects_grouped():
     return dict(grouped)
 
 
-def chat_page(request):
+def react_app(request, *args, **kwargs):
+    """Serves the React SPA index.html or fallback."""
+    index_file = os.path.join(settings.BASE_DIR, 'frontend', 'dist', 'index.html')
+    if os.path.exists(index_file):
+        with open(index_file, 'r', encoding='utf-8') as f:
+            return HttpResponse(f.read(), content_type='text/html')
+    # Fallback to chat page if react bundle hasn't been built yet
     subjects = Subject.objects.all().order_by('semester', 'name')
     return render(request, 'chatbot/chat.html', {
         'subjects': subjects,
         'subjects_by_semester_json': json.dumps(_subjects_grouped()),
+    })
+
+
+def api_subjects(request):
+    all_subjects = Subject.objects.all().order_by('semester', 'name')
+    grouped = _subjects_grouped()
+    semesters = list(grouped.keys())
+    return JsonResponse({
+        'semesters': semesters,
+        'subjects_by_semester': grouped,
+        'all_subjects': [{'id': s.id, 'name': s.name, 'semester': s.semester} for s in all_subjects]
     })
 
 
@@ -55,7 +73,7 @@ def chat_api(request):
         return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
 
 
-def browse_subjects(request):
+def api_browse_subjects(request):
     all_subjects = Subject.objects.all().order_by('semester', 'name')
     semesters = list(dict.fromkeys(all_subjects.values_list('semester', flat=True)))
     selected_sem = request.GET.get('sem') or (semesters[0] if semesters else None)
@@ -68,25 +86,65 @@ def browse_subjects(request):
         years = [d.year for d in docs if d.year]
         exam_types = sorted(set(d.exam_type for d in docs if d.exam_type))
         subjects_data.append({
-            'subject': subject,
+            'subject': {'id': subject.id, 'name': subject.name, 'semester': subject.semester},
             'count': docs.count(),
             'year_range': f"{min(years)}–{max(years)}" if years else "—",
             'exam_types': exam_types,
         })
 
-    return render(request, 'chatbot/browse_subjects.html', {
+    return JsonResponse({
         'subjects_data': subjects_data,
         'semesters': semesters,
         'selected_sem': selected_sem,
     })
 
 
-def browse_documents(request, subject_id):
+def api_browse_documents(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
     documents = Document.objects.filter(subject=subject, doc_type='pyq').order_by('-year', 'exam_type')
     syllabus = Document.objects.filter(subject=subject, doc_type='syllabus').first()
-    return render(request, 'chatbot/browse_documents.html', {
-        'subject': subject, 'documents': documents, 'syllabus': syllabus
+
+    docs_data = [{
+        'id': doc.id,
+        'file_name': doc.file_name,
+        'exam_type': doc.exam_type,
+        'year': doc.year,
+    } for doc in documents]
+
+    syllabus_data = {
+        'id': syllabus.id,
+        'file_name': syllabus.file_name,
+    } if syllabus else None
+
+    return JsonResponse({
+        'subject': {'id': subject.id, 'name': subject.name, 'semester': subject.semester},
+        'documents': docs_data,
+        'syllabus': syllabus_data,
+        'count': len(docs_data)
+    })
+
+
+def api_view_document(request, doc_id):
+    document = get_object_or_404(Document, id=doc_id)
+    text = ""
+    try:
+        reader = pypdf.PdfReader(document.source_path)
+        for page in reader.pages:
+            text += (page.extract_text() or "") + "\n\n"
+        if not text.strip():
+            text = "(This is a scanned document — text preview not available here.)"
+    except Exception as e:
+        text = f"Could not load file: {e}"
+
+    return JsonResponse({
+        'document': {
+            'id': document.id,
+            'file_name': document.file_name,
+            'exam_type': document.exam_type,
+            'year': document.year,
+            'subject': {'id': document.subject.id, 'name': document.subject.name, 'semester': document.subject.semester}
+        },
+        'text': text
     })
 
 
@@ -101,29 +159,7 @@ def download_document(request, doc_id):
     )
 
 
-def view_document(request, doc_id):
-    document = get_object_or_404(Document, id=doc_id)
-    text = ""
-    try:
-        reader = pypdf.PdfReader(document.source_path)
-        for page in reader.pages:
-            text += (page.extract_text() or "") + "\n\n"
-        if not text.strip():
-            text = "(This is a scanned document — text preview not available here.)"
-    except Exception as e:
-        text = f"Could not load file: {e}"
-    return render(request, 'chatbot/view_document.html', {'document': document, 'text': text})
-
-
 # ---------------- Knowledge Discovery ----------------
-
-def knowledge_discovery_page(request):
-    subjects = Subject.objects.all().order_by('semester', 'name')
-    return render(request, 'chatbot/knowledge_discovery.html', {
-        'subjects': subjects,
-        'subjects_by_semester_json': json.dumps(_subjects_grouped()),
-    })
-
 
 def discovery_data_api(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
@@ -132,14 +168,6 @@ def discovery_data_api(request, subject_id):
 
 
 # ---------------- Score Predictor ----------------
-
-def score_predictor_page(request):
-    subjects = Subject.objects.all().order_by('semester', 'name')
-    return render(request, 'chatbot/score_predictor.html', {
-        'subjects': subjects,
-        'subjects_by_semester_json': json.dumps(_subjects_grouped()),
-    })
-
 
 def topics_api(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)

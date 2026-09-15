@@ -1,20 +1,24 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
-    path('', views.chat_page, name='chat_page'),
+    # API Routes
+    path('api/subjects/', views.api_subjects, name='api_subjects'),
     path('api/chat/', views.chat_api, name='chat_api'),
-    path('browse/', views.browse_subjects, name='browse_subjects'),
-    path('browse/subject/<int:subject_id>/', views.browse_documents, name='browse_documents'),
-    path('browse/document/<int:doc_id>/', views.view_document, name='view_document'),
-    path('browse/document/<int:doc_id>/download/', views.download_document, name='download_document'),
+    path('api/browse/', views.api_browse_subjects, name='api_browse_subjects'),
+    path('api/browse/subject/<int:subject_id>/', views.api_browse_documents, name='api_browse_documents'),
+    path('api/browse/document/<int:doc_id>/', views.api_view_document, name='api_view_document'),
 
-    # Knowledge Discovery
-    path('discover/', views.knowledge_discovery_page, name='knowledge_discovery_page'),
+    # Knowledge Discovery API
     path('api/discover/<int:subject_id>/', views.discovery_data_api, name='discovery_data_api'),
 
-    # Score Predictor
-    path('predict/', views.score_predictor_page, name='score_predictor_page'),
+    # Score Predictor API
     path('api/predict/topics/<int:subject_id>/', views.topics_api, name='topics_api'),
     path('api/predict/score/', views.predict_score_api, name='predict_score_api'),
+
+    # Document download
+    path('browse/document/<int:doc_id>/download/', views.download_document, name='download_document'),
+
+    # Catch-all to serve the React SPA
+    re_path(r'^(?!api/|admin/|static/|browse/document/\d+/download).*$', views.react_app, name='react_app'),
 ]

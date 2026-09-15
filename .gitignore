@@ -5,3 +5,8 @@ __pycache__/
 db.sqlite3
 media/
 chroma_db/
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.DS_Store
