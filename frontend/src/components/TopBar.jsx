@@ -8,6 +8,7 @@ export default function TopBar() {
   const isChatActive = location.pathname === '/';
   const isDiscoverActive = location.pathname === '/discover';
   const isPredictActive = location.pathname === '/predict';
+  const isQuizActive = location.pathname === '/quiz';
 
   return (
     <div className="topbar-wrap">
@@ -51,6 +52,9 @@ export default function TopBar() {
           </Link>
           <Link to="/predict" className={isPredictActive ? 'active' : ''}>
             Predict
+          </Link>
+          <Link to="/quiz" className={isQuizActive ? 'active' : ''}>
+            Quiz
           </Link>
         </nav>
       </div>
