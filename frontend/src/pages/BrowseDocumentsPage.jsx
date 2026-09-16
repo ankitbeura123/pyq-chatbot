@@ -42,7 +42,7 @@ export default function BrowseDocumentsPage() {
         .subject-title { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
         .subject-sub { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 16px; }
         .syllabus-note {
-          background: var(--amber-soft); border: 1px solid #f3d98e; color: var(--amber-text);
+          background: var(--amber-soft); border: 1px solid rgba(228,182,103,0.3); color: var(--amber-text);
           border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; margin-bottom: 18px;
         }
         .doc-list { padding: 6px; }
@@ -60,7 +60,7 @@ export default function BrowseDocumentsPage() {
         .doc-year { font-size: 0.76rem; color: var(--text-soft); }
         .doc-actions { display: flex; align-items: center; gap: 14px; }
         .doc-actions a { font-size: 0.78rem; color: var(--text-soft); text-decoration: none; }
-        .doc-actions a:hover { color: var(--green); }
+        .doc-actions a:hover { color: var(--cyan); }
       `}</style>
 
       <Link className="back-link" to="/browse">

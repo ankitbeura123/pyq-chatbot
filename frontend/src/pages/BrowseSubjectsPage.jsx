@@ -47,19 +47,19 @@ export default function BrowseSubjectsPage() {
           border-radius: 7px; background: var(--bg); border: 1px solid var(--border); color: var(--text-soft);
           transition: border-color 0.15s, color 0.15s;
         }
-        .sem-tab-btn:hover { border-color: #c9ced6; color: var(--text); }
-        .sem-tab-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+        .sem-tab-btn:hover { border-color: var(--violet); color: var(--starlight); }
+        .sem-tab-btn.active { background: var(--cyan); color: var(--void); border-color: var(--cyan); font-weight: 700; }
 
         .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
         .subject-card {
-          display: block; padding: 16px 18px; transition: box-shadow 0.12s ease, transform 0.12s ease;
+          display: block; padding: 16px 18px; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
         }
-        .subject-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.06); transform: translateY(-1px); }
+        .subject-card:hover { border-color: rgba(156,140,240,0.4); box-shadow: 0 10px 30px -10px rgba(156,140,240,0.25); transform: translateY(-2px); }
         .subject-card .sem-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text-soft); text-transform: uppercase; }
         .subject-card .name { font-weight: 600; font-size: 1.02rem; margin: 4px 0 9px; color: var(--text); }
         .subject-card .tags { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
         .subject-card .meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: var(--text-soft); }
-        .subject-card .chevron { color: #c1c6cf; }
+        .subject-card .chevron { color: var(--dim); }
       `}</style>
 
       <div className="browse-header">
