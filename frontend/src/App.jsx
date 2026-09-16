@@ -9,7 +9,9 @@ import ViewDocumentPage from './pages/ViewDocumentPage';
 import KnowledgeDiscoveryPage from './pages/KnowledgeDiscoveryPage';
 import ScorePredictorPage from './pages/ScorePredictorPage';
 import QuizPage from './pages/QuizPage';
+import RevisionNotesPage from './pages/RevisionNotesPage';
 import './quiz.css';
+import './notes.css';
 
 export default function App() {
   return (
@@ -25,6 +27,7 @@ export default function App() {
           <Route path="/discover" element={<KnowledgeDiscoveryPage />} />
           <Route path="/predict" element={<ScorePredictorPage />} />
           <Route path="/quiz" element={<QuizPage />} />
+          <Route path="/notes" element={<RevisionNotesPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

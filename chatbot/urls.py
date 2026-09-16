@@ -16,9 +16,16 @@ urlpatterns = [
     path('api/predict/topics/<int:subject_id>/', views.topics_api, name='topics_api'),
     path('api/predict/score/', views.predict_score_api, name='predict_score_api'),
 
+    # Quiz Generator API
+    path('api/quiz/generate/', views.quiz_generate_api, name='quiz_generate_api'),
+
+    # Revision Notes Generator API
+    path('api/notes/generate/', views.notes_generate_api, name='notes_generate_api'),
+    path('notes/download/<str:filename>/', views.download_notes_pdf, name='download_notes_pdf'),
+
     # Document download
     path('browse/document/<int:doc_id>/download/', views.download_document, name='download_document'),
 
     # Catch-all to serve the React SPA
-    re_path(r'^(?!api/|admin/|static/|browse/document/\d+/download).*$', views.react_app, name='react_app'),
+    re_path(r'^(?!api/|admin/|static/|browse/document/\d+/download|notes/download/).*$', views.react_app, name='react_app'),
 ]

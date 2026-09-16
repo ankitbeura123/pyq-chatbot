@@ -1,7 +1,14 @@
+import os
 import json
 import re
 import time
 import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
 
 MODELS_TO_TRY = [
     "gemini-3.5-flash-lite",
@@ -73,10 +80,43 @@ def call_gemini_text(prompt, max_retries=10):
 def call_gemini_json(prompt, max_retries=10):
     raw = call_gemini_text(prompt, max_retries=max_retries)
     cleaned = re.sub(r"^```json\s*|^```\s*|```\s*$", "", raw.strip(), flags=re.MULTILINE).strip()
+
+    # 1. Direct attempt
     try:
         return json.loads(cleaned)
-    except json.JSONDecodeError:
-        match = re.search(r"(\[.*\]|\{.*\})", cleaned, re.DOTALL)
-        if match:
-            return json.loads(match.group(1))
-        raise
+    except Exception:
+        pass
+
+    # 2. Extract outer JSON object or array if extra text surrounded it
+    match = re.search(r"(\[.*\]|\{.*\})", cleaned, re.DOTALL)
+    candidate = match.group(1) if match else cleaned
+
+    try:
+        return json.loads(candidate)
+    except Exception:
+        pass
+
+    # 3. Handle unescaped backslashes from LaTeX (e.g. \frac, \sum, \alpha, \mathcal, \theta)
+    # Double backslashes that are not followed by quotes or other backslashes
+    fixed_all = re.sub(r'\\(?!["\\])', r'\\\\', candidate)
+    try:
+        return json.loads(fixed_all)
+    except Exception:
+        pass
+
+    # 4. Standard JSON escape repair (only double invalid escapes)
+    fixed = re.sub(r'\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})', r'\\\\', candidate)
+    try:
+        return json.loads(fixed)
+    except Exception:
+        pass
+
+    # 5. Try with strict=False (allows raw newlines / unescaped control characters in strings)
+    for text_variant in (fixed_all, fixed, candidate):
+        try:
+            return json.loads(text_variant, strict=False)
+        except Exception:
+            pass
+
+    # If all recovery attempts fail, attempt final parse to raise informative JSONDecodeError
+    return json.loads(cleaned)

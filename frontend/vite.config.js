@@ -9,6 +9,7 @@ export default defineConfig({
     proxy: {
       '/api': 'http://127.0.0.1:8000',
       '/browse/document': 'http://127.0.0.1:8000',
+      '/notes/download': 'http://127.0.0.1:8000',
     },
   },
   build: {

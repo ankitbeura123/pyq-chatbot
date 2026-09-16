@@ -58,7 +58,6 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             BASE_DIR / 'frontend' / 'dist',
-            BASE_DIR / 'chatbot' / 'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {

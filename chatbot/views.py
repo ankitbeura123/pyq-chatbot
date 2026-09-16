@@ -1,15 +1,18 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, FileResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from collections import defaultdict
 import json
 import os
+import re
 import pypdf
 
 from .rag import get_chatbot_response
 from .models import Subject, Document, ChatMessage
 from . import analytics
+from .quiz_engine import generate_quiz, QuizGenerationError
+from .notes_engine import generate_revision_notes, build_notes_pdf, NotesGenerationError, NOTES_DIR
 
 
 def _subjects_grouped():
@@ -22,17 +25,16 @@ def _subjects_grouped():
 
 
 def react_app(request, *args, **kwargs):
-    """Serves the React SPA index.html or fallback."""
+    """Serves the React SPA index.html from frontend/dist/."""
     index_file = os.path.join(settings.BASE_DIR, 'frontend', 'dist', 'index.html')
     if os.path.exists(index_file):
         with open(index_file, 'r', encoding='utf-8') as f:
             return HttpResponse(f.read(), content_type='text/html')
-    # Fallback to chat page if react bundle hasn't been built yet
-    subjects = Subject.objects.all().order_by('semester', 'name')
-    return render(request, 'chatbot/chat.html', {
-        'subjects': subjects,
-        'subjects_by_semester_json': json.dumps(_subjects_grouped()),
-    })
+    return HttpResponse(
+        "<h1>Frontend not built</h1><p>Please run <code>cd frontend && npm run build</code> to build the React application.</p>",
+        status=503,
+        content_type='text/html'
+    )
 
 
 def api_subjects(request):
@@ -191,3 +193,92 @@ def predict_score_api(request):
     subject = get_object_or_404(Subject, id=subject_id)
     result = analytics.predict_score(subject.name, studied_topics, total_marks=total_marks)
     return JsonResponse(result)
+
+
+# ---------------- Quiz Generator ----------------
+
+@csrf_exempt
+def quiz_generate_api(request):
+    """
+    POST /api/quiz/generate/
+    Body: {"topic_description": "...", "num_questions": 10}
+    Returns: {"quiz": {"title", "num_questions", "questions": [...]}}
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+
+    topic_description = (data.get('topic_description') or '').strip()
+    num_questions = data.get('num_questions', 10)
+
+    try:
+        num_questions = int(num_questions)
+        num_questions = max(1, min(num_questions, 30))
+    except (TypeError, ValueError):
+        num_questions = 10
+
+    if not topic_description:
+        return JsonResponse({'error': 'topic_description is required'}, status=400)
+
+    try:
+        quiz = generate_quiz(topic_description, num_questions)
+        return JsonResponse({'quiz': quiz})
+    except QuizGenerationError as e:
+        return JsonResponse({'error': str(e)}, status=502)
+    except Exception as e:
+        print(f"Quiz API error: {e}")
+        return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
+
+
+# ---------------- Revision Notes Generator ----------------
+
+@csrf_exempt
+def notes_generate_api(request):
+    """
+    POST /api/notes/generate/
+    Body: {"topic": "...", "subject_id": optional int}
+    Returns: {"notes": {...}, "pdf_filename": "..."}
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+
+    topic = (data.get('topic') or '').strip()
+    subject_id = data.get('subject_id')
+
+    if not topic:
+        return JsonResponse({'error': 'topic is required'}, status=400)
+
+    subject_name = None
+    if subject_id:
+        subject = Subject.objects.filter(id=subject_id).first()
+        if subject:
+            subject_name = subject.name
+
+    try:
+        notes_data = generate_revision_notes(topic, subject_name=subject_name)
+        pdf_filename = build_notes_pdf(notes_data, topic)
+        return JsonResponse({'notes': notes_data, 'pdf_filename': pdf_filename})
+    except NotesGenerationError as e:
+        return JsonResponse({'error': str(e)}, status=502)
+    except Exception as e:
+        print(f"Notes API error: {e}")
+        return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
+
+
+def download_notes_pdf(request, filename):
+    """Streams a previously generated revision-notes PDF. Filename must match what build_notes_pdf produced."""
+    if not re.fullmatch(r"[a-zA-Z0-9_\-]+\.pdf", filename):
+        raise Http404("Invalid filename.")
+    file_path = os.path.join(NOTES_DIR, filename)
+    if not os.path.exists(file_path):
+        raise Http404("Notes PDF not found.")
+    return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=filename)
