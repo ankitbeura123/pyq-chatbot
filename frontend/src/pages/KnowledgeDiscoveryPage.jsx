@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { Compass, Orbit, PieChart } from 'lucide-react';
 
 const PALETTE = [
-  '#6FD3D9', '#9C8CF0', '#E4B667', '#E76F9C',
-  '#7EC8E3', '#B39CD0', '#F4A261', '#8FD9A8',
-  '#F2B5D4', '#A0C4FF', '#FFADAD', '#CAFFBF'
+  '#2563eb', '#7c3aed', '#d97706', '#db2777',
+  '#0284c7', '#8b5cf6', '#ea580c', '#059669',
+  '#ec4899', '#3b82f6', '#f43f5e', '#10b981'
 ];
 
 export default function KnowledgeDiscoveryPage() {
@@ -77,7 +78,7 @@ export default function KnowledgeDiscoveryPage() {
     tooltipEl.innerHTML = `
       <span class="tt-title">${title}</span>
       <span class="tt-count">${count} question${count === 1 ? '' : 's'}</span>
-      ${extra ? `<br><span style="color:var(--text-soft);">${extra}</span>` : ''}
+      ${extra ? `<br><span style="color:var(--text-muted);">${extra}</span>` : ''}
     `;
     tooltipEl.style.left = `${x + 16}px`;
     tooltipEl.style.top = `${y - 10}px`;
@@ -140,7 +141,7 @@ export default function KnowledgeDiscoveryPage() {
       for (let s = 0; s < 40; s++) {
         unitSvg.append('circle')
           .attr('cx', rng()).attr('cy', rng()).attr('r', Math.random() * 1.2)
-          .attr('fill', 'rgba(226,231,245,0.5)');
+          .attr('fill', 'rgba(15, 23, 42, 0.15)');
       }
 
       // Orbit rings
@@ -266,13 +267,13 @@ export default function KnowledgeDiscoveryPage() {
         .append('path')
         .attr('d', arc)
         .attr('fill', (d, i) => `url(#sliceGrad${i})`)
-        .attr('stroke', 'var(--void)')
+        .attr('stroke', '#ffffff')
         .attr('stroke-width', 2)
         .style('cursor', 'pointer')
         .style('transition', 'filter 0.15s')
         .on('mouseenter', function(event, d) {
           d3.select(this).transition().duration(150).attr('d', arcHover);
-          d3.select(this).style('filter', 'brightness(1.25)');
+          d3.select(this).style('filter', 'brightness(1.15)');
           const pct = ((d.data.value / total) * 100).toFixed(1);
           showTooltip(topicTooltipEl, topicContainerEl, event, d.data.label, d.data.value, `${pct}% of tagged questions`);
         })
@@ -290,18 +291,21 @@ export default function KnowledgeDiscoveryPage() {
       g.append('text')
         .attr('text-anchor', 'middle')
         .attr('dy', '-4')
-        .attr('font-family', "'Cormorant Garamond', serif")
-        .attr('font-size', 22)
-        .attr('fill', 'var(--starlight)')
+        .attr('font-family', "var(--font-serif)")
+        .attr('font-size', 26)
+        .attr('font-weight', '600')
+        .attr('fill', '#0f172a')
         .text(total);
 
       g.append('text')
         .attr('text-anchor', 'middle')
-        .attr('dy', '16')
-        .attr('font-family', "'Space Mono', monospace")
-        .attr('font-size', 9)
-        .attr('fill', 'var(--text-soft)')
-        .text("TOTAL Q'S");
+        .attr('dy', '18')
+        .attr('font-family', "var(--font-sans)")
+        .attr('font-size', 10)
+        .attr('font-weight', '700')
+        .attr('letter-spacing', '0.05em')
+        .attr('fill', 'var(--text-muted)')
+        .text("TOTAL QUESTIONS");
     }
   }, [discoveryData]);
 
@@ -315,46 +319,47 @@ export default function KnowledgeDiscoveryPage() {
       <style>{`
         .visual-card { position: relative; display:flex; justify-content:center; padding: 10px; }
 
-        .orbit-ring { fill:none; stroke:rgba(226,231,245,0.10); stroke-width: 1; }
+        .orbit-ring { fill:none; stroke:rgba(15, 23, 42, 0.08); stroke-width: 1; }
         .orbit-group { transform-origin: center; }
         .planet-body { cursor: pointer; transition: filter 0.2s; }
-        .planet-body:hover { filter: brightness(1.3); }
-        .sun-glow { filter: drop-shadow(0 0 18px rgba(228,182,103,0.9)) drop-shadow(0 0 36px rgba(228,182,103,0.4)); }
+        .planet-body:hover { filter: brightness(1.2); }
+        .sun-glow { filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.7)) drop-shadow(0 0 28px rgba(245, 158, 11, 0.3)); }
 
         .hover-tooltip {
           position: absolute;
           pointer-events: none;
-          background: rgba(10,12,22,0.95);
-          border: 1px solid var(--glass-edge);
+          background: #ffffff;
+          border: 1px solid rgba(15, 23, 42, 0.1);
           border-radius: 10px;
           padding: 8px 12px;
-          font-family: 'Space Mono', monospace;
-          font-size: 11px;
-          color: var(--starlight);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+          font-family: var(--font-sans);
+          font-size: 12px;
+          color: #0f172a;
+          box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
           opacity: 0;
           transition: opacity 0.15s;
           z-index: 10;
           white-space: nowrap;
         }
         .hover-tooltip.visible { opacity: 1; }
-        .hover-tooltip .tt-title { color: var(--gold); font-weight: 700; margin-bottom: 3px; display:block; }
-        .hover-tooltip .tt-count { color: var(--cyan); }
+        .hover-tooltip .tt-title { color: #0f172a; font-weight: 700; margin-bottom: 2px; display:block; }
+        .hover-tooltip .tt-count { color: var(--accent-blue); font-weight: 600; }
 
         @media (prefers-reduced-motion: reduce) { .orbit-group { animation: none !important; } }
       `}</style>
 
-      <div className="card" style={{ padding: 20, marginBottom: 18 }}>
-        <h2 style={{ fontFamily: "'Cormorant Garamond',serif", margin: '0 0 12px', fontSize: 24 }}>
-          🔭 Knowledge Discovery
+      <div className="card" style={{ padding: 24, marginBottom: 20 }}>
+        <h2 style={{ fontFamily: "var(--font-serif)", margin: '0 0 10px', fontSize: 26, display: 'flex', alignItems: 'center', gap: 10, color: '#0f172a' }}>
+          <Compass size={22} color="#2563eb" />
+          Knowledge Discovery
         </h2>
-        <p style={{ color: 'var(--text-soft)', fontSize: 12, margin: '0 0 14px' }}>
-          Real patterns mined from ChromaDB. Closer & bigger planet = more frequently asked unit. Hover to inspect.
+        <p style={{ color: 'var(--text-muted)', fontSize: 13, margin: '0 0 16px' }}>
+          Real patterns mined from past year questions. Closer & larger node = higher question frequency. Hover over nodes to inspect details.
         </p>
 
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <label style={{ fontSize: 9.5, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-soft)' }}>
+            <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
               Semester
             </label>
             <select
@@ -371,7 +376,7 @@ export default function KnowledgeDiscoveryPage() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <label style={{ fontSize: 9.5, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-soft)' }}>
+            <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
               Subject
             </label>
             <select
@@ -390,15 +395,16 @@ export default function KnowledgeDiscoveryPage() {
         </div>
       </div>
 
-      <div id="statusMsg" style={{ color: 'var(--text-soft)', fontSize: 12, padding: '14px 4px 4px' }}>
+      <div id="statusMsg" style={{ color: 'var(--text-muted)', fontSize: 13, padding: '4px 4px 14px' }}>
         {statusMsg}
       </div>
 
       {discoveryData && (
         <div id="chartsWrap">
-          <div className="card" style={{ padding: 20, marginBottom: 16 }}>
-            <h3 style={{ fontSize: 14, margin: '0 0 14px', fontFamily: "'Cormorant Garamond',serif", color: 'var(--gold)' }}>
-              🪐 Unit Map — orbital frequency
+          <div className="card" style={{ padding: 24, marginBottom: 20 }}>
+            <h3 style={{ fontSize: 16, margin: '0 0 16px', fontFamily: "var(--font-serif)", color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Orbit size={18} color="#7c3aed" />
+              Unit Map — Orbital Frequency
             </h3>
             <div className="visual-card">
               <svg ref={unitSvgRef} id="unitSvg" width="100%" viewBox="0 0 560 560" style={{ maxWidth: 560 }} />
@@ -406,9 +412,10 @@ export default function KnowledgeDiscoveryPage() {
             </div>
           </div>
 
-          <div className="card" style={{ padding: 20 }}>
-            <h3 style={{ fontSize: 14, margin: '0 0 14px', fontFamily: "'Cormorant Garamond',serif", color: 'var(--gold)' }}>
-              🌌 Topic Map
+          <div className="card" style={{ padding: 24 }}>
+            <h3 style={{ fontSize: 16, margin: '0 0 16px', fontFamily: "var(--font-serif)", color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <PieChart size={18} color="#059669" />
+              Topic Distribution
             </h3>
             <div className="visual-card">
               <svg ref={topicSvgRef} id="topicSvg" width="100%" viewBox="0 0 440 440" style={{ maxWidth: 440 }} />

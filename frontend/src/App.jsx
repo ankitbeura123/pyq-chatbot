@@ -1,7 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import CosmicBackground from './components/CosmicBackground';
+import OrchidsBackground from './components/OrchidsBackground';
 import TopBar from './components/TopBar';
+import LandingShowcase from './components/LandingShowcase';
 import ChatPage from './pages/ChatPage';
 import BrowseSubjectsPage from './pages/BrowseSubjectsPage';
 import BrowseDocumentsPage from './pages/BrowseDocumentsPage';
@@ -16,21 +17,74 @@ import './notes.css';
 export default function App() {
   return (
     <>
-      <CosmicBackground />
+      <OrchidsBackground />
       <TopBar />
-      <div className="page">
-        <Routes>
-          <Route path="/" element={<ChatPage />} />
-          <Route path="/browse" element={<BrowseSubjectsPage />} />
-          <Route path="/browse/subject/:subjectId" element={<BrowseDocumentsPage />} />
-          <Route path="/browse/document/:docId" element={<ViewDocumentPage />} />
-          <Route path="/discover" element={<KnowledgeDiscoveryPage />} />
-          <Route path="/predict" element={<ScorePredictorPage />} />
-          <Route path="/quiz" element={<QuizPage />} />
-          <Route path="/notes" element={<RevisionNotesPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
+      <Routes>
+        {/* Full-width ChatGPT style Chat Page */}
+        <Route path="/" element={<ChatPage />} />
+        
+        {/* Exact Landing Showcase from Reference Image */}
+        <Route path="/use-cases" element={<LandingShowcase />} />
+
+        {/* Sub-pages wrapped in standard page container */}
+        <Route
+          path="/browse"
+          element={
+            <div className="page">
+              <BrowseSubjectsPage />
+            </div>
+          }
+        />
+        <Route
+          path="/browse/subject/:subjectId"
+          element={
+            <div className="page">
+              <BrowseDocumentsPage />
+            </div>
+          }
+        />
+        <Route
+          path="/browse/document/:docId"
+          element={
+            <div className="page">
+              <ViewDocumentPage />
+            </div>
+          }
+        />
+        <Route
+          path="/discover"
+          element={
+            <div className="page">
+              <KnowledgeDiscoveryPage />
+            </div>
+          }
+        />
+        <Route
+          path="/predict"
+          element={
+            <div className="page">
+              <ScorePredictorPage />
+            </div>
+          }
+        />
+        <Route
+          path="/quiz"
+          element={
+            <div className="page">
+              <QuizPage />
+            </div>
+          }
+        />
+        <Route
+          path="/notes"
+          element={
+            <div className="page">
+              <RevisionNotesPage />
+            </div>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
   );
 }

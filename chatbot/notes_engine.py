@@ -242,7 +242,7 @@ def build_notes_pdf(notes_data, topic):
         if exam_tips:
             story.append(Paragraph("Exam Tips", heading_style))
             items = [ListItem(Paragraph(tip, tip_style), leftIndent=10) for tip in exam_tips]
-            story.append(ListFlowable(items, bulletType="bullet", start="★", leftIndent=14))
+            story.append(ListFlowable(items, bulletType="bullet", start="•", leftIndent=14))
 
         doc = SimpleDocTemplate(
             out_path, pagesize=A4,

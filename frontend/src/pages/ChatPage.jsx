@@ -1,19 +1,84 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { marked } from 'marked';
+import {
+  Plus,
+  Trash2,
+  Send,
+  ArrowUp,
+  PanelLeftClose,
+  PanelLeft,
+  Copy,
+  Check,
+  RotateCw,
+  ThumbsUp,
+  ThumbsDown,
+  Sparkles,
+  BookOpen,
+  FileText,
+  Compass,
+  TrendingUp,
+  ChevronDown,
+  X,
+  Bot,
+  User,
+  Sliders
+} from 'lucide-react';
+import { OrchidLogo } from '../components/TopBar';
+
+const SESSIONS_STORAGE_KEY = 'orchids_chat_sessions_v2';
 
 export default function ChatPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [subjectsBySemester, setSubjectsBySemester] = useState({});
   const [selectedSemester, setSelectedSemester] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
-  const [messages, setMessages] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Chat sessions
+  const [sessions, setSessions] = useState(() => {
+    try {
+      const saved = localStorage.getItem(SESSIONS_STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load chat sessions:', e);
+    }
+    return [
+      {
+        id: 'default',
+        title: 'New conversation',
+        messages: [],
+        createdAt: Date.now()
+      }
+    ];
+  });
+
+  const [activeSessionId, setActiveSessionId] = useState(() => {
+    return sessions[0]?.id || 'default';
+  });
+
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState(null);
 
   const chatBoxRef = useRef(null);
   const textareaRef = useRef(null);
   const initialTriggeredRef = useRef(false);
+
+  // Active session
+  const currentSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
+  const messages = currentSession?.messages || [];
+
+  // Save sessions to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessions));
+    } catch (e) {
+      console.error('Failed to persist sessions:', e);
+    }
+  }, [sessions]);
 
   // Fetch subjects grouped by semester
   useEffect(() => {
@@ -29,7 +94,7 @@ export default function ChatPage() {
     loadSubjects();
   }, []);
 
-  // Handle URL search params on load
+  // Handle URL query parameters (e.g. ?subject=OS&prompt=...)
   useEffect(() => {
     if (initialTriggeredRef.current || Object.keys(subjectsBySemester).length === 0) return;
 
@@ -37,7 +102,6 @@ export default function ChatPage() {
     const promptParam = searchParams.get('prompt');
 
     if (subjectParam) {
-      // Find which semester contains this subject if possible
       for (const [sem, subs] of Object.entries(subjectsBySemester)) {
         const match = subs.find(s => s.name.toLowerCase() === subjectParam.toLowerCase());
         if (match) {
@@ -54,14 +118,13 @@ export default function ChatPage() {
     }
   }, [subjectsBySemester, searchParams]);
 
-  // Scroll chat to bottom
+  // Auto-scroll chat to bottom
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
 
-  // Filter subjects for dropdown based on selected semester
   const availableSubjects = selectedSemester
     ? subjectsBySemester[selectedSemester] || []
     : Object.values(subjectsBySemester).flat();
@@ -72,12 +135,70 @@ export default function ChatPage() {
     setSelectedSubject('');
   };
 
+  const handleCreateNewChat = () => {
+    const newId = 'session_' + Date.now();
+    const newSession = {
+      id: newId,
+      title: 'New conversation',
+      messages: [],
+      createdAt: Date.now()
+    };
+    setSessions(prev => [newSession, ...prev]);
+    setActiveSessionId(newId);
+    setInputMessage('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+  };
+
+  const handleDeleteSession = (e, idToDelete) => {
+    e.stopPropagation();
+    setSessions(prev => {
+      const filtered = prev.filter(s => s.id !== idToDelete);
+      if (filtered.length === 0) {
+        const fallback = {
+          id: 'session_' + Date.now(),
+          title: 'New conversation',
+          messages: [],
+          createdAt: Date.now()
+        };
+        setActiveSessionId(fallback.id);
+        return [fallback];
+      }
+      if (activeSessionId === idToDelete) {
+        setActiveSessionId(filtered[0].id);
+      }
+      return filtered;
+    });
+  };
+
+  const handleClearCurrentChat = () => {
+    setSessions(prev =>
+      prev.map(s => (s.id === activeSessionId ? { ...s, messages: [], title: 'New conversation' } : s))
+    );
+  };
+
   const adjustTextareaHeight = () => {
     const el = textareaRef.current;
     if (el) {
       el.style.height = 'auto';
-      el.style.height = `${Math.min(el.scrollHeight, 110)}px`;
+      el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
     }
+  };
+
+  const updateActiveSessionMessages = (newMessages, updatedTitle) => {
+    setSessions(prev =>
+      prev.map(s => {
+        if (s.id === activeSessionId) {
+          return {
+            ...s,
+            messages: newMessages,
+            title: updatedTitle || s.title
+          };
+        }
+        return s;
+      })
+    );
   };
 
   const sendChatMessage = async (msgText, subjOverride) => {
@@ -86,9 +207,16 @@ export default function ChatPage() {
 
     const currentSubj = subjOverride !== undefined ? subjOverride : selectedSubject;
 
-    // Add User entry
-    const userMsg = { role: 'user', content: text, isMarkdown: false };
-    setMessages(prev => [...prev, userMsg]);
+    // Generate smart title for session if it's the first message
+    let sessionTitle = currentSession.title;
+    if (messages.length === 0 || sessionTitle === 'New conversation') {
+      sessionTitle = text.length > 30 ? text.slice(0, 30) + '…' : text;
+    }
+
+    const userMsg = { role: 'user', content: text, isMarkdown: false, timestamp: Date.now() };
+    const updatedMessages = [...messages, userMsg];
+    updateActiveSessionMessages(updatedMessages, sessionTitle);
+
     setInputMessage('');
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -103,12 +231,48 @@ export default function ChatPage() {
       });
       const data = await res.json();
       if (data.response) {
-        setMessages(prev => [...prev, { role: 'assistant', content: marked.parse(data.response), isMarkdown: true }]);
+        updateActiveSessionMessages(
+          [
+            ...updatedMessages,
+            {
+              role: 'assistant',
+              content: marked.parse(data.response),
+              rawContent: data.response,
+              isMarkdown: true,
+              timestamp: Date.now()
+            }
+          ],
+          sessionTitle
+        );
       } else {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.error || 'Unknown error occurred.', isMarkdown: false }]);
+        updateActiveSessionMessages(
+          [
+            ...updatedMessages,
+            {
+              role: 'assistant',
+              content: data.error || 'Unknown error occurred.',
+              rawContent: data.error || '',
+              isMarkdown: false,
+              timestamp: Date.now()
+            }
+          ],
+          sessionTitle
+        );
       }
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'assistant', content: `Transmission lost: ${err.message}`, isMarkdown: false }]);
+      updateActiveSessionMessages(
+        [
+          ...updatedMessages,
+          {
+            role: 'assistant',
+            content: `Connection lost: ${err.message}`,
+            rawContent: err.message,
+            isMarkdown: false,
+            timestamp: Date.now()
+          }
+        ],
+        sessionTitle
+      );
     } finally {
       setIsLoading(false);
     }
@@ -121,195 +285,341 @@ export default function ChatPage() {
     }
   };
 
+  const copyToClipboard = (text, idx) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(idx);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const handleRegenerate = (idx) => {
+    if (idx > 0 && messages[idx - 1]?.role === 'user') {
+      const prevUserText = messages[idx - 1].content;
+      sendChatMessage(prevUserText);
+    }
+  };
+
+  const promptSuggestions = [
+    {
+      title: 'Exam Pattern Analysis',
+      sub: 'Identify high-yield repeated questions in Operating Systems',
+      prompt: 'Identify the top recurring questions and high-weightage topics in Operating Systems past papers.'
+    },
+    {
+      title: 'Step-by-step Solution',
+      sub: 'Explain Dynamic Programming with previous year question examples',
+      prompt: 'Explain Dynamic Programming approach for 0/1 Knapsack with a worked example from previous year papers.'
+    },
+    {
+      title: 'Predicted Weightage',
+      sub: 'Which units carry highest marks in Data Communications?',
+      prompt: 'Which syllabus units and modules historically carry the highest weightage in Data Communication & Networking?'
+    },
+    {
+      title: 'Quick Revision Sheet',
+      sub: 'Summarize key formulas and complexity for Sorting Algorithms',
+      prompt: 'Generate a quick revision cheatsheet of time & space complexities for all major sorting algorithms with exam tips.'
+    }
+  ];
+
   return (
-    <>
-      <style>{`
-        .app-panel {
-          max-width: 640px; margin: 0 auto;
-          display: flex; flex-direction: column;
-          min-height: 620px;
-          box-shadow: 0 30px 80px -20px rgba(0,0,0,0.7), 0 0 90px -30px rgba(156,140,240,0.25);
-          overflow: hidden;
-        }
+    <div className="chatgpt-layout">
+      {/* Left Sidebar */}
+      <aside className={`chatgpt-sidebar ${sidebarOpen ? '' : 'collapsed'}`}>
+        <div className="sidebar-header">
+          <button className="new-chat-btn" onClick={handleCreateNewChat}>
+            <Plus size={15} strokeWidth={2.4} />
+            <span>New chat</span>
+          </button>
+          <button
+            className="sidebar-icon-btn"
+            onClick={() => setSidebarOpen(false)}
+            title="Close sidebar"
+          >
+            <PanelLeftClose size={17} />
+          </button>
+        </div>
 
-        .panel-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--glass-edge); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .panel-header .sub { font-size: 10px; color: var(--dim); letter-spacing: 0.04em; flex: 1; min-width: 140px; }
+        <div className="sidebar-scroll-area">
+          <div className="sidebar-section-title">Recent Chats</div>
+          <div className="chat-history-list">
+            {sessions.map(s => (
+              <button
+                key={s.id}
+                className={`chat-history-item ${s.id === activeSessionId ? 'active' : ''}`}
+                onClick={() => setActiveSessionId(s.id)}
+              >
+                <span className="chat-history-title">{s.title || 'New conversation'}</span>
+                {sessions.length > 1 && (
+                  <button
+                    className="chat-item-delete"
+                    onClick={(e) => handleDeleteSession(e, s.id)}
+                    title="Delete conversation"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                )}
+              </button>
+            ))}
+          </div>
 
-        .subject-select-wrap { display: flex; gap: 8px; }
-        .subject-select-wrap select {
-          appearance: none; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-edge);
-          color: var(--starlight); font-family: 'Space Mono', monospace; font-size: 10.5px;
-          padding: 7px 26px 7px 12px; border-radius: 8px; cursor: pointer;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23E7ECFA'/%3E%3C/svg%3E");
-          background-repeat: no-repeat; background-position: right 10px center;
-          max-width: 160px;
-        }
-        .subject-select-wrap select:focus { outline: none; border-color: var(--violet); }
-        .subject-select-wrap select:disabled { opacity: 0.4; cursor: not-allowed; }
+          <div className="sidebar-nav-links">
+            <div className="sidebar-section-title">Explore Tools</div>
+            <Link to="/browse" className="sidebar-nav-link">
+              <FileText size={15} />
+              <span>Browse PYQ Archive</span>
+            </Link>
+            <Link to="/discover" className="sidebar-nav-link">
+              <Compass size={15} />
+              <span>Knowledge Discovery</span>
+            </Link>
+            <Link to="/predict" className="sidebar-nav-link">
+              <TrendingUp size={15} />
+              <span>Score Predictor</span>
+            </Link>
+            <Link to="/quiz" className="sidebar-nav-link">
+              <Sparkles size={15} />
+              <span>AI Quiz Generator</span>
+            </Link>
+            <Link to="/notes" className="sidebar-nav-link">
+              <BookOpen size={15} />
+              <span>Revision Notes</span>
+            </Link>
+          </div>
+        </div>
 
-        #chat-box { flex: 1; overflow-y: auto; padding: 24px 24px 10px; height: 46vh; min-height: 320px; position: relative; }
-        .empty-placeholder {
-          font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; color: var(--dim); line-height: 1.6; padding: 10px 4px;
-        }
+        <div className="sidebar-footer">
+          <div className="sidebar-user">
+            <div className="user-avatar-circle">O</div>
+            <div>
+              <div className="user-meta-name">Orchids User</div>
+              <div className="user-meta-plan">Free Academic Tier</div>
+            </div>
+          </div>
+        </div>
+      </aside>
 
-        .log-entry { position: relative; z-index: 1; display: flex; gap: 14px; margin-bottom: 24px; opacity: 0; transform: translateY(10px); animation: entryIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards; }
-        @keyframes entryIn { to { opacity: 1; transform: translateY(0); } }
+      {/* Main Chat Area */}
+      <main className="chatgpt-main">
+        {/* Top Header */}
+        <div className="chatgpt-top-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {!sidebarOpen && (
+              <button
+                className="sidebar-icon-btn"
+                onClick={() => setSidebarOpen(true)}
+                title="Open sidebar"
+              >
+                <PanelLeft size={18} />
+              </button>
+            )}
 
-        .star-node { flex-shrink: 0; width: 24px; display: flex; flex-direction: column; align-items: center; padding-top: 4px; }
-        .star-glyph { width: 10px; height: 10px; border-radius: 50%; position: relative; }
-        .star-glyph::after { content:""; position:absolute; inset:-6px; border-radius:50%; border:1px solid currentColor; opacity:0.3; animation: ripple 3s ease-out infinite; }
-        @keyframes ripple { 0%{transform:scale(0.85);opacity:0.35;} 70%{transform:scale(1.5);opacity:0;} 100%{opacity:0;} }
-        .log-entry.observer .star-glyph { background: var(--gold); color: var(--gold); box-shadow: 0 0 10px rgba(228,182,103,0.6); }
-        .log-entry.system .star-glyph { background: var(--violet); color: var(--violet); box-shadow: 0 0 10px rgba(156,140,240,0.6); }
+            <div className="model-badge-selector">
+              <span className="model-badge-dot" />
+              <span>Orchids 4.0 Pro</span>
+            </div>
+          </div>
 
-        .log-body { flex: 1; padding-top: 1px; min-width: 0; }
-        .log-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
-        .designation { font-family: 'Cormorant Garamond', serif; font-size: 14px; font-style: italic; font-weight: 600; }
-        .log-entry.observer .designation { color: var(--gold); }
-        .log-entry.system .designation { color: var(--violet); }
-        .log-text { font-family: 'Cormorant Garamond', serif; font-size: 17px; line-height: 1.65; color: var(--starlight); }
-        .log-entry.observer .log-text { white-space: pre-wrap; }
-
-        .log-text.markdown-body h1, .log-text.markdown-body h2, .log-text.markdown-body h3, .log-text.markdown-body h4 { font-family: 'Space Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--cyan); margin: 12px 0 6px; }
-        .log-text.markdown-body p { margin: 0 0 10px; }
-        .log-text.markdown-body ul, .log-text.markdown-body ol { margin: 0 0 10px; padding-left: 20px; }
-        .log-text.markdown-body strong { color: var(--gold); font-weight: 600; }
-        .log-text.markdown-body code { font-family: 'Space Mono', monospace; font-size: 0.8em; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px; }
-        .log-text.markdown-body table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.85em; }
-        .log-text.markdown-body th, .log-text.markdown-body td { border: 1px solid var(--glass-edge); padding: 6px 9px; text-align: left; }
-        .log-text.markdown-body hr { border: none; border-top: 1px solid var(--glass-edge); margin: 12px 0; }
-
-        .drift-row { display: flex; align-items: center; gap: 6px; height: 18px; }
-        .drift-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--violet); opacity: 0.4; animation: twinkle 1.4s infinite ease-in-out; }
-        .drift-dot:nth-child(2) { animation-delay: 0.2s; }
-        .drift-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes twinkle { 0%,60%,100%{opacity:0.2;transform:scale(0.8);} 30%{opacity:1;transform:scale(1.3);} }
-
-        .composer-wrap { flex-shrink: 0; padding: 14px 20px 20px; border-top: 1px solid var(--glass-edge); }
-        .composer { display: flex; align-items: flex-end; gap: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--glass-edge); border-radius: 14px; padding: 12px 15px; transition: border-color 0.25s, box-shadow 0.25s; }
-        .composer:focus-within { border-color: rgba(156,140,240,0.55); box-shadow: 0 0 0 1px rgba(156,140,240,0.2), 0 0 24px rgba(156,140,240,0.15); }
-        .composer textarea { flex: 1; border: none; outline: none; resize: none; background: transparent; font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--starlight); line-height: 1.5; max-height: 110px; min-height: 22px; }
-        .composer textarea::placeholder { color: var(--dim); font-style: italic; }
-        .send-btn { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: rgba(156,140,240,0.12); border: 1px solid var(--violet); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.15s; }
-        .send-btn:hover:not(:disabled) { background: rgba(156,140,240,0.25); box-shadow: 0 0 16px rgba(156,140,240,0.4); }
-        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .send-btn svg { width: 13px; height: 13px; stroke: var(--violet); }
-
-        @media (prefers-reduced-motion: reduce) { .log-entry, .drift-dot, .star-glyph::after { animation: none !important; } .log-entry { opacity: 1; transform: none; } }
-      `}</style>
-
-      <div className="card app-panel">
-        <div className="panel-header">
-          <div className="sub">observing your PYQ archive · signal locked</div>
-          <div className="subject-select-wrap">
+          <div className="chat-filter-selectors">
             <select
-              id="semester-select"
+              className="chat-filter-select"
               value={selectedSemester}
               onChange={handleSemesterChange}
+              title="Filter by Semester"
             >
-              <option value="">All semesters</option>
+              <option value="">All Semesters</option>
               {Object.keys(subjectsBySemester).map(sem => (
                 <option key={sem} value={sem}>{sem}</option>
               ))}
             </select>
 
             <select
-              id="subject-select"
+              className="chat-filter-select"
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
+              title="Filter by Subject"
             >
-              <option value="">{selectedSemester ? `All in ${selectedSemester}` : 'All subjects'}</option>
+              <option value="">{selectedSemester ? `All in ${selectedSemester}` : 'All Subjects'}</option>
               {availableSubjects.map(s => (
                 <option key={s.id || s.name} value={s.name}>{s.name}</option>
               ))}
             </select>
+
+            {messages.length > 0 && (
+              <button
+                className="action-icon-btn"
+                onClick={handleClearCurrentChat}
+                title="Clear current conversation"
+                style={{ marginLeft: 4 }}
+              >
+                <Trash2 size={14} />
+                <span>Clear</span>
+              </button>
+            )}
           </div>
         </div>
 
-        <div id="chat-box" ref={chatBoxRef}>
-          {messages.length === 0 && !isLoading && (
-            <div className="empty-placeholder">
-              Point me at a topic and I'll help you fix its position among your past papers.
+        {/* Message Stream */}
+        <div className="chatgpt-messages-container" ref={chatBoxRef}>
+          {messages.length === 0 && !isLoading ? (
+            <div className="chatgpt-welcome-screen">
+              <div className="welcome-orchid-emblem">
+                <OrchidLogo size={28} />
+              </div>
+              <h2 className="welcome-title">What would you like to master today?</h2>
+              <p className="welcome-subtitle">
+                Ask questions across your past university papers, generate study solutions, or analyze exam patterns with Orchids AI.
+              </p>
+
+              <div className="welcome-prompts-grid">
+                {promptSuggestions.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="prompt-suggestion-card"
+                    onClick={() => sendChatMessage(item.prompt)}
+                  >
+                    <div className="prompt-card-title">{item.title}</div>
+                    <div className="prompt-card-sub">{item.sub}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
+          ) : (
+            <div className="chatgpt-stream">
+              {messages.map((m, idx) => {
+                const isUser = m.role === 'user';
+                return (
+                  <div
+                    key={idx}
+                    className={`chat-row ${isUser ? 'user-row' : 'assistant-row'}`}
+                  >
+                    {!isUser && (
+                      <div className="chat-avatar orchid-avatar" title="Orchids Assistant">
+                        <OrchidLogo size={16} />
+                      </div>
+                    )}
 
-          {messages.map((m, idx) => {
-            const isUser = m.role === 'user';
-            const cls = isUser ? 'observer' : 'system';
-            const label = isUser ? 'You' : 'Observatory';
+                    <div className="chat-bubble-wrap">
+                      {isUser ? (
+                        <div className="chat-bubble">{m.content}</div>
+                      ) : (
+                        <>
+                          <div
+                            className="chat-bubble markdown-body"
+                            dangerouslySetInnerHTML={{ __html: m.content }}
+                          />
+                          <div className="assistant-actions">
+                            <button
+                              className="action-icon-btn"
+                              onClick={() => copyToClipboard(m.rawContent || m.content, idx)}
+                              title="Copy response"
+                            >
+                              {copiedIndex === idx ? (
+                                <>
+                                  <Check size={13} strokeWidth={2.4} />
+                                  <span>Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy size={13} />
+                                  <span>Copy</span>
+                                </>
+                              )}
+                            </button>
+                            <button
+                              className="action-icon-btn"
+                              onClick={() => handleRegenerate(idx)}
+                              title="Regenerate response"
+                            >
+                              <RotateCw size={13} />
+                              <span>Retry</span>
+                            </button>
+                            <button className="action-icon-btn" title="Good response">
+                              <ThumbsUp size={13} />
+                            </button>
+                            <button className="action-icon-btn" title="Bad response">
+                              <ThumbsDown size={13} />
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
 
-            return (
-              <div key={idx} className={`log-entry ${cls}`}>
-                <div className="star-node">
-                  <div className="star-glyph" />
-                </div>
-                <div className="log-body">
-                  <div className="log-head">
-                    <span className="designation">{label}</span>
+                    {isUser && (
+                      <div className="chat-avatar user-avatar" title="You">
+                        <div className="user-avatar-circle" style={{ width: 28, height: 28, fontSize: 11 }}>
+                          U
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  {m.isMarkdown ? (
-                    <div
-                      className="log-text markdown-body"
-                      dangerouslySetInnerHTML={{ __html: m.content }}
-                    />
-                  ) : (
-                    <div className="log-text">{m.content}</div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
 
-          {isLoading && (
-            <div className="log-entry system">
-              <div className="star-node">
-                <div className="star-glyph" />
-              </div>
-              <div className="log-body">
-                <div className="log-head">
-                  <span className="designation">Observatory</span>
-                </div>
-                <div className="log-text">
-                  <div className="drift-row">
-                    <span className="drift-dot" />
-                    <span className="drift-dot" />
-                    <span className="drift-dot" />
+              {isLoading && (
+                <div className="chat-row assistant-row">
+                  <div className="chat-avatar orchid-avatar">
+                    <OrchidLogo size={16} />
+                  </div>
+                  <div className="chat-bubble" style={{ background: '#ffffff', padding: '14px 18px', border: '1px solid rgba(15, 23, 42, 0.06)' }}>
+                    <div className="loading-pulse-dots">
+                      <span className="loading-dot" />
+                      <span className="loading-dot" />
+                      <span className="loading-dot" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
 
-        <div className="composer-wrap">
-          <div className="composer">
-            <textarea
-              ref={textareaRef}
-              id="user-input"
-              rows={1}
-              value={inputMessage}
-              placeholder="Chart your next question…"
-              onChange={(e) => {
-                setInputMessage(e.target.value);
-                adjustTextareaHeight();
-              }}
-              onKeyDown={handleKeyDown}
-            />
-            <button
-              className="send-btn"
-              id="send-btn"
-              onClick={() => sendChatMessage()}
-              disabled={isLoading || !inputMessage.trim()}
-              aria-label="Send message"
-            >
-              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="19" x2="12" y2="5" />
-                <polyline points="5 12 12 5 19 12" />
-              </svg>
-            </button>
+        {/* Floating Composer */}
+        <div className="chatgpt-composer-fixed-wrap">
+          <div className="chatgpt-composer-box">
+            {selectedSubject && (
+              <div className="composer-subject-pill">
+                <span>Subject: {selectedSubject}</span>
+                <X
+                  size={12}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => setSelectedSubject('')}
+                />
+              </div>
+            )}
+
+            <div className="composer-input-row">
+              <textarea
+                ref={textareaRef}
+                className="composer-textarea"
+                rows={1}
+                value={inputMessage}
+                placeholder={
+                  selectedSubject
+                    ? `Ask Orchids about ${selectedSubject}…`
+                    : 'Message Orchids…'
+                }
+                onChange={(e) => {
+                  setInputMessage(e.target.value);
+                  adjustTextareaHeight();
+                }}
+                onKeyDown={handleKeyDown}
+              />
+              <button
+                className="composer-send-btn"
+                onClick={() => sendChatMessage()}
+                disabled={isLoading || !inputMessage.trim()}
+                title="Send message"
+              >
+                <ArrowUp size={16} strokeWidth={2.4} />
+              </button>
+            </div>
+          </div>
+
+          <div className="chatgpt-disclaimer">
+            Orchids may produce inaccurate information about subjects or exams. Verify with official syllabus.
           </div>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

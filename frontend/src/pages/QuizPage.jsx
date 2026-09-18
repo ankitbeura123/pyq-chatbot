@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Sparkles, ArrowLeft, ArrowRight, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
 
 const API_ENDPOINT = "/api/quiz/generate/";
 
@@ -9,9 +10,9 @@ export default function QuizPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [quiz, setQuiz] = useState(null); // { title, num_questions, questions: [...] }
+  const [quiz, setQuiz] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState({}); // { [questionId]: selectedOptionId }
+  const [answers, setAnswers] = useState({});
 
   async function handleGenerate(e) {
     e.preventDefault();
@@ -120,9 +121,6 @@ export default function QuizPage() {
   );
 }
 
-// ---------------------------------------------------------------------
-// Setup screen
-// ---------------------------------------------------------------------
 function QuizSetup({
   topicDescription,
   setTopicDescription,
@@ -133,53 +131,54 @@ function QuizSetup({
   error,
 }) {
   return (
-    <div className="quiz-setup-card glass-card">
-      <h1 className="quiz-title">✨ Generate a Quiz</h1>
+    <div className="quiz-setup-card card">
+      <h1 className="quiz-title">
+        <Sparkles size={22} color="#2563eb" />
+        Generate an AI Quiz
+      </h1>
       <p className="quiz-subtitle">
-        Describe the topic (as specific or broad as you like). You can also
-        mention the number of questions directly in the description — e.g.
-        "15 questions on TCP/IP layering" — or set it below.
+        Describe the topic or syllabus area (e.g. "Process Scheduling in OS with Gantt charts"). Orchids AI generates exam-accurate MCQs with detailed explanations.
       </p>
 
       <form onSubmit={onSubmit} className="quiz-setup-form">
         <label className="quiz-label" htmlFor="topic-description">
-          Topic description
+          Topic Description
         </label>
         <textarea
           id="topic-description"
           className="quiz-textarea"
-          rows={5}
-          placeholder="e.g. Operating Systems — process scheduling algorithms, deadlocks, and memory management, focused on 4th semester KIIT syllabus"
+          rows={4}
+          placeholder="e.g. Operating Systems — process scheduling algorithms, deadlocks, and memory management for KIIT B.Tech exams"
           value={topicDescription}
           onChange={(e) => setTopicDescription(e.target.value)}
         />
 
-        <label className="quiz-label" htmlFor="num-questions">
-          Number of questions
-        </label>
-        <input
-          id="num-questions"
-          type="number"
-          min={1}
-          max={30}
-          className="quiz-number-input"
-          value={numQuestions}
-          onChange={(e) => setNumQuestions(e.target.value)}
-        />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 180 }}>
+          <label className="quiz-label" htmlFor="num-questions">
+            Number of Questions
+          </label>
+          <input
+            id="num-questions"
+            type="number"
+            min={1}
+            max={30}
+            className="quiz-number-input"
+            value={numQuestions}
+            onChange={(e) => setNumQuestions(e.target.value)}
+          />
+        </div>
 
         {error && <div className="quiz-error">{error}</div>}
 
-        <button type="submit" className="quiz-btn quiz-btn-primary" disabled={loading}>
-          {loading ? "Generating quiz…" : "Generate Quiz"}
+        <button type="submit" className="hero-btn-dark" style={{ marginTop: 20, alignSelf: 'flex-start' }} disabled={loading}>
+          <Sparkles size={15} />
+          {loading ? "Generating Quiz…" : "Generate Practice Quiz"}
         </button>
       </form>
     </div>
   );
 }
 
-// ---------------------------------------------------------------------
-// Quiz runner — one question card at a time
-// ---------------------------------------------------------------------
 function QuizRunner({ quiz, currentIndex, answers, onSelect, onNext, onPrev, onSubmit }) {
   const question = quiz.questions[currentIndex];
   const total = quiz.questions.length;
@@ -198,11 +197,11 @@ function QuizRunner({ quiz, currentIndex, answers, onSelect, onNext, onPrev, onS
       <div className="quiz-meta-row">
         <span>{quiz.title}</span>
         <span>
-          Question {currentIndex + 1} / {total}
+          Question {currentIndex + 1} of {total}
         </span>
       </div>
 
-      <div className="quiz-question-card glass-card">
+      <div className="quiz-question-card card">
         <h2 className="quiz-question-text">{question.question}</h2>
 
         <div className="quiz-options-grid">
@@ -226,24 +225,26 @@ function QuizRunner({ quiz, currentIndex, answers, onSelect, onNext, onPrev, onS
       <div className="quiz-nav-row">
         <button
           type="button"
-          className="quiz-btn quiz-btn-secondary"
+          className="btn"
           onClick={onPrev}
           disabled={currentIndex === 0}
         >
-          ← Previous
+          <ArrowLeft size={14} />
+          Previous
         </button>
 
         <span className="quiz-answered-count">
-          {answeredCount} / {total} answered
+          {answeredCount} of {total} answered
         </span>
 
         {isLast ? (
-          <button type="button" className="quiz-btn quiz-btn-primary" onClick={onSubmit}>
+          <button type="button" className="hero-btn-dark" onClick={onSubmit}>
             Submit Quiz
           </button>
         ) : (
-          <button type="button" className="quiz-btn quiz-btn-primary" onClick={onNext}>
-            Next →
+          <button type="button" className="btn btn-primary" onClick={onNext}>
+            Next
+            <ArrowRight size={14} />
           </button>
         )}
       </div>
@@ -251,24 +252,22 @@ function QuizRunner({ quiz, currentIndex, answers, onSelect, onNext, onPrev, onS
   );
 }
 
-// ---------------------------------------------------------------------
-// Results screen — score + per-question explanation cards
-// ---------------------------------------------------------------------
 function QuizResults({ quiz, answers, score, onRestart }) {
   const percentage = Math.round((score.correct / score.total) * 100);
 
   return (
     <div className="quiz-results">
-      <div className="quiz-score-card glass-card">
+      <div className="quiz-score-card card">
         <h1 className="quiz-title">{quiz.title}</h1>
         <div className="quiz-score-circle" style={{ '--pct': `${percentage}%` }}>
           <span className="quiz-score-number">{percentage}%</span>
         </div>
         <p className="quiz-score-text">
-          {score.correct} / {score.total} correct
+          {score.correct} out of {score.total} correct
         </p>
-        <button type="button" className="quiz-btn quiz-btn-primary" onClick={onRestart}>
-          New Quiz
+        <button type="button" className="hero-btn-dark" onClick={onRestart} style={{ marginTop: 12 }}>
+          <RotateCcw size={15} />
+          Start New Quiz
         </button>
       </div>
 
@@ -280,14 +279,24 @@ function QuizResults({ quiz, answers, score, onRestart }) {
           return (
             <div
               key={q.id}
-              className={`quiz-review-card glass-card${
+              className={`quiz-review-card card${
                 isCorrect ? " quiz-review-correct" : " quiz-review-incorrect"
               }`}
             >
               <div className="quiz-review-header">
-                <span className="quiz-review-index">Q{idx + 1}</span>
+                <span className="quiz-review-index">Question {idx + 1}</span>
                 <span className={`quiz-review-badge ${isCorrect ? "badge-correct" : "badge-incorrect"}`}>
-                  {isCorrect ? "Correct" : userAnswer ? "Incorrect" : "Skipped"}
+                  {isCorrect ? (
+                    <>
+                      <CheckCircle2 size={12} />
+                      Correct
+                    </>
+                  ) : (
+                    <>
+                      <XCircle size={12} />
+                      {userAnswer ? "Incorrect" : "Skipped"}
+                    </>
+                  )}
                 </span>
               </div>
 
@@ -305,7 +314,7 @@ function QuizResults({ quiz, answers, score, onRestart }) {
                     <div key={opt.id} className={cls}>
                       <span className="quiz-option-letter">{opt.id.toUpperCase()}</span>
                       <span>{opt.text}</span>
-                      {isUserChoice && <span className="quiz-your-pick">Your pick</span>}
+                      {isUserChoice && <span className="quiz-your-pick">Your choice</span>}
                     </div>
                   );
                 })}

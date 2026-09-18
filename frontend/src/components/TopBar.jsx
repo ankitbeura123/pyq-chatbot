@@ -1,67 +1,88 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { ChevronDown, MessageSquare, Sparkles } from 'lucide-react';
+
+export function OrchidLogo({ size = 22, className = '' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* 6-petal orchid blossom geometric logo matching screenshot */}
+      <circle cx="12" cy="12" r="2.2" />
+      <circle cx="12" cy="5.5" r="3.2" />
+      <circle cx="17.6" cy="8.7" r="3.2" />
+      <circle cx="17.6" cy="15.3" r="3.2" />
+      <circle cx="12" cy="18.5" r="3.2" />
+      <circle cx="6.4" cy="15.3" r="3.2" />
+      <circle cx="6.4" cy="8.7" r="3.2" />
+    </svg>
+  );
+}
 
 export default function TopBar() {
   const location = useLocation();
 
-  const isBrowseActive = location.pathname.startsWith('/browse');
   const isChatActive = location.pathname === '/';
+  const isShowcaseActive = location.pathname === '/use-cases';
+  const isBrowseActive = location.pathname.startsWith('/browse');
   const isDiscoverActive = location.pathname === '/discover';
   const isPredictActive = location.pathname === '/predict';
   const isQuizActive = location.pathname === '/quiz';
   const isNotesActive = location.pathname === '/notes';
 
   return (
-    <div className="topbar-wrap">
+    <header className="topbar-wrap">
       <div className="topbar">
-        <Link to="/" className="brand">
-          <svg className="orbit-mark" viewBox="0 0 44 44" fill="none">
-            <circle cx="22" cy="22" r="3" fill="#E4B667" />
-            <ellipse
-              cx="22"
-              cy="22"
-              rx="20"
-              ry="8"
-              stroke="rgba(226,231,245,0.35)"
-              strokeWidth="0.8"
-              transform="rotate(-20 22 22)"
-            />
-            <ellipse
-              cx="22"
-              cy="22"
-              rx="20"
-              ry="8"
-              stroke="rgba(156,140,240,0.35)"
-              strokeWidth="0.8"
-              transform="rotate(35 22 22)"
-            />
-            <circle cx="37" cy="16" r="1.6" fill="#6FD3D9" />
-          </svg>
-          <span className="brand-text">
-            Observatory <span>PYQ</span>
-          </span>
-        </Link>
-        <nav>
-          <Link to="/" className={isChatActive ? 'active' : ''}>
-            Chat
+        <div className="topbar-left">
+          <Link to="/" className="brand">
+            <OrchidLogo size={20} className="orchid-flower-logo" />
+            <span className="brand-text">Orchids</span>
           </Link>
-          <Link to="/browse" className={isBrowseActive ? 'active' : ''}>
-            Browse
+
+          <nav>
+            <Link
+              to="/use-cases"
+              className={isShowcaseActive ? 'active' : ''}
+            >
+              Use Cases
+              <ChevronDown size={13} strokeWidth={2.2} />
+            </Link>
+            <Link to="/" className={isChatActive ? 'active' : ''}>
+              Chat
+            </Link>
+            <Link to="/browse" className={isBrowseActive ? 'active' : ''}>
+              Browse
+            </Link>
+            <Link to="/discover" className={isDiscoverActive ? 'active' : ''}>
+              Discover
+            </Link>
+            <Link to="/predict" className={isPredictActive ? 'active' : ''}>
+              Predict
+            </Link>
+            <Link to="/quiz" className={isQuizActive ? 'active' : ''}>
+              Quiz
+            </Link>
+            <Link to="/notes" className={isNotesActive ? 'active' : ''}>
+              Notes
+            </Link>
+          </nav>
+        </div>
+
+        <div className="topbar-right">
+          <Link to="/login" className="topbar-login-btn">
+            Login
           </Link>
-          <Link to="/discover" className={isDiscoverActive ? 'active' : ''}>
-            Discover
+          <Link to="/" className="topbar-action-pill">
+            <MessageSquare size={14} />
+            Start Chat
           </Link>
-          <Link to="/predict" className={isPredictActive ? 'active' : ''}>
-            Predict
-          </Link>
-          <Link to="/quiz" className={isQuizActive ? 'active' : ''}>
-            Quiz
-          </Link>
-          <Link to="/notes" className={isNotesActive ? 'active' : ''}>
-            Notes
-          </Link>
-        </nav>
+        </div>
       </div>
-    </div>
+    </header>
   );
 }
