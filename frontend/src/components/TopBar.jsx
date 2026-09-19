@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown, MessageSquare, Sparkles } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 export function OrchidLogo({ size = 22, className = '' }) {
   return (
@@ -27,8 +27,8 @@ export function OrchidLogo({ size = 22, className = '' }) {
 export default function TopBar() {
   const location = useLocation();
 
-  const isChatActive = location.pathname === '/';
-  const isShowcaseActive = location.pathname === '/use-cases';
+  const isHomeActive = location.pathname === '/' || location.pathname === '/home';
+  const isChatActive = location.pathname === '/chat';
   const isBrowseActive = location.pathname.startsWith('/browse');
   const isDiscoverActive = location.pathname === '/discover';
   const isPredictActive = location.pathname === '/predict';
@@ -39,20 +39,19 @@ export default function TopBar() {
     <header className="topbar-wrap">
       <div className="topbar">
         <div className="topbar-left">
-          <Link to="/" className="brand">
+          <Link to="/" className="brand" aria-label="Orchids home">
             <OrchidLogo size={20} className="orchid-flower-logo" />
             <span className="brand-text">Orchids</span>
           </Link>
 
-          <nav>
+          <nav aria-label="Main Navigation">
             <Link
-              to="/use-cases"
-              className={isShowcaseActive ? 'active' : ''}
+              to="/"
+              className={isHomeActive ? 'active' : ''}
             >
-              Use Cases
-              <ChevronDown size={13} strokeWidth={2.2} />
+              Home
             </Link>
-            <Link to="/" className={isChatActive ? 'active' : ''}>
+            <Link to="/chat" className={isChatActive ? 'active' : ''}>
               Chat
             </Link>
             <Link to="/browse" className={isBrowseActive ? 'active' : ''}>
@@ -77,7 +76,7 @@ export default function TopBar() {
           <Link to="/login" className="topbar-login-btn">
             Login
           </Link>
-          <Link to="/" className="topbar-action-pill">
+          <Link to="/chat" className="topbar-action-pill">
             <MessageSquare size={14} />
             Start Chat
           </Link>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import OrchidsBackground from './components/OrchidsBackground';
 import TopBar from './components/TopBar';
-import LandingShowcase from './components/LandingShowcase';
+import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import BrowseSubjectsPage from './pages/BrowseSubjectsPage';
 import BrowseDocumentsPage from './pages/BrowseDocumentsPage';
@@ -20,11 +20,15 @@ export default function App() {
       <OrchidsBackground />
       <TopBar />
       <Routes>
-        {/* Full-width ChatGPT style Chat Page */}
-        <Route path="/" element={<ChatPage />} />
+        {/* Home Page Landing */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
         
-        {/* Exact Landing Showcase from Reference Image */}
-        <Route path="/use-cases" element={<LandingShowcase />} />
+        {/* Full-width Conversational Chat Page */}
+        <Route path="/chat" element={<ChatPage />} />
+
+        {/* Redirect old use cases */}
+        <Route path="/use-cases" element={<Navigate to="/" replace />} />
 
         {/* Sub-pages wrapped in standard page container */}
         <Route
