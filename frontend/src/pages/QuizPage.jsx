@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, ArrowLeft, ArrowRight, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
+import { Sparkles, ArrowLeft, ArrowRight, CheckCircle2, XCircle, RotateCcw, BookOpen, Globe } from "lucide-react";
 
 const API_ENDPOINT = "/api/quiz/generate/";
 
@@ -196,6 +196,12 @@ function QuizRunner({ quiz, currentIndex, answers, onSelect, onNext, onPrev, onS
 
       <div className="quiz-meta-row">
         <span>{quiz.title}</span>
+        {quiz.syllabus_info?.badge && (
+          <span className={`quiz-syllabus-badge ${quiz.syllabus_info.mode === 'topic_union' ? 'union' : (!quiz.syllabus_info.is_matched ? 'out-of-syllabus' : '')}`}>
+            {quiz.syllabus_info.is_matched ? <BookOpen size={13} /> : <Globe size={13} />}
+            {quiz.syllabus_info.badge}
+          </span>
+        )}
         <span>
           Question {currentIndex + 1} of {total}
         </span>
@@ -259,6 +265,12 @@ function QuizResults({ quiz, answers, score, onRestart }) {
     <div className="quiz-results">
       <div className="quiz-score-card card">
         <h1 className="quiz-title">{quiz.title}</h1>
+        {quiz.syllabus_info?.badge && (
+          <span className={`quiz-syllabus-badge ${quiz.syllabus_info.mode === 'topic_union' ? 'union' : (!quiz.syllabus_info.is_matched ? 'out-of-syllabus' : '')}`} style={{ marginTop: 4 }}>
+            {quiz.syllabus_info.is_matched ? <BookOpen size={13} /> : <Globe size={13} />}
+            {quiz.syllabus_info.badge}
+          </span>
+        )}
         <div className="quiz-score-circle" style={{ '--pct': `${percentage}%` }}>
           <span className="quiz-score-number">{percentage}%</span>
         </div>

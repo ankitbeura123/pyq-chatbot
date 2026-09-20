@@ -84,10 +84,38 @@
 .quiz-meta-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quiz-syllabus-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.quiz-syllabus-badge.union {
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+  color: #6d28d9;
+}
+
+.quiz-syllabus-badge.out-of-syllabus {
+  background: #fefce8;
+  border-color: #fef08a;
+  color: #854d0e;
 }
 
 .quiz-question-card {
