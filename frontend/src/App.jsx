@@ -9,9 +9,10 @@ import BrowseDocumentsPage from './pages/BrowseDocumentsPage';
 import KnowledgeDiscoveryPage from './pages/KnowledgeDiscoveryPage';
 import ScorePredictorPage from './pages/ScorePredictorPage';
 import QuizPage from './pages/QuizPage';
-import RevisionNotesPage from './pages/RevisionNotesPage';
+import MockExamPage from './pages/MockExamPage';
 import './quiz.css';
 import './notes.css';
+import './mock.css';
 
 export default function App() {
   return (
@@ -75,13 +76,15 @@ export default function App() {
           }
         />
         <Route
-          path="/notes"
+          path="/mock"
           element={
             <div className="page">
-              <RevisionNotesPage />
+              <MockExamPage />
             </div>
           }
         />
+        {/* Redirect old notes tab to mock */}
+        <Route path="/notes" element={<Navigate to="/mock" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

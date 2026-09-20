@@ -22,10 +22,15 @@ urlpatterns = [
     path('api/notes/generate/', views.notes_generate_api, name='notes_generate_api'),
     path('notes/download/<str:filename>/', views.download_notes_pdf, name='download_notes_pdf'),
 
+    # Mock Exam Paper & Solution Generator API
+    path('api/mock/generate/', views.mock_generate_api, name='mock_generate_api'),
+    path('api/mock/syllabus-preview/', views.mock_syllabus_preview_api, name='mock_syllabus_preview_api'),
+    path('mock/download/<str:filename>/', views.download_mock_pdf, name='download_mock_pdf'),
+
     # Document download
     path('browse/document/<int:doc_id>/download/', views.download_document, name='download_document'),
     path('browse/subject/<int:subject_id>/syllabus/download/', views.download_subject_syllabus, name='download_subject_syllabus'),
 
     # Catch-all to serve the React SPA
-    re_path(r'^(?!api/|admin/|static/|browse/document/\d+/download|browse/subject/\d+/syllabus/download|notes/download/).*$', views.react_app, name='react_app'),
+    re_path(r'^(?!api/|admin/|static/|browse/document/\d+/download|browse/subject/\d+/syllabus/download|notes/download/|mock/download/).*$', views.react_app, name='react_app'),
 ]

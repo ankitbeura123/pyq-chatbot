@@ -5,12 +5,52 @@ import {
   TrendingUp,
   Target,
   HelpCircle,
-  FileText,
+  FileSpreadsheet,
   FolderOpen,
   ArrowRight,
   Sparkles
 } from 'lucide-react';
 import { OrchidLogo } from '../components/TopBar';
+
+import amanImg from '../assets/aman-pandey.jpeg';
+import adyasaImg from '../assets/adyasa-priyadarshani.jpeg';
+import ankitImg from '../assets/ankit-beura.jpg';
+import raghunathImg from '../assets/Raghunath-Dey.jpg';
+import defaultImg from '../assets/default.jpg';
+
+const TEAM_MEMBERS = [
+  {
+    name: 'Aman Pandey',
+    roll: '2305004',
+    photo: amanImg,
+  },
+  {
+    name: 'Aadyasa Priyadarshini',
+    roll: '2305107',
+    photo: adyasaImg,
+  },
+  {
+    name: 'Aman Aahir',
+    roll: '2305109',
+    photo: null,
+  },
+  {
+    name: 'Ankit Beura',
+    roll: '2305113',
+    photo: ankitImg,
+  },
+  {
+    name: 'Ahana Bhattacharya',
+    roll: '2305275',
+    photo: null,
+  },
+];
+
+const MENTOR = {
+  name: 'Raghunath Dey',
+  role: 'UNDER THE GUIDANCE OF',
+  photo: raghunathImg,
+};
 
 export default function HomePage() {
   return (
@@ -22,7 +62,7 @@ export default function HomePage() {
           <p className="sub">
             Orchids reads your previous year question papers and course syllabi,
             then answers questions from them with sources you can check. It also
-            predicts your score, quizzes you, and writes revision notes.
+            predicts your score, quizzes you, and generates mock exam papers.
           </p>
           <div className="cta-row">
             <Link className="pill-dark btn-hero" to="/chat">
@@ -157,16 +197,16 @@ export default function HomePage() {
               <div className="go">Start quiz →</div>
             </Link>
 
-            <Link className="card feature-card" to="/notes">
+            <Link className="card feature-card" to="/mock">
               <div className="ic">
-                <FileText size={20} strokeWidth={1.75} />
+                <FileSpreadsheet size={20} strokeWidth={1.75} />
               </div>
-              <h3>Make revision notes</h3>
+              <h3>Generate mock papers</h3>
               <p>
-                Get structured notes with formulas, diagrams, key terms and exam
-                tips, and download them as a printable PDF.
+                Create Midsem (20M) and Endsem (50M) mock exams strictly grounded
+                in your syllabus, with downloadable Question Paper & Solution PDFs.
               </p>
-              <div className="go">Generate notes →</div>
+              <div className="go">Generate mock →</div>
             </Link>
 
             <Link className="card feature-card" to="/browse">
@@ -335,6 +375,50 @@ export default function HomePage() {
               Matplotlib<small>LaTeX formulas</small>
             </span>
             <span className="s">SQLite</span>
+          </div>
+        </div>
+
+        {/* BUILT BY */}
+        <div className="panel team-panel" style={{ marginTop: '16px' }}>
+          <h3>Built by</h3>
+          <p>The team behind Orchids.</p>
+
+          <div className="team-grid">
+            {TEAM_MEMBERS.map((member, idx) => (
+              <div className="team-card" key={idx}>
+                <div className="team-avatar-wrap">
+                  <img
+                    src={member.photo || defaultImg}
+                    alt={member.name}
+                    className="team-avatar-img"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = defaultImg;
+                    }}
+                  />
+                </div>
+                <h4 className="team-name">{member.name}</h4>
+                <span className="team-roll">{member.roll}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mentor-card">
+            <div className="mentor-avatar-wrap">
+              <img
+                src={MENTOR.photo || defaultImg}
+                alt={MENTOR.name}
+                className="mentor-avatar-img"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = defaultImg;
+                }}
+              />
+            </div>
+            <div className="mentor-info">
+              <span className="mentor-label">{MENTOR.role}</span>
+              <h4 className="mentor-name">{MENTOR.name}</h4>
+            </div>
           </div>
         </div>
       </section>

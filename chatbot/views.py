@@ -7,12 +7,19 @@ import json
 import os
 import re
 import pypdf
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .rag import get_chatbot_response
 from .models import Subject, Document, ChatMessage
 from . import analytics
 from .quiz_engine import generate_quiz, QuizGenerationError
 from .notes_engine import generate_revision_notes, build_notes_pdf, NotesGenerationError, NOTES_DIR
+from .mock_engine import (
+    generate_mock_exam, build_exam_pdf, get_exam_syllabus_scope,
+    MockExamGenerationError, MOCK_DIR
+)
 
 
 def _subjects_grouped():
@@ -283,4 +290,76 @@ def download_notes_pdf(request, filename):
     file_path = os.path.join(NOTES_DIR, filename)
     if not os.path.exists(file_path):
         raise Http404("Notes PDF not found.")
+    return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=filename)
+
+
+# ---------------- Mock Exam Paper Generator ----------------
+
+def mock_syllabus_preview_api(request):
+    """
+    GET /api/mock/syllabus-preview/?subject_id=X&exam_type=midsem|endsem
+    Returns syllabus units and topics included in this specific exam type.
+    """
+    subject_id = request.GET.get('subject_id')
+    exam_type = request.GET.get('exam_type', 'midsem')
+
+    if not subject_id:
+        return JsonResponse({'error': 'subject_id parameter is required'}, status=400)
+
+    subject = get_object_or_404(Subject, id=subject_id)
+    scope = get_exam_syllabus_scope(subject.name, exam_type)
+    return JsonResponse({'subject': subject.name, 'exam_type': exam_type, 'scope': scope})
+
+
+@csrf_exempt
+def mock_generate_api(request):
+    """
+    POST /api/mock/generate/
+    Body: {"subject_id": int, "exam_type": "midsem" | "endsem"}
+    Returns: {"paper": {...}, "qp_filename": "...", "ans_filename": "..."}
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+
+    subject_id = data.get('subject_id')
+    exam_type = data.get('exam_type', 'midsem')
+
+    if not subject_id:
+        return JsonResponse({'error': 'subject_id is required'}, status=400)
+
+    subject = get_object_or_404(Subject, id=subject_id)
+
+    try:
+        paper_data = generate_mock_exam(
+            subject_name=subject.name,
+            exam_type=exam_type,
+            semester=subject.semester
+        )
+        qp_filename = build_exam_pdf(paper_data, is_solution=False)
+        ans_filename = build_exam_pdf(paper_data, is_solution=True)
+        return JsonResponse({
+            'success': True,
+            'paper': paper_data,
+            'qp_filename': qp_filename,
+            'ans_filename': ans_filename
+        })
+    except MockExamGenerationError as e:
+        return JsonResponse({'error': str(e)}, status=502)
+    except Exception as e:
+        logger.exception("Mock Exam generation API error")
+        return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
+
+
+def download_mock_pdf(request, filename):
+    """Streams a generated Question Paper or Answer Key PDF."""
+    if not re.fullmatch(r"[a-zA-Z0-9_\-]+\.pdf", filename):
+        raise Http404("Invalid filename.")
+    file_path = os.path.join(MOCK_DIR, filename)
+    if not os.path.exists(file_path):
+        raise Http404("Mock Exam PDF not found.")
     return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=filename)
