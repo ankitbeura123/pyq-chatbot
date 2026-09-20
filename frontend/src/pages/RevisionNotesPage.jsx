@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BookOpen, Download, RotateCcw, FileText, Sparkles } from "lucide-react";
+import CustomSelect from "../components/CustomSelect";
 
 const GENERATE_ENDPOINT = "/api/notes/generate/";
 
@@ -75,19 +76,19 @@ export default function RevisionNotesPage() {
             <label className="notes-label" htmlFor="notes-subject">
               Subject (optional)
             </label>
-            <select
+            <CustomSelect
               id="notes-subject"
-              className="notes-select"
               value={subjectId}
-              onChange={(e) => setSubjectId(e.target.value)}
-            >
-              <option value="">— General / No specific subject —</option>
-              {subjects.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name} ({s.semester})
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setSubjectId(val)}
+              placeholder="— General / No specific subject —"
+              options={[
+                { value: "", label: "— General / No specific subject —" },
+                ...subjects.map((s) => ({
+                  value: s.id,
+                  label: `${s.name} (${s.semester})`,
+                }))
+              ]}
+            />
 
             <label className="notes-label" htmlFor="notes-topic">
               Topic Name

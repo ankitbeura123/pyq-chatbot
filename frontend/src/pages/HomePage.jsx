@@ -175,8 +175,8 @@ export default function HomePage() {
               </div>
               <h3>Browse papers</h3>
               <p>
-                Open any midsem, endsem or supplementary paper by semester and
-                subject. Read it in the browser or download the PDF.
+                Access any midsem, endsem or supplementary paper by semester and
+                subject, and download the PDF directly.
               </p>
               <div className="go">Browse archives →</div>
             </Link>

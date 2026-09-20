@@ -126,39 +126,41 @@ def api_browse_documents(request, subject_id):
     })
 
 
-def api_view_document(request, doc_id):
-    document = get_object_or_404(Document, id=doc_id)
-    text = ""
-    try:
-        reader = pypdf.PdfReader(document.source_path)
-        for page in reader.pages:
-            text += (page.extract_text() or "") + "\n\n"
-        if not text.strip():
-            text = "(This is a scanned document — text preview not available here.)"
-    except Exception as e:
-        text = f"Could not load file: {e}"
-
-    return JsonResponse({
-        'document': {
-            'id': document.id,
-            'file_name': document.file_name,
-            'exam_type': document.exam_type,
-            'year': document.year,
-            'subject': {'id': document.subject.id, 'name': document.subject.name, 'semester': document.subject.semester}
-        },
-        'text': text
-    })
-
-
 def download_document(request, doc_id):
     document = get_object_or_404(Document, id=doc_id)
-    if not os.path.exists(document.source_path):
-        raise Http404("File not found on disk.")
-    return FileResponse(
-        open(document.source_path, 'rb'),
-        as_attachment=True,
-        filename=document.file_name
-    )
+    if os.path.exists(document.source_path):
+        filename = f"{document.subject.name}_Syllabus.txt" if document.doc_type == 'syllabus' else document.file_name
+        return FileResponse(
+            open(document.source_path, 'rb'),
+            as_attachment=True,
+            filename=filename
+        )
+    elif document.doc_type == 'syllabus':
+        from .syllabus_parser import get_raw_syllabus_text
+        text = get_raw_syllabus_text(document.subject.name)
+        if text:
+            response = HttpResponse(text, content_type='text/plain; charset=utf-8')
+            response['Content-Disposition'] = f'attachment; filename="{document.subject.name}_Syllabus.txt"'
+            return response
+    raise Http404("File not found on disk.")
+
+
+def download_subject_syllabus(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    syl_doc = Document.objects.filter(subject=subject, doc_type='syllabus').first()
+    if syl_doc and os.path.exists(syl_doc.source_path):
+        return FileResponse(
+            open(syl_doc.source_path, 'rb'),
+            as_attachment=True,
+            filename=f"{subject.name}_Syllabus.txt"
+        )
+    from .syllabus_parser import get_raw_syllabus_text
+    text = get_raw_syllabus_text(subject.name)
+    if text:
+        response = HttpResponse(text, content_type='text/plain; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="{subject.name}_Syllabus.txt"'
+        return response
+    raise Http404("Syllabus not found.")
 
 
 # ---------------- Knowledge Discovery ----------------

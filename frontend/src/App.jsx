@@ -6,7 +6,6 @@ import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import BrowseSubjectsPage from './pages/BrowseSubjectsPage';
 import BrowseDocumentsPage from './pages/BrowseDocumentsPage';
-import ViewDocumentPage from './pages/ViewDocumentPage';
 import KnowledgeDiscoveryPage from './pages/KnowledgeDiscoveryPage';
 import ScorePredictorPage from './pages/ScorePredictorPage';
 import QuizPage from './pages/QuizPage';
@@ -49,11 +48,7 @@ export default function App() {
         />
         <Route
           path="/browse/document/:docId"
-          element={
-            <div className="page">
-              <ViewDocumentPage />
-            </div>
-          }
+          element={<Navigate to="/browse" replace />}
         />
         <Route
           path="/discover"

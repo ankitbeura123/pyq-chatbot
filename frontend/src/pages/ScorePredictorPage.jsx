@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TrendingUp, CheckCircle, Award } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
 
 export default function ScorePredictorPage() {
   const [subjectsBySemester, setSubjectsBySemester] = useState({});
@@ -26,8 +27,8 @@ export default function ScorePredictorPage() {
     loadSubjects();
   }, []);
 
-  const handleSemesterChange = (e) => {
-    const sem = e.target.value;
+  const handleSemesterChange = (val) => {
+    const sem = typeof val === 'object' && val?.target ? val.target.value : val;
     setSelectedSemester(sem);
     setSelectedSubjectId('');
     setTopics([]);
@@ -36,8 +37,8 @@ export default function ScorePredictorPage() {
     setStatusMsg('');
   };
 
-  const handleSubjectChange = async (e) => {
-    const id = e.target.value;
+  const handleSubjectChange = async (val) => {
+    const id = typeof val === 'object' && val?.target ? val.target.value : val;
     setSelectedSubjectId(id);
     setTopics([]);
     setStudiedTopics([]);
@@ -123,39 +124,31 @@ export default function ScorePredictorPage() {
         </p>
 
         <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 180 }}>
             <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
               Semester
             </label>
-            <select
+            <CustomSelect
               id="semesterSelect"
-              className="styled-select"
               value={selectedSemester}
               onChange={handleSemesterChange}
-            >
-              <option value="">Select semester…</option>
-              {Object.keys(subjectsBySemester).map(sem => (
-                <option key={sem} value={sem}>{sem}</option>
-              ))}
-            </select>
+              placeholder="Select semester…"
+              options={Object.keys(subjectsBySemester).map(sem => ({ value: sem, label: sem }))}
+            />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 260 }}>
             <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
               Subject
             </label>
-            <select
+            <CustomSelect
               id="subjectSelect"
-              className="styled-select"
               disabled={!selectedSemester}
               value={selectedSubjectId}
               onChange={handleSubjectChange}
-            >
-              <option value="">{selectedSemester ? 'Select subject…' : 'Select semester first…'}</option>
-              {availableSubjects.map(s => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
+              placeholder={selectedSemester ? 'Select subject…' : 'Select semester first…'}
+              options={availableSubjects.map(s => ({ value: s.id, label: s.name }))}
+            />
           </div>
         </div>
       </div>

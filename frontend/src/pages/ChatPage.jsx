@@ -25,6 +25,7 @@ import {
   Sliders
 } from 'lucide-react';
 import { OrchidLogo } from '../components/TopBar';
+import CustomSelect from '../components/CustomSelect';
 
 const SESSIONS_STORAGE_KEY = 'orchids_chat_sessions_v2';
 
@@ -129,8 +130,8 @@ export default function ChatPage() {
     ? subjectsBySemester[selectedSemester] || []
     : Object.values(subjectsBySemester).flat();
 
-  const handleSemesterChange = (e) => {
-    const sem = e.target.value;
+  const handleSemesterChange = (val) => {
+    const sem = typeof val === 'object' && val?.target ? val.target.value : val;
     setSelectedSemester(sem);
     setSelectedSubject('');
   };
@@ -420,29 +421,30 @@ export default function ChatPage() {
           </div>
 
           <div className="chat-filter-selectors">
-            <select
-              className="chat-filter-select"
+            <CustomSelect
+              size="sm"
               value={selectedSemester}
               onChange={handleSemesterChange}
-              title="Filter by Semester"
-            >
-              <option value="">All Semesters</option>
-              {Object.keys(subjectsBySemester).map(sem => (
-                <option key={sem} value={sem}>{sem}</option>
-              ))}
-            </select>
+              placeholder="All Semesters"
+              options={[
+                { value: "", label: "All Semesters" },
+                ...Object.keys(subjectsBySemester).map(sem => ({ value: sem, label: sem }))
+              ]}
+              style={{ minWidth: 130 }}
+            />
 
-            <select
-              className="chat-filter-select"
+            <CustomSelect
+              size="sm"
               value={selectedSubject}
-              onChange={(e) => setSelectedSubject(e.target.value)}
-              title="Filter by Subject"
-            >
-              <option value="">{selectedSemester ? `All in ${selectedSemester}` : 'All Subjects'}</option>
-              {availableSubjects.map(s => (
-                <option key={s.id || s.name} value={s.name}>{s.name}</option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedSubject(val)}
+              disabled={!selectedSemester}
+              placeholder={selectedSemester ? `All in ${selectedSemester}` : 'All Subjects'}
+              options={[
+                { value: "", label: selectedSemester ? `All in ${selectedSemester}` : 'All Subjects' },
+                ...availableSubjects.map(s => ({ value: s.name, label: s.name }))
+              ]}
+              style={{ minWidth: 150 }}
+            />
 
             {messages.length > 0 && (
               <button

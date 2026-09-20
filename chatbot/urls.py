@@ -7,7 +7,6 @@ urlpatterns = [
     path('api/chat/', views.chat_api, name='chat_api'),
     path('api/browse/', views.api_browse_subjects, name='api_browse_subjects'),
     path('api/browse/subject/<int:subject_id>/', views.api_browse_documents, name='api_browse_documents'),
-    path('api/browse/document/<int:doc_id>/', views.api_view_document, name='api_view_document'),
 
     # Knowledge Discovery API
     path('api/discover/<int:subject_id>/', views.discovery_data_api, name='discovery_data_api'),
@@ -25,7 +24,8 @@ urlpatterns = [
 
     # Document download
     path('browse/document/<int:doc_id>/download/', views.download_document, name='download_document'),
+    path('browse/subject/<int:subject_id>/syllabus/download/', views.download_subject_syllabus, name='download_subject_syllabus'),
 
     # Catch-all to serve the React SPA
-    re_path(r'^(?!api/|admin/|static/|browse/document/\d+/download|notes/download/).*$', views.react_app, name='react_app'),
+    re_path(r'^(?!api/|admin/|static/|browse/document/\d+/download|browse/subject/\d+/syllabus/download|notes/download/).*$', views.react_app, name='react_app'),
 ]

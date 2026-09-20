@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { BookOpen, FileText, Download, ArrowLeft, Eye } from 'lucide-react';
+import { BookOpen, FileText, Download, ArrowLeft } from 'lucide-react';
 
 export default function BrowseDocumentsPage() {
   const { subjectId } = useParams();
@@ -119,6 +119,24 @@ export default function BrowseDocumentsPage() {
           border-color: rgba(15, 23, 42, 0.2);
           background: #f8fafc;
         }
+        .syllabus-row {
+          background: #fbfaff;
+          border: 1px solid rgba(124, 58, 237, 0.16) !important;
+          margin-bottom: 8px;
+          border-radius: 12px !important;
+        }
+        .syllabus-row:hover {
+          background: #f5f0ff !important;
+        }
+        .syllabus-btn {
+          border-color: rgba(124, 58, 237, 0.25) !important;
+          color: #6d28d9 !important;
+          background: #ffffff !important;
+        }
+        .syllabus-btn:hover {
+          background: #f3e8ff !important;
+          border-color: #a855f7 !important;
+        }
       `}</style>
 
       <Link className="back-link" to="/browse">
@@ -127,17 +145,40 @@ export default function BrowseDocumentsPage() {
       </Link>
       <div className="subject-title">{subject.name}</div>
       <div className="subject-sub">
-        {subject.semester} · {documents.length} paper{documents.length === 1 ? '' : 's'}
+        {subject.semester} · {documents.length} paper{documents.length === 1 ? '' : 's'} · Official Syllabus
       </div>
 
-      {syllabus && (
-        <div className="syllabus-note">
-          <BookOpen size={16} />
-          <span>Syllabus on file and indexed for this subject.</span>
-        </div>
-      )}
-
       <div className="doc-list">
+        {syllabus && (
+          <div className="doc-row syllabus-row">
+            <div className="doc-main">
+              <div className="doc-icon" style={{ color: '#7c3aed' }}>
+                <BookOpen size={19} />
+              </div>
+              <div>
+                <div className="doc-name" style={{ color: '#4c1d95' }}>
+                  Official Course Syllabus — {subject.name}
+                </div>
+                <div className="doc-tags">
+                  <span className="tag purple">syllabus</span>
+                  <span className="tag blue">indexed in chroma</span>
+                  <span className="doc-year">All Units & Topics</span>
+                </div>
+              </div>
+            </div>
+            <div className="doc-actions">
+              <a
+                className="doc-action-btn syllabus-btn"
+                href={`/browse/document/${syllabus.id}/download/`}
+                download
+              >
+                <Download size={13} />
+                Download Syllabus
+              </a>
+            </div>
+          </div>
+        )}
+
         {documents.map(doc => (
           <div key={doc.id} className="doc-row">
             <div className="doc-main">
@@ -159,13 +200,6 @@ export default function BrowseDocumentsPage() {
               </div>
             </div>
             <div className="doc-actions">
-              <Link
-                className="doc-action-btn"
-                to={`/browse/document/${doc.id}`}
-              >
-                <Eye size={13} />
-                Preview
-              </Link>
               <a
                 className="doc-action-btn"
                 href={`/browse/document/${doc.id}/download/`}
