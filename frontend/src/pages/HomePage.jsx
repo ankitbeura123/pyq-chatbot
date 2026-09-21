@@ -17,6 +17,7 @@ import adyasaImg from '../assets/adyasa-priyadarshani.jpeg';
 import ankitImg from '../assets/ankit-beura.jpg';
 import raghunathImg from '../assets/Raghunath-Dey.jpg';
 import defaultImg from '../assets/default.jpg';
+import ahanaImg from '../assets/ahana-bhattacharya.jpg';
 
 const TEAM_MEMBERS = [
   {
@@ -42,7 +43,7 @@ const TEAM_MEMBERS = [
   {
     name: 'Ahana Bhattacharya',
     roll: '2305275',
-    photo: null,
+    photo: ahanaImg,
   },
 ];
 
