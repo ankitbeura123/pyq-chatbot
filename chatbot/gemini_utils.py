@@ -5,20 +5,25 @@ import time
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-if api_key:
+
+def _ensure_configured():
+    load_dotenv(override=True)
+    api_key = (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or "").strip()
+    if not api_key:
+        raise RuntimeError("No GEMINI_API_KEY or GOOGLE_API_KEY found in .env file.")
     genai.configure(api_key=api_key)
 
+
 MODELS_TO_TRY = [
-    "gemini-3.5-flash-lite",
-    "gemini-3.6-flash",
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
     "gemini-3.5-flash",
     "gemini-flash-latest",
+    "gemini-3.5-flash-lite",
 ]
 
 # Free tier is ~5-15 requests/minute. 12s interval prevents hitting per-minute rate limits.
-MIN_SECONDS_BETWEEN_CALLS = 12
+MIN_SECONDS_BETWEEN_CALLS = 3
 _last_call_time = 0
 
 
@@ -45,8 +50,9 @@ def _extract_retry_delay(error, default=20):
     return default
 
 
-def call_gemini_text(prompt, max_retries=10):
+def call_gemini_text(prompt, max_retries=5):
     """Call Gemini with free-tier model fallback + throttling + 429-aware retry/backoff."""
+    _ensure_configured()
     last_error = None
 
     for model_name in MODELS_TO_TRY:
@@ -58,7 +64,7 @@ def call_gemini_text(prompt, max_retries=10):
                 response = model.generate_content(prompt)
                 if response and response.text:
                     return response.text
-                last_error = RuntimeError("Empty response from model")
+                last_error = RuntimeError(f"Empty response from model {model_name}")
                 break  # try next model
             except Exception as e:
                 last_error = e
@@ -70,11 +76,12 @@ def call_gemini_text(prompt, max_retries=10):
                     attempt += 1
                     continue
                 else:
-                    # Non-rate-limit error (e.g., model deprecation or unsupported in region) — fallback to next model
-                    print(f"    [fallback] {model_name} unavailable ({e}), trying next model...")
+                    # Non-rate-limit error (e.g. invalid key or model unsupported)
+                    print(f"    [fallback] {model_name} failed ({e}), trying next model...")
                     break
 
-    raise RuntimeError(f"All Gemini models failed after retries: {last_error}")
+    raise RuntimeError(f"{last_error}")
+
 
 
 def _strip_json_comments_and_trailing_commas(text):

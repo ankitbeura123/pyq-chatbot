@@ -135,7 +135,7 @@ def api_browse_documents(request, subject_id):
 
 def download_document(request, doc_id):
     document = get_object_or_404(Document, id=doc_id)
-    if os.path.exists(document.source_path):
+    if document.source_path and os.path.exists(document.source_path):
         filename = f"{document.subject.name}_Syllabus.txt" if document.doc_type == 'syllabus' else document.file_name
         return FileResponse(
             open(document.source_path, 'rb'),
@@ -149,6 +149,25 @@ def download_document(request, doc_id):
             response = HttpResponse(text, content_type='text/plain; charset=utf-8')
             response['Content-Disposition'] = f'attachment; filename="{document.subject.name}_Syllabus.txt"'
             return response
+    elif document.doc_type == 'pyq':
+        from .rag import collection
+        results = collection.get(
+            where={"$and": [{"subject": document.subject.name}, {"file_name": document.file_name}]},
+            include=["documents", "metadatas"]
+        )
+        docs = results.get("documents", [])
+        metas = results.get("metadatas", [])
+        if docs:
+            chunks_with_meta = sorted(zip(docs, metas), key=lambda x: str(x[1].get("question_number", "")))
+            text_blocks = [f"--- Question {m.get('question_number', '')} ---\n{d}" for d, m in chunks_with_meta]
+            header = f"=== {document.subject.name} - {document.file_name} ===\nYear: {document.year or 'N/A'} | Exam: {document.exam_type or 'N/A'}\n\n"
+            full_text = header + "\n\n".join(text_blocks)
+
+            clean_filename = os.path.splitext(document.file_name)[0] + ".txt"
+            response = HttpResponse(full_text, content_type='text/plain; charset=utf-8')
+            response['Content-Disposition'] = f'attachment; filename="{clean_filename}"'
+            return response
+
     raise Http404("File not found on disk.")
 
 

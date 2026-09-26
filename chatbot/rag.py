@@ -11,6 +11,8 @@ api_key = os.getenv("GEMINI_API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
 
+from .gemini_utils import call_gemini_text
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHROMA_PATH = os.path.join(BASE_DIR, "chroma_db")
 
@@ -166,9 +168,19 @@ Below is relevant context retrieved from the student's PYQ database and syllabus
 Student's question: {user_question}
 
 Instructions:
-- If the student is asking for probable/likely exam questions, analyze patterns across the PYQs provided and suggest topics or specific question types that are likely to appear, referencing which years/exams they've appeared in.
-- If asking for insight on a specific question or topic, explain the concept clearly and mention how it has been asked in the past.
-- If the student asks for "the answer" to a specific past question, provide a clear, well-reasoned explanation and step-by-step solution.
+- If the student is asking for probable/likely exam questions, practice questions, or listing questions:
+  * List each question clearly (e.g. Q1, Q2, Q3, etc.).
+  * For EVERY single question listed, ALWAYS generate its full, step-by-step detailed answer at the same time.
+  * Enclose each answer in an HTML details block immediately below its question, formatted exactly as:
+    <details>
+    <summary>Show Answer</summary>
+
+    **Solution:**
+    [Provide clear step-by-step answer, formulas, code, or explanation here]
+
+    </details>
+
+- If asking for insight on a specific question or topic, explain the concept clearly and if questions are present, provide their answers inside <details><summary>Show Answer</summary> ... </details> blocks.
 - If the exact year/question requested isn't in the retrieved context, say so honestly, then offer the closest available match instead of refusing entirely.
 - Do not use LaTeX formatting (no $ symbols or \\frac, \\times etc.). Write formulas and equations in plain readable text instead, e.g. "Tm = ΔH / ΔS" or "k2/k1 = ...".
 - Be specific and reference the actual retrieved questions where relevant.
@@ -179,26 +191,9 @@ Instructions:
 
 def get_chatbot_response(user_question, subject_filter=None):
     chunks, query_filters = retrieve_relevant_chunks(user_question, subject_filter=subject_filter)
-
     prompt = build_prompt(user_question, chunks, query_filters)
 
-    # Try supported free-tier models in fallback sequence
-    models_to_try = [
-        "gemini-3.5-flash-lite",
-        "gemini-3.6-flash",
-        "gemini-3.5-flash",
-        "gemini-flash-latest",
-    ]
-    last_error = None
-
-    for model_name in models_to_try:
-        try:
-            model = genai.GenerativeModel(model_name)
-            response = model.generate_content(prompt)
-            if response and response.text:
-                return response.text
-        except Exception as e:
-            last_error = e
-            continue
-
-    return f"Error contacting AI service: {last_error}"
+    try:
+        return call_gemini_text(prompt)
+    except Exception as e:
+        return f"Error contacting AI service: {str(e)}"
