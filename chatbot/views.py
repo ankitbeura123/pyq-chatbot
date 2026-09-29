@@ -201,8 +201,15 @@ def discovery_data_api(request, subject_id):
 
 def topics_api(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
+    stats = analytics.get_knowledge_stats(subject.name)
     topics = analytics.get_topics_for_subject(subject.name)
-    return JsonResponse({'topics': topics})
+    units = stats.get("syllabus_units") or stats.get("unit_map") or []
+    return JsonResponse({
+        'topics': topics,
+        'units': units,
+        'total_questions': stats.get('total_questions', 0),
+        'subject': subject.name
+    })
 
 
 @csrf_exempt

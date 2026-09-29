@@ -6,6 +6,10 @@
   font-family: var(--font-sans);
 }
 
+.custom-select-container.open {
+  z-index: 9999;
+}
+
 .custom-select-trigger {
   width: 100%;
   display: flex;

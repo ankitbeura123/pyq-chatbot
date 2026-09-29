@@ -15,15 +15,16 @@ def _ensure_configured():
 
 
 MODELS_TO_TRY = [
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-3.5-flash",
+    "gemini-3-flash-preview",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-flash-lite-latest",
+    "gemma-4-31b-it",
+    "gemma-4-26b-a4b-it",
     "gemini-flash-latest",
-    "gemini-3.5-flash-lite",
 ]
 
-# Free tier is ~5-15 requests/minute. 12s interval prevents hitting per-minute rate limits.
-MIN_SECONDS_BETWEEN_CALLS = 3
+# Free tier is ~5-15 requests/minute. 1s interval prevents flooding.
+MIN_SECONDS_BETWEEN_CALLS = 1
 _last_call_time = 0
 
 
@@ -35,23 +36,23 @@ def _throttle():
     _last_call_time = time.time()
 
 
-def _extract_retry_delay(error, default=20):
+def _extract_retry_delay(error, default=5):
     """Google's 429 error includes 'Please retry in Xs' or a retry_delay block. Parse it."""
     msg = str(error)
     match = re.search(r"retry_delay\s*{\s*seconds:\s*(\d+)", msg)
     if match:
-        return int(match.group(1)) + 2  # small buffer
+        return int(match.group(1)) + 1
     match = re.search(r"retry in ([\d.]+)s", msg)
     if match:
-        return int(float(match.group(1))) + 2
+        return int(float(match.group(1))) + 1
     match = re.search(r"(\d+)\s*seconds", msg)
     if match:
-        return int(match.group(1)) + 2
+        return int(match.group(1)) + 1
     return default
 
 
-def call_gemini_text(prompt, max_retries=5):
-    """Call Gemini with free-tier model fallback + throttling + 429-aware retry/backoff."""
+def call_gemini_text(prompt, max_retries=3):
+    """Call Gemini with active model fallback + throttling + 429-aware retry/backoff."""
     _ensure_configured()
     last_error = None
 
@@ -70,17 +71,21 @@ def call_gemini_text(prompt, max_retries=5):
                 last_error = e
                 err_str = str(e).lower()
                 if "429" in err_str or "quota" in err_str or "resource_exhausted" in err_str or "resourceexhausted" in err_str or "rate limit" in err_str:
-                    wait = _extract_retry_delay(e)
+                    wait = _extract_retry_delay(e, default=5)
+                    # If quota wait is large (> 10s), immediately fallback to next model
+                    if wait > 10:
+                        print(f"    [rate limit] {model_name} quota exceeded, trying next model fallback...")
+                        break
                     print(f"    [rate limit] {model_name} hit quota, waiting {wait}s (attempt {attempt+1}/{max_retries})...")
                     time.sleep(wait)
                     attempt += 1
                     continue
                 else:
-                    # Non-rate-limit error (e.g. invalid key or model unsupported)
+                    # Non-rate-limit error (e.g. 404 model not found)
                     print(f"    [fallback] {model_name} failed ({e}), trying next model...")
                     break
 
-    raise RuntimeError(f"{last_error}")
+    raise RuntimeError(f"All LLM models failed. Last error: {last_error}")
 
 
 
