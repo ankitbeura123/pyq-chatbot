@@ -69,6 +69,15 @@ export default function TopBar() {
             <Link to="/mock" className={isMockActive ? 'active' : ''}>
               Mock
             </Link>
+            <a
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=2305113@kiit.ac.in&su=Feedback%20for%20Orchids%20Observatory"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-feedback-link"
+              title="Send Feedback to 2305113@kiit.ac.in via Gmail"
+            >
+              Feedback
+            </a>
           </nav>
         </div>
 
