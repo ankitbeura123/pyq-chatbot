@@ -1,12 +1,34 @@
+# Virtual environment & Python cache
 venv/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Environment variables
 .env
+
+# Database & Storage
 db.sqlite3
 media/
 chroma_db/
+syllabus_cache/
+
+# Temporary generated files (PDFs, Notes, Mocks)
+mock_papers/
+revision_notes/
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.log
+
+# Frontend build & dependencies
 node_modules/
 frontend/node_modules/
 dist/
 frontend/dist/
+
+# OS artifacts
 .DS_Store
+Thumbs.db

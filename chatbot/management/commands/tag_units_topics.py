@@ -39,7 +39,7 @@ class Command(BaseCommand):
             topic_menu = "\n".join(f"- {u} :: {t}" for u, t in topics)
 
             results = collection.get(
-                where={"$and": [{"subject": subject.name}, {"doc_type": "pyq"}]},
+                where={"$and": [{"subject": {"$eq": subject.name}}, {"doc_type": {"$eq": "pyq"}}]},
                 include=["documents", "metadatas"]
             )
             ids = results["ids"]

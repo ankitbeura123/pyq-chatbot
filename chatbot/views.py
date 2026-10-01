@@ -152,7 +152,7 @@ def download_document(request, doc_id):
     elif document.doc_type == 'pyq':
         from .rag import collection
         results = collection.get(
-            where={"$and": [{"subject": document.subject.name}, {"file_name": document.file_name}]},
+            where={"$and": [{"subject": {"$eq": document.subject.name}}, {"file_name": {"$eq": document.file_name}}]},
             include=["documents", "metadatas"]
         )
         docs = results.get("documents", [])
@@ -324,7 +324,7 @@ def download_notes_pdf(request, filename):
 def mock_syllabus_preview_api(request):
     """
     GET /api/mock/syllabus-preview/?subject_id=X&exam_type=midsem|endsem
-    Returns syllabus units and topics included in this specific exam type.
+    Returns syllabus units and topics included in this specific exam type plus available PYQ grounding counts.
     """
     subject_id = request.GET.get('subject_id')
     exam_type = request.GET.get('exam_type', 'midsem')
@@ -334,7 +334,16 @@ def mock_syllabus_preview_api(request):
 
     subject = get_object_or_404(Subject, id=subject_id)
     scope = get_exam_syllabus_scope(subject.name, exam_type)
-    return JsonResponse({'subject': subject.name, 'exam_type': exam_type, 'scope': scope})
+    pyq_doc_count = Document.objects.filter(subject=subject, doc_type='pyq').count()
+    scope["pyq_doc_count"] = pyq_doc_count
+
+    return JsonResponse({
+        'subject': subject.name,
+        'semester': subject.semester,
+        'exam_type': exam_type,
+        'scope': scope,
+        'pyq_count': pyq_doc_count
+    })
 
 
 @csrf_exempt

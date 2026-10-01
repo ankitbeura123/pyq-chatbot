@@ -20,7 +20,7 @@ from reportlab.platypus import (
 
 from .gemini_utils import call_gemini_json
 
-NOTES_DIR = os.path.join(settings.BASE_DIR, "revision_notes")
+NOTES_DIR = os.path.join(tempfile.gettempdir(), "pyq_revision_notes")
 os.makedirs(NOTES_DIR, exist_ok=True)
 
 

@@ -127,47 +127,164 @@ def _strip_json_comments_and_trailing_commas(text):
     return cleaned
 
 
+def preprocess_gemini_json_latex(json_str):
+    """
+    Carefully inspects JSON string literals and escapes backslashes
+    that are part of LaTeX formulas rather than valid JSON control escapes.
+    Prevents \frac from becoming \x0crac, \beta from becoming \x08eta, etc.
+    """
+    result = []
+    in_string = False
+    escape_next = False
+    i = 0
+    n = len(json_str)
+
+    while i < n:
+        c = json_str[i]
+
+        if escape_next:
+            result.append(c)
+            escape_next = False
+            i += 1
+            continue
+
+        if not in_string:
+            if c == '"':
+                in_string = True
+            result.append(c)
+            i += 1
+            continue
+
+        # Inside a JSON string literal
+        if c == '"':
+            in_string = False
+            result.append(c)
+            i += 1
+            continue
+
+        if c == '\\':
+            if i + 1 < n:
+                next_c = json_str[i + 1]
+                if next_c in ('"', '\\', '/'):
+                    # Valid JSON escape (\", \\, \/)
+                    result.append('\\')
+                    result.append(next_c)
+                    i += 2
+                    continue
+                elif next_c in ('b', 'f', 'n', 'r', 't'):
+                    # Check if next_c is followed by a letter, digit, or LaTeX delimiter ({, _, ^, \)
+                    # e.g. \frac, \beta, \theta, \neq, \rho, \to, \tau, \tan, \begin
+                    is_latex = False
+                    if i + 2 < n:
+                        after_next = json_str[i + 2]
+                        if after_next.isalnum() or after_next in ('{', '_', '^', '\\'):
+                            is_latex = True
+
+                    if is_latex:
+                        # Double the backslash so json.loads receives literal \frac, \beta, etc.
+                        result.append('\\\\')
+                        result.append(next_c)
+                        i += 2
+                        continue
+                    else:
+                        # Standard JSON control escape (\n, \t, etc.)
+                        result.append('\\')
+                        result.append(next_c)
+                        i += 2
+                        continue
+                elif next_c == 'u' and i + 5 < n and all(ch in '0123456789abcdefABCDEF' for ch in json_str[i+2:i+6]):
+                    # Valid unicode escape \uXXXX
+                    result.append(json_str[i:i+6])
+                    i += 6
+                    continue
+                else:
+                    # Single backslash before any other LaTeX command / symbol (\alpha, \sum, \int, \{, \}, etc.)
+                    result.append('\\\\')
+                    result.append(next_c)
+                    i += 2
+                    continue
+            else:
+                result.append('\\\\')
+                i += 1
+                continue
+
+        result.append(c)
+        i += 1
+
+    return "".join(result)
+
+
+def clean_data_latex(obj):
+    """Recursively repair any mangled control characters in decoded JSON data."""
+    if isinstance(obj, dict):
+        return {k: clean_data_latex(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [clean_data_latex(item) for item in obj]
+    elif isinstance(obj, str):
+        s = obj
+        # Repair control characters produced if unescaped JSON was parsed
+        s = re.sub(r'\x0c([a-zA-Z]+)', r'\\f\1', s)  # \x0crac -> \frac
+        s = re.sub(r'\x08([a-zA-Z]+)', r'\\b\1', s)  # \x08eta -> \beta, \x08egin -> \begin
+        s = re.sub(r'\t(heta|au|imes|o|an|ext|ilde|riangle|op)', r'\\t\1', s)
+        s = re.sub(r'\n(eq|abla|u|ot|atural)', r'\\n\1', s)
+        s = re.sub(r'\r(ho|ight|angle|rightarrow)', r'\\r\1', s)
+        s = s.replace('\x0c', '\\f')
+        s = s.replace('\x08', '\\b')
+        s = s.replace('\x0b', '\\v')
+        # Repair un-backslashed bare 'rac{' -> '\frac{'
+        s = re.sub(r'(?<!\\)\brac\{', r'\\frac{', s)
+        return s
+    return obj
+
+
 def call_gemini_json(prompt, max_retries=10):
     raw = call_gemini_text(prompt, max_retries=max_retries)
     cleaned = re.sub(r"^```json\s*|^```\s*|```\s*$", "", raw.strip(), flags=re.MULTILINE).strip()
     cleaned = _strip_json_comments_and_trailing_commas(cleaned)
 
-    # 1. Direct attempt
-    try:
-        return json.loads(cleaned)
-    except Exception:
-        pass
-
-    # 2. Extract outer JSON object or array if extra text surrounded it
+    # Preprocess candidate text with LaTeX-aware JSON string sanitizer
     match = re.search(r"(\[.*\]|\{.*\})", cleaned, re.DOTALL)
     candidate = match.group(1) if match else cleaned
     candidate = _strip_json_comments_and_trailing_commas(candidate)
 
+    # 1. LaTeX-sanitized parse attempt
     try:
-        return json.loads(candidate)
+        latex_preprocessed = preprocess_gemini_json_latex(candidate)
+        parsed = json.loads(latex_preprocessed)
+        return clean_data_latex(parsed)
     except Exception:
         pass
 
-    # 3. Handle unescaped backslashes from LaTeX (e.g. \frac, \sum, \alpha, \mathcal, \theta, \sigma, \pi)
-    # Use lambda to actually double backslashes in Python re.sub
+    # 2. Direct attempt on candidate
+    try:
+        parsed = json.loads(candidate)
+        return clean_data_latex(parsed)
+    except Exception:
+        pass
+
+    # 3. Handle unescaped backslashes with regex fallback
     fixed_all = re.sub(r'\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})', lambda m: r'\\', candidate)
     try:
-        return json.loads(fixed_all)
+        parsed = json.loads(fixed_all)
+        return clean_data_latex(parsed)
     except Exception:
         pass
 
-    # 4. Try with strict=False (allows raw newlines / control characters in strings)
-    for text_variant in (fixed_all, candidate):
+    # 4. Try with strict=False
+    for text_variant in (latex_preprocessed if 'latex_preprocessed' in locals() else candidate, fixed_all, candidate):
         try:
-            return json.loads(text_variant, strict=False)
+            parsed = json.loads(text_variant, strict=False)
+            return clean_data_latex(parsed)
         except Exception:
             pass
 
-    # 5. Final fallback: double all backslashes that are not followed by quotes
+    # 5. Final fallback
     fixed_aggressive = re.sub(r'\\(?!["\\])', lambda m: r'\\', candidate)
     try:
-        return json.loads(fixed_aggressive, strict=False)
+        parsed = json.loads(fixed_aggressive, strict=False)
+        return clean_data_latex(parsed)
     except Exception:
         pass
 
-    return json.loads(cleaned)
+    parsed = json.loads(cleaned)
+    return clean_data_latex(parsed)

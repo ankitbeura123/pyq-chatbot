@@ -221,7 +221,7 @@ export default function MockExamPage() {
               </div>
             </div>
 
-            {/* Syllabus Coverage Live Preview */}
+            {/* Syllabus Coverage & PYQ Grounding Live Preview */}
             {syllabusScope && (
               <div className="syllabus-scope-card">
                 <div className="syllabus-scope-head">
@@ -229,7 +229,9 @@ export default function MockExamPage() {
                     <BookOpen size={13} style={{ display: "inline", marginRight: 5 }} />
                     {syllabusScope.scope_label}
                   </span>
-                  <span>{syllabusScope.units?.length || 0} Units Included</span>
+                  <span>
+                    {syllabusScope.units?.length || 0} Units • {syllabusScope.pyq_doc_count ? `${syllabusScope.pyq_doc_count} PYQ Papers Grounded` : 'PYQs Grounded'}
+                  </span>
                 </div>
                 <div className="syllabus-unit-tags">
                   {(syllabusScope.units || []).map((u, i) => (
@@ -237,6 +239,10 @@ export default function MockExamPage() {
                       <b>{u.unit}:</b> {u.title}
                     </span>
                   ))}
+                </div>
+                <div style={{ marginTop: 8, fontSize: "0.82rem", color: "#1e40af", display: "flex", alignItems: "center", gap: 6, background: "rgba(37,99,235,0.06)", padding: "4px 8px", borderRadius: 4 }}>
+                  <CheckCircle2 size={13} color="#2563eb" />
+                  <span>Dual Grounding Active: Synthesizes real KIIT PYQ question archetypes & formula derivations with official syllabus scope.</span>
                 </div>
               </div>
             )}

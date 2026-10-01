@@ -19,7 +19,7 @@ subjects = Subject.objects.all().order_by('semester', 'name')
 
 for subject in subjects:
     results = collection.get(
-        where={"$and": [{"subject": subject.name}, {"doc_type": "pyq"}]},
+        where={"$and": [{"subject": {"$eq": subject.name}}, {"doc_type": {"$eq": "pyq"}}]},
         include=["metadatas"]
     )
     metas = results["metadatas"]

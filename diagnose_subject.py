@@ -29,7 +29,7 @@ print("\n" + "=" * 70)
 print(f"UNCLASSIFIED QUESTIONS for {SUBJECT_NAME}")
 print("=" * 70)
 results = collection.get(
-    where={"$and": [{"subject": SUBJECT_NAME}, {"doc_type": "pyq"}]},
+    where={"$and": [{"subject": {"$eq": SUBJECT_NAME}}, {"doc_type": {"$eq": "pyq"}}]},
     include=["documents", "metadatas"]
 )
 count = 0

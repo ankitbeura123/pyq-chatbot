@@ -17,7 +17,7 @@ def _cache_path(subject_name):
 def get_raw_syllabus_text(subject_name):
     """Fetch the syllabus doc for a subject directly from ChromaDB."""
     results = collection.get(
-        where={"$and": [{"subject": subject_name}, {"doc_type": "syllabus"}]},
+        where={"$and": [{"subject": {"$eq": subject_name}}, {"doc_type": {"$eq": "syllabus"}}]},
         include=["documents"]
     )
     docs = results.get("documents", [])

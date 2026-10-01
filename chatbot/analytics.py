@@ -5,7 +5,7 @@ from .syllabus_parser import parse_syllabus_structure
 
 def _get_subject_chunks(subject_name):
     results = collection.get(
-        where={"$and": [{"subject": subject_name}, {"doc_type": "pyq"}]},
+        where={"$and": [{"subject": {"$eq": subject_name}}, {"doc_type": {"$eq": "pyq"}}]},
         include=["metadatas"]
     )
     return results.get("metadatas", [])
