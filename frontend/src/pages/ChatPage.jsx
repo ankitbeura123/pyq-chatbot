@@ -323,7 +323,7 @@ export default function ChatPage() {
   ];
 
   return (
-    <div className="chatgpt-layout">
+    <div className={`chatgpt-layout ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       {/* Mobile Backdrop for Sidebar Drawer */}
       <div
         className={`chat-sidebar-backdrop ${sidebarOpen ? 'visible' : ''}`}
