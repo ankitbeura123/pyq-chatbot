@@ -1,4 +1,4 @@
-# 🌌 Orchids / Observatory — KIIT PYQ AI Assistant & Exam Intelligence Platform
+# 🌸 Orchids — KIIT University PYQ AI Assistant & Exam Intelligence Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat-square&logo=python)](https://python.org)
 [![Django](https://img.shields.io/badge/Django-5.x-092E20.svg?style=flat-square&logo=django)](https://djangoproject.com)
@@ -9,59 +9,110 @@
 [![Google Gemini](https://img.shields.io/badge/AI%20Engine-Google%20Gemini-8E75B2.svg?style=flat-square&logo=google)](https://ai.google.dev)
 [![ReportLab](https://img.shields.io/badge/PDF-ReportLab%20%2B%20Matplotlib-E05D44.svg?style=flat-square)](https://www.reportlab.com)
 
-**Orchids** (Observatory) is a comprehensive, production-grade AI Exam Preparation and Academic Intelligence Platform built specifically for university students at **KIIT (Kalinga Institute of Industrial Technology)**. It indexes years of Previous Year Question (PYQ) papers and official course syllabi into a persistent vector database (ChromaDB) and relational metadata store (SQLite).
+**Orchids** is a comprehensive, production-grade AI Exam Preparation and Academic Intelligence Platform built specifically for students at **KIIT (Kalinga Institute of Industrial Technology)**. It indexes years of university Previous Year Question (PYQ) papers and official course syllabi into a persistent vector database (ChromaDB) and relational metadata store (SQLite).
 
-Beyond basic question search, Orchids provides **grounded multi-model AI reasoning**, **syllabus-aligned unit and topic analytics**, an **interactive weighted score predictor**, an **AI-powered MCQ quiz generator**, a **full-fledged University Mock Exam Generator with dual LaTeX-styled Question Paper & Solution PDF downloads**, and a **fast in-browser document reader & PDF streamer**.
+Beyond simple search, Orchids provides **grounded multi-model AI reasoning**, **syllabus-aligned unit & topic analytics**, an **interactive weighted score predictor**, an **AI-powered MCQ quiz generator**, a **full-fledged University Mock Exam Generator with dual LaTeX-styled Question Paper & Solution PDF downloads**, a **fast in-browser document reader**, and an **integrated student feedback system**.
 
 ---
 
-## 🌟 Key Features & Capabilities
+## 📸 Visual Glimpse
 
-### 1. 📑 AI Mock Exam Generator (Midsem & Endsem) — *New!*
-- **Syllabus Scoping Logic**:
-  - **Midsem Exam (Total: 20 Marks | 1.5 Hours)**: Automatically scopes questions strictly to the **first half of the course syllabus** (e.g., 3 of 6 units, or 2.5 of 5 units).
-  - **Endsem Exam (Total: 50 Marks | 3.0 Hours)**: Scoped across the **entire course syllabus** (100% of all units & topics).
-- **Exact University Examination Blueprint**:
-  - **Midsem Structure**:
-    - **Q.1 (Compulsory)**: 5 sub-questions of 1 mark each = **5 Marks**.
-    - **Q.2 to Q.5 (Long Questions)**: 4 questions of 5 marks each (with sub-parts (a) and (b) summing to 5 marks). Student answers any **3** out of Q.2–Q.5 (1 choice question) = **15 Marks**.
-    - **Total Exam Marks**: $5 + (3 \times 5) = 20\text{ Marks}$.
-  - **Endsem Structure**:
-    - **Q.1 (Compulsory)**: 10 sub-questions of 1 mark each = **10 Marks**.
-    - **Q.2 to Q.7 (Long Questions)**: 6 questions of 10 marks each (with sub-parts summing to 10 marks). Student answers any **4** out of Q.2–Q.7 (2 choice questions) = **40 Marks**.
-    - **Total Exam Marks**: $10 + (4 \times 10) = 50\text{ Marks}$.
-- **Authentic Dual PDF Compilation**:
-  - 📄 **Question Paper PDF**: Clean, official examination layout with university headers, course codes, time limits, double rule dividers, right-aligned mark brackets `[5]`, and choices.
-  - 📝 **Answer Key & Marking Scheme PDF**: Step-by-step solutions, key conceptual explanations, formulas, and point-by-point marking rubrics.
-- **True LaTeX Math & Equations**:
-  - **In-Browser Preview**: Rendered using **KaTeX** (`<MathRenderer />`) supporting inline math (`$...$`) and block equations (`$$...$$`).
-  - **In-PDF Vector/Raster Equations**: Matplotlib mathtext rasterizer with exact physical point scaling (`px * 72 / DPI`) to prevent oversized equations and guarantee crisp print quality.
+### 🏠 Landing Page & Examination Overview
+![Orchids Landing Page](docs/screenshots/orchids_home.png)
 
-### 2. 💬 Grounded RAG AI Assistant
-- Powered by **Google Gemini** (`gemini-3.5-flash-lite`, `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-flash-latest`) and **ChromaDB** vector similarity search.
-- Provides step-by-step conceptual explanations, mathematical derivations, historical question trends, and exam predictions with explicit source citations (Year, Exam Type, Question Number).
-- Supports natural language intent and filter extraction (e.g., *"Show me Q.3(a) from 2023 Endsem"*).
+### 💬 Grounded AI Chat & Study Workspace
+![Orchids Chat Workspace](docs/screenshots/orchids_chat.png)
 
-### 3. 📊 Knowledge Discovery & Syllabus Intelligence
-- Aggregates historical question distributions across course units and syllabus topics.
-- Visual charts and frequency matrices highlight high-yield units and recurring exam themes.
+---
 
-### 4. 🎯 Weighted Score Predictor
-- Calculates expected exam scores based on historical topic mark weights.
-- Interactive topic checklist lets students select what they have prepared and instantly see predicted marks and preparedness percentages.
+## 🌟 Key Features & How Each Feature Works
 
-### 5. 📝 AI MCQ Quiz Generator & Evaluator
-- Generates topic-targeted multiple-choice quizzes with 4 options, automated grading, instant feedback, and detailed conceptual rationales.
+### 1. 💬 Grounded RAG AI Assistant (`/chat`)
+- **What It Does**: Provides step-by-step conceptual explanations, mathematical derivations, historical question trends, and exam predictions with verifiable source citations.
+- **How It Works**:
+  1. **Intent & Filter Parsing**: Detects temporal intents (e.g., `2018` to `2024`), exam sessions (`Midsem`, `Endsem`, `Supplementary`), and specific question indices (`Q.1`, `Q.4(b)`) using regex matchers.
+  2. **Dense Vector Search**: Converts user queries into 384-dimensional embeddings via `sentence-transformers/all-MiniLM-L6-v2` and retrieves top-k relevant question chunks from persistent ChromaDB collections.
+  3. **Context-Grounded LLM Synthesis**: Supplies retrieved chunks along with structured syllabus units to the **Google Gemini API** (`gemini-3.5-flash-lite`, `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-flash-latest`).
+  4. **Formula & Code Rendering**: Renders mathematical equations dynamically via client-side **KaTeX** (`<MathRenderer />`) supporting inline math (`$...$`) and block math (`$$...$$`).
 
-### 6. 📚 Semester & Subject Document Catalog
-- Browse past papers organized by semester with real-time statistics (paper counts, year ranges, exam session badges).
-- Extracted plain-text reader view and direct raw PDF streaming downloads.
+---
 
-### 7. 🎨 Cosmic Glassmorphic Interface
-- React 18 Single Page Application with animated starfield background, glowing glassmorphic cards, modern typography, responsive design, and smooth transitions.
+### 2. 📑 University Mock Exam Generator (`/mock`)
+- **What It Does**: Generates authentic, full-length university examination papers following the official KIIT examination blueprint, complete with live in-browser preview and downloadable dual PDFs.
+- **How It Works**:
+  1. **Automated Syllabus Scoping**:
+     - **Midsem Exam (Total: 20 Marks | 1.5 Hours)**: Automatically scopes questions strictly to the **first half of the course syllabus** (e.g., 3 out of 6 units, or 2.5 of 5 units).
+     - **Endsem Exam (Total: 50 Marks | 3.0 Hours)**: Scoped across the **entire course syllabus** (100% of all units & topics).
+  2. **Authentic Examination Blueprint**:
+     - **Midsem Structure**:
+       - `Q.1 (Compulsory)`: 5 sub-questions $\times$ 1 Mark = **5 Marks**.
+       - `Q.2 to Q.5 (Long Questions)`: 4 questions of 5 Marks each (with sub-parts (a) and (b)). Student answers any **3** out of 4 = **15 Marks**.
+       - **Total**: $5 + (3 \times 5) = 20\text{ Marks}$.
+     - **Endsem Structure**:
+       - `Q.1 (Compulsory)`: 10 sub-questions $\times$ 1 Mark = **10 Marks**.
+       - `Q.2 to Q.7 (Long Questions)`: 6 questions of 10 Marks each (with sub-parts summing to 10 marks). Student answers any **4** out of 6 = **40 Marks**.
+       - **Total**: $10 + (4 \times 10) = 50\text{ Marks}$.
+  3. **LaTeX Math Rendering in PDFs**:
+     - Server-side Matplotlib mathtext rasterizer converts mathematical formulas (`\frac{...}{...}`, `\int`, `\sigma`, `\nabla`) into transparent PNGs with exact physical point scaling (`points = pixels * 72 / DPI`) to ensure natural 10.5pt typography within ReportLab PDFs.
+  4. **Dual PDF Compilation**:
+     - 📄 **Question Paper PDF (`mock_qp_*.pdf`)**: University headers, course codes, time limits, instructions, right-aligned mark brackets `[5]`, and choices.
+     - 📝 **Answer Key & Marking Scheme PDF (`mock_ans_*.pdf`)**: Step-by-step mathematical working, key conceptual points, final answers, and explicit marking rubrics.
 
-### 8. 🛡️ Fault Tolerance & Multi-Model Resilience
-- Centralized Gemini client with automatic 429 quota backoff, exponential retry delays, JS comment stripping, LaTeX backslash escape repair, and multi-model fallback.
+---
+
+### 3. 📊 Knowledge Discovery & Syllabus Intelligence (`/discover`)
+- **What It Does**: Visualizes historical question distributions, topic frequencies, and module weights across past university exams.
+- **How It Works**:
+  1. Aggregates question chunks classified by unit and topic from ChromaDB metadata.
+  2. Computes topic frequency counts and relative distribution percentages.
+  3. Renders visual bar charts and topic breakdowns highlighting high-yield units and recurring exam questions.
+
+---
+
+### 4. 🎯 Interactive Weighted Score Predictor (`/predict`)
+- **What It Does**: Allows students to select the topics they have prepared and instantly calculates their expected exam marks based on historical question paper trends.
+- **How It Works**:
+  1. Computes historical statistical mark weights for each syllabus topic:
+     $$W_i = \frac{\text{Count}(T_i)}{\sum_{j} \text{Count}(T_j)}$$
+  2. As students toggle topics in the interactive syllabus checklist, the system computes the predicted score:
+     $$\text{Predicted Score} = \text{Total Marks} \times \sum_{i \in \text{Studied}} W_i$$
+  3. Dynamically updates readiness percentages, unit-by-unit contribution bars, and confidence gauges.
+
+---
+
+### 5. 📝 AI MCQ Quiz Generator & Evaluator (`/quiz`)
+- **What It Does**: Generates topic-targeted multiple-choice quizzes with automated grading, instant feedback, and detailed conceptual rationales.
+- **How It Works**:
+  1. Sends a structured schema request to Gemini grounded in syllabus topic descriptions.
+  2. Validates 4 distinct options (A, B, C, D) and ensures exact key-to-answer alignment.
+  3. Renders interactive card-based question cards with immediate option reveal, timer tracking, and a final comprehensive scorecard.
+
+---
+
+### 6. 📚 Semester & Subject Document Catalog (`/browse`)
+- **What It Does**: Allows students to browse all previous year question papers and syllabus documents organized by semester (1st through 8th).
+- **How It Works**:
+  1. Queries SQLite for subject metadata, total paper counts, available exam years, and document types.
+  2. Provides an in-browser plain-text viewer (`/browse/document/<id>/`) for quick question preview.
+  3. Supports direct PDF file streaming downloads (`/browse/document/<id>/download/`) directly from disk storage.
+
+---
+
+### 7. 📬 Integrated Student Feedback System
+- **What It Does**: Provides an immediate channel for university students to submit feedback, report missing papers, or request feature enhancements.
+- **How It Works**:
+  - Accessible via the dedicated **Feedback** button in the top navigation bar on desktop and the slide-out navigation drawer on mobile.
+  - Automatically launches Gmail web client with pre-configured recipient address (`2305113@kiit.ac.in`) and pre-filled subject line (`Feedback for Orchids`).
+
+---
+
+### 8. ⚙️ Automated Ingestion & Syllabus Parsing Pipeline
+- **What It Does**: Extracts text from raw PDF papers, splits questions into semantic sub-parts, structures syllabi, and auto-tags question chunks.
+- **How It Works**:
+  1. **Text & OCR Extraction**: Reads text using `PyPDF` and falls back to `PDF2Image` + `Tesseract-OCR` for scanned papers.
+  2. **Regex Sub-question Chunking**: Identifies question headers (`Q.1(a)`, `2. (b)`) to split papers into self-contained sub-question chunks.
+  3. **Syllabus Structuring**: Extracts course units and topic lists into structured JSON cache files (`syllabus_cache/<subject>.json`) via Gemini.
+  4. **LLM Unit/Topic Tagging**: Executes batch classification prompts associating each question chunk with its corresponding syllabus unit and topic.
 
 ---
 
@@ -77,61 +128,61 @@ Beyond basic question search, Orchids provides **grounded multi-model AI reasoni
                                   |      INGESTION & OCR PIPELINE         |
                                   | (PyPDF, Tesseract OCR, Poppler)       |
                                   +---------------------------------------+
-                                           |                         |
-                                           v                         v
-                         +-------------------+             +-------------------+
-                         | Sub-question RegEx|             |  Syllabus Parser  |
-                         |    Chunking       |             |   (Gemini JSON)   |
-                         +-------------------+             +-------------------+
-                                   |                                 |
-                                   v                                 v
-                         +-------------------+             +-------------------+
-                         |SentenceTransformer|             |   Unit & Topic    |
-                         | (all-MiniLM-L6-v2)|             |  Auto-Classifier  |
-                         +-------------------+             +-------------------+
-                                   |                                 |
-                                   +----------------+----------------+
-                                                    |
-                                                    v
-                                 +-------------------------------------+
-                                 |         PERSISTENT STORAGE          |
-                                 |  - ChromaDB (384-dim Embeddings)    |
-                                 |  - SQLite (Metadata & Subjects)     |
-                                 +-------------------------------------+
-                                                    |
-                   +--------------------------------+--------------------------------+
-                   |                                |                                |
-                   v                                v                                v
-     +---------------------------+    +---------------------------+    +---------------------------+
-     |      RAG CHAT ENGINE      |    |    KNOWLEDGE DISCOVERY    |    |      SCORE PREDICTOR      |
-     | - Query Filter Parser     |    | - Unit & Topic Aggregation|    | - Topic Weight Matrix     |
-     | - ChromaDB Vector Search  |    | - Question Frequency Maps |    | - Coverage Percentage     |
-     | - Gemini Multi-Model LLM  |    | - Syllabus Distributions  |    | - Predicted Marks / Total |
-     +---------------------------+    +---------------------------+    +---------------------------+
-                   |                                |                                |
-                   +--------------------------------+--------------------------------+
-                                                    |
-                   +--------------------------------+--------------------------------+
-                   |                                                                 |
-                   v                                                                 v
-     +---------------------------+                                     +---------------------------+
-     |      QUIZ GENERATOR       |                                     |    MOCK EXAM GENERATOR    |
-     | - Strict JSON MCQ Schema  |                                     | - Midsem (20M) / Endsem(50)|
-     | - Validated Options/Keys  |                                     | - First-Half Syllabus Map |
-     | - Instant Grading Engine  |                                     | - Matplotlib LaTeX Math   |
-     | - Syllabus Grounding      |                                     | - Dual PDF Builder (QP/Ans)|
-     +---------------------------+                                     +---------------------------+
-                                                    |
-                                                    v
-                                 +-------------------------------------+
-                                 |          REACT 18 + VITE UI         |
-                                 |   (KaTeX Math, Glassmorphism CSS)   |
-                                 +-------------------------------------+
+                                            |                         |
+                                            v                         v
+                          +-------------------+             +-------------------+
+                          | Sub-question RegEx|             |  Syllabus Parser  |
+                          |    Chunking       |             |   (Gemini JSON)   |
+                          +-------------------+             +-------------------+
+                                    |                                 |
+                                    v                                 v
+                          +-------------------+             +-------------------+
+                          |SentenceTransformer|             |   Unit & Topic    |
+                          | (all-MiniLM-L6-v2)|             |  Auto-Classifier  |
+                          +-------------------+             +-------------------+
+                                    |                                 |
+                                    +----------------+----------------+
+                                                     |
+                                                     v
+                                  +-------------------------------------+
+                                  |         PERSISTENT STORAGE          |
+                                  |  - ChromaDB (384-dim Embeddings)    |
+                                  |  - SQLite (Metadata & Subjects)     |
+                                  +-------------------------------------+
+                                                     |
+                    +--------------------------------+--------------------------------+
+                    |                                |                                |
+                    v                                v                                v
+      +---------------------------+    +---------------------------+    +---------------------------+
+      |      RAG CHAT ENGINE      |    |    KNOWLEDGE DISCOVERY    |    |      SCORE PREDICTOR      |
+      | - Query Filter Parser     |    | - Unit & Topic Aggregation|    | - Topic Weight Matrix     |
+      | - ChromaDB Vector Search  |    | - Question Frequency Maps |    | - Coverage Percentage     |
+      | - Gemini Multi-Model LLM  |    | - Syllabus Distributions  |    | - Predicted Marks / Total |
+      +---------------------------+    +---------------------------+    +---------------------------+
+                    |                                |                                |
+                    +--------------------------------+--------------------------------+
+                                                     |
+                    +--------------------------------+--------------------------------+
+                    |                                                                 |
+                    v                                                                 v
+      +---------------------------+                                     +---------------------------+
+      |      QUIZ GENERATOR       |                                     |    MOCK EXAM GENERATOR    |
+      | - Strict JSON MCQ Schema  |                                     | - Midsem (20M) / Endsem(50)|
+      | - Validated Options/Keys  |                                     | - First-Half Syllabus Map |
+      | - Instant Grading Engine  |                                     | - Matplotlib LaTeX Math   |
+      | - Syllabus Grounding      |                                     | - Dual PDF Builder (QP/Ans)|
+      +---------------------------+                                     +---------------------------+
+                                                     |
+                                                     v
+                                  +-------------------------------------+
+                                  |          REACT 18 + VITE UI         |
+                                  |   (KaTeX Math, Glassmorphism CSS)   |
+                                  +-------------------------------------+
 ```
 
 ---
 
-## 📁 Complete File Structure
+## 📁 File Structure
 
 ```
 pyq-chatbot/
@@ -144,6 +195,11 @@ pyq-chatbot/
 ├── start_server.bat                    # Shortcut wrapper executing run.bat
 ├── db.sqlite3                          # Relational SQLite database (Subjects, Documents, Messages)
 ├── README.md                           # Master project documentation
+│
+├── docs/
+│   └── screenshots/                    # Application preview screenshots
+│       ├── orchids_home.png            # Orchids landing page preview
+│       └── orchids_chat.png            # Orchids AI chat interface preview
 │
 ├── diagnose_subject.py                 # Diagnostic utility to inspect syllabus cache & untagged chunks
 ├── review_tags.py                      # Tag quality audit script (flags subjects with >15% unclassified chunks)
@@ -160,7 +216,7 @@ pyq-chatbot/
 │   ├── mock_qp_<subject>_<id>.pdf      # Exported Question Paper PDFs (clean exam layout)
 │   └── mock_ans_<subject>_<id>.pdf     # Exported Answer Key & Marking Scheme PDFs
 │
-├── revision_notes/                     # Legacy generated revision notes PDF cache
+├── revision_notes/                     # Generated revision notes PDF cache
 │
 ├── examprep/                           # Django Project Configuration Package
 │   ├── __init__.py                     # Package indicator
@@ -215,13 +271,12 @@ pyq-chatbot/
         ├── notes.css                   # Styles for revision notes
         │
         ├── components/                 # Reusable UI Components
-        │   ├── CosmicBackground.jsx    # Cosmic canvas background
         │   ├── CustomSelect.css        # Styles for dropdown component
         │   ├── CustomSelect.jsx        # Accessible custom dropdown component
         │   ├── LandingShowcase.jsx     # Visual preview component for landing page
         │   ├── MathRenderer.jsx        # KaTeX-powered LaTeX renderer for inline ($...$) and block ($$...$$) math
         │   ├── OrchidsBackground.jsx   # Ambient gradient background
-        │   └── TopBar.jsx              # Navigation bar with active route highlighting
+        │   └── TopBar.jsx              # Navigation bar with active route highlighting & feedback button
         │
         └── pages/                      # Application Page Views
             ├── HomePage.jsx            # Landing page showcasing platform features and quick CTA links
@@ -238,44 +293,7 @@ pyq-chatbot/
 
 ---
 
-## 🔍 Detailed Module & Component Breakdown
-
-### 1. Mock Exam Generator (`chatbot/mock_engine.py` & `frontend/src/pages/MockExamPage.jsx`)
-- **Syllabus Scope Determination (`get_exam_syllabus_scope`)**:
-  - Calculates unit coverage: for **Midsem**, takes $\lceil N/2 \rceil$ units (or splits single long units proportionally); for **Endsem**, takes $100\%$ of units.
-- **Syllabus-Grounded Few-Shot Synthesis**:
-  - Retrieves real historical PYQ chunks from ChromaDB for the selected subject as stylistic few-shot examples.
-  - Formulates a structured Gemini prompt enforcing university question patterns, difficulty balancing, and pure JSON output.
-- **Matplotlib Math Scaler (`_render_formula_image`)**:
-  - Converts LaTeX equations (`\frac{...}{...}`, `\int`, `\sigma`, `\nabla`) into high-resolution transparent PNG images using Matplotlib mathtext.
-  - Automatically computes true physical point dimensions (`points = pixels * 72 / DPI`) so equations render at natural reading size (10.5pt equivalent) inside ReportLab PDFs.
-- **Dual ReportLab PDF Builder (`build_exam_pdf`)**:
-  - Generates two separate A4 documents using `SimpleDocTemplate`:
-    1. **Question Paper**: Clean layout with university header, branch, semester, course title, duration, total marks, instructions, Q.1 compulsory table, and long question sections with right-aligned marks.
-    2. **Answer Key**: Includes all questions followed by step-by-step mathematical working, key points, final answers, and explicit marking schemes (e.g. `[1 Mark for Formula, 2 Marks for Substitution, 2 Marks for Final Answer]`).
-- **KaTeX Web Preview (`frontend/src/components/MathRenderer.jsx`)**:
-  - Parses mixed text, inline math (`$...$`), display math (`$$...$$`), and explicit `formula` fields, rendering crisp vector equations directly in the DOM.
-
-### 2. RAG Chat Engine (`chatbot/rag.py` & `frontend/src/pages/ChatPage.jsx`)
-- **Query Filter Parser**: Uses regex pattern matchers to detect temporal intents (e.g. `2018` to `2024`), exam sessions (`Midsem`, `Endsem`, `Supplementary`), and question indices (`Q.1`, `Q.4(b)`).
-- **Hybrid Retrieval**: Combines metadata filtering with ChromaDB cosine similarity search over 384-dimensional `all-MiniLM-L6-v2` dense embeddings.
-- **Context Synthesis**: Feeds top-k chunks with syllabus context to Google Gemini to formulate structured, cited responses.
-
-### 3. Analytics & Score Predictor (`chatbot/analytics.py` & `frontend/src/pages/ScorePredictorPage.jsx`)
-- Aggregates chunk tags to compute relative frequency and expected marks for every topic in a course syllabus.
-- Formula for topic weight $W_i$:
-  $$W_i = \frac{\text{Count}(T_i)}{\sum_{j} \text{Count}(T_j)}$$
-- Formula for predicted student score given studied topic set $S$:
-  $$\text{Predicted Score} = \text{Total Marks} \times \sum_{i \in S} W_i$$
-
-### 4. Resilient Gemini Client (`chatbot/gemini_utils.py`)
-- Centralized invocation layer across Gemini models (`gemini-3.5-flash-lite`, `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-flash-latest`).
-- **Rate-Limiting & Backoff**: Handles HTTP 429 quota exhaustion with exponential backoff and randomized jitter.
-- **JSON Sanitization**: Strips JavaScript-style comments (`// ...`) and repairs unescaped single backslashes in LaTeX strings (`\frac`, `\alpha`, `\sum`) prior to `json.loads`.
-
----
-
-## 🌐 Complete REST API Reference
+## 🌐 REST API Reference
 
 | Endpoint | Method | Request Payload / Query Params | Response Structure | Description |
 | :--- | :--- | :--- | :--- | :--- |
@@ -308,7 +326,7 @@ pyq-chatbot/
 ### 2. Clone & Environment Setup
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/pyq-chatbot.git
+git clone https://github.com/ankitbeura123/pyq-chatbot.git
 cd pyq-chatbot
 
 # Create virtual environment
@@ -366,7 +384,7 @@ Simply double-click or run:
 ```bash
 run.bat
 ```
-*This script checks your virtual environment, runs `npm run build` in `frontend/`, opens `http://127.0.0.1:8000/` in your default browser, and starts the Django server.*
+*This script checks your virtual environment, builds `frontend/`, opens `http://127.0.0.1:8000/` in your browser, and starts the Django server.*
 
 ### Option B: Standard Django CLI
 ```bash
@@ -375,7 +393,6 @@ python manage.py runserver 127.0.0.1:8000
 Open `http://127.0.0.1:8000/` in your browser.
 
 ### Option C: Concurrent Development Mode (Vite Hot-Reload)
-For live frontend UI tweaking with instant hot-reloading:
 ```bash
 # Terminal 1: Django Backend API
 python manage.py runserver 127.0.0.1:8000
@@ -384,7 +401,7 @@ python manage.py runserver 127.0.0.1:8000
 cd frontend
 npm run dev
 ```
-Open `http://localhost:5173/` (Vite dev server automatically proxies all `/api`, `/mock/download`, and `/browse` requests to `http://127.0.0.1:8000`).
+Open `http://localhost:5173/` (Vite automatically proxies API routes to `http://127.0.0.1:8000`).
 
 ---
 
@@ -401,7 +418,7 @@ Open `http://localhost:5173/` (Vite dev server automatically proxies all `/api`,
 ## 💻 Tech Stack Summary
 
 - **Backend Framework**: Python 3.10+, Django 5.x
-- **Frontend Architecture**: React 18, Vite 5, React Router 6, Vanilla CSS (Glassmorphism & Cosmic tokens)
+- **Frontend Architecture**: React 18, Vite 5, React Router 6, Vanilla CSS (Glassmorphism & Ambient gradients)
 - **Math & LaTeX Rendering**: KaTeX (Client-side Web) & Matplotlib mathtext (Server-side PDF point-scaled rasterizer)
 - **Vector Database**: ChromaDB (Persistent Disk Storage)
 - **Embeddings**: `sentence-transformers/all-MiniLM-L6-v2` (384-dimensional dense vectors)

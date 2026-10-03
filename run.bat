@@ -1,9 +1,9 @@
 @echo off
-title Observatory PYQ - Fast Launch
+title Orchids PYQ - Fast Launch
 cd /d "%~dp0"
 
 echo ===================================================
-echo     OBSERVATORY PYQ - FAST LAUNCHER
+echo        ORCHIDS PYQ - FAST LAUNCHER
 echo ===================================================
 echo.
 

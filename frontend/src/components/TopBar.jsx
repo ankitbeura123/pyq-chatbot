@@ -10,7 +10,8 @@ import {
   FileText,
   TrendingUp,
   FolderArchive,
-  ChevronRight
+  ChevronRight,
+  Mail
 } from 'lucide-react';
 
 export function OrchidLogo({ size = 22, className = '' }) {
@@ -86,6 +87,17 @@ export default function TopBar() {
           </div>
 
           <div className="topbar-right">
+            <a
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=2305113@kiit.ac.in&su=Feedback%20for%20Orchids"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="topbar-feedback-btn desktop-only"
+              title="Send Feedback to 2305113@kiit.ac.in via Gmail"
+            >
+              <Mail size={14} />
+              Feedback
+            </a>
+
             <Link to="/chat" className="topbar-action-pill desktop-only">
               <MessageSquare size={14} />
               Start Chat
@@ -215,6 +227,21 @@ export default function TopBar() {
                   <span>Browse PYQ Archive</span>
                   <ChevronRight size={16} className="drawer-chevron" />
                 </Link>
+
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=2305113@kiit.ac.in&su=Feedback%20for%20Orchids"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mobile-drawer-link"
+                  onClick={closeDrawer}
+                  title="Send Feedback to 2305113@kiit.ac.in via Gmail"
+                >
+                  <div className="drawer-link-icon-wrap feedback">
+                    <Mail size={18} />
+                  </div>
+                  <span>Feedback</span>
+                  <ChevronRight size={16} className="drawer-chevron" />
+                </a>
               </div>
             </div>
 

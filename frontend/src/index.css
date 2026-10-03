@@ -289,6 +289,7 @@ html, body {
   gap: 12px;
 }
 
+.topbar-feedback-btn,
 .topbar-login-btn {
   font-family: var(--font-sans);
   font-size: 0.85rem;
@@ -297,15 +298,22 @@ html, body {
   text-decoration: none;
   padding: 7px 16px;
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(15, 23, 42, 0.08);
   transition: all 0.2s ease;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
+.topbar-feedback-btn:hover,
 .topbar-login-btn:hover {
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.15);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
 .topbar-action-pill {
@@ -2426,6 +2434,7 @@ a.plain {
   .drawer-link-icon-wrap.quiz { background: rgba(245, 158, 11, 0.08); color: #d97706; }
   .drawer-link-icon-wrap.mock { background: rgba(5, 150, 105, 0.08); color: #059669; }
   .drawer-link-icon-wrap.browse { background: rgba(71, 85, 105, 0.08); color: #475569; }
+  .drawer-link-icon-wrap.feedback { background: rgba(236, 72, 153, 0.08); color: #db2777; }
 
   .drawer-chevron {
     margin-left: auto;

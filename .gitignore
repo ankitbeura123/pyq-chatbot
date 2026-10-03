@@ -22,6 +22,9 @@ revision_notes/
 *.jpg
 *.jpeg
 *.log
+!docs/screenshots/*.png
+!docs/screenshots/*.jpg
+!frontend/src/assets/*
 
 # Frontend build & dependencies
 node_modules/

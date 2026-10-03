@@ -1,4 +1,4 @@
 @echo off
-title Observatory PYQ - Fast Launch
+title Orchids PYQ - Fast Launch
 cd /d "%~dp0"
 call run.bat
