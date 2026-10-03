@@ -486,25 +486,39 @@
 .mock-katex-block,
 .paper-formula-box {
   margin: 10px 0;
-  padding: 10px 16px;
+  padding: 10px 14px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-left: 3px solid #3b82f6;
-  border-radius: 6px;
+  border-radius: 8px;
   display: block;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   max-width: 100%;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.mock-katex-block .katex-display,
+.paper-formula-box .katex-display {
+  margin: 0.25em 0 !important;
+  text-align: left !important;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mock-katex-inline {
   display: inline-block;
   vertical-align: middle;
   padding: 0 3px;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .math-rendered-wrap {
   line-height: 1.6;
+  max-width: 100%;
+  word-break: break-word;
 }
 
 .math-fallback {
@@ -514,13 +528,15 @@
 }
 
 .katex {
-  font-size: 1.08em;
+  font-size: 1.05em;
   text-rendering: optimizeLegibility;
 }
 
 .katex-display {
   margin: 0.25em 0 !important;
   text-align: left !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 /* Solution & Rubric presentation */

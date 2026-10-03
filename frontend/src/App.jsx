@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import OrchidsBackground from './components/OrchidsBackground';
 import TopBar from './components/TopBar';
+import MobileNavBar from './components/MobileNavBar';
 import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import BrowseSubjectsPage from './pages/BrowseSubjectsPage';
@@ -87,6 +88,7 @@ export default function App() {
         <Route path="/notes" element={<Navigate to="/mock" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <MobileNavBar />
     </>
   );
 }

@@ -34,7 +34,7 @@ export default function ChatPage() {
   const [subjectsBySemester, setSubjectsBySemester] = useState({});
   const [selectedSemester, setSelectedSemester] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth > 768);
 
   // Chat sessions
   const [sessions, setSessions] = useState(() => {
@@ -324,6 +324,13 @@ export default function ChatPage() {
 
   return (
     <div className="chatgpt-layout">
+      {/* Mobile Backdrop for Sidebar Drawer */}
+      <div
+        className={`chat-sidebar-backdrop ${sidebarOpen ? 'visible' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+
       {/* Left Sidebar */}
       <aside className={`chatgpt-sidebar ${sidebarOpen ? '' : 'collapsed'}`}>
         <div className="sidebar-header">
@@ -347,7 +354,10 @@ export default function ChatPage() {
               <button
                 key={s.id}
                 className={`chat-history-item ${s.id === activeSessionId ? 'active' : ''}`}
-                onClick={() => setActiveSessionId(s.id)}
+                onClick={() => {
+                  setActiveSessionId(s.id);
+                  if (window.innerWidth <= 768) setSidebarOpen(false);
+                }}
               >
                 <span className="chat-history-title">{s.title || 'New conversation'}</span>
                 {sessions.length > 1 && (
@@ -365,25 +375,25 @@ export default function ChatPage() {
 
           <div className="sidebar-nav-links">
             <div className="sidebar-section-title">Explore Tools</div>
-            <Link to="/browse" className="sidebar-nav-link">
+            <Link to="/browse" className="sidebar-nav-link" onClick={() => window.innerWidth <= 768 && setSidebarOpen(false)}>
               <FileText size={15} />
               <span>Browse PYQ Archive</span>
             </Link>
-            <Link to="/discover" className="sidebar-nav-link">
+            <Link to="/discover" className="sidebar-nav-link" onClick={() => window.innerWidth <= 768 && setSidebarOpen(false)}>
               <Compass size={15} />
               <span>Knowledge Discovery</span>
             </Link>
-            <Link to="/predict" className="sidebar-nav-link">
+            <Link to="/predict" className="sidebar-nav-link" onClick={() => window.innerWidth <= 768 && setSidebarOpen(false)}>
               <TrendingUp size={15} />
               <span>Score Predictor</span>
             </Link>
-            <Link to="/quiz" className="sidebar-nav-link">
+            <Link to="/quiz" className="sidebar-nav-link" onClick={() => window.innerWidth <= 768 && setSidebarOpen(false)}>
               <Sparkles size={15} />
               <span>AI Quiz Generator</span>
             </Link>
-            <Link to="/notes" className="sidebar-nav-link">
+            <Link to="/mock" className="sidebar-nav-link" onClick={() => window.innerWidth <= 768 && setSidebarOpen(false)}>
               <BookOpen size={15} />
-              <span>Revision Notes</span>
+              <span>Mock & Notes</span>
             </Link>
           </div>
         </div>
@@ -403,16 +413,15 @@ export default function ChatPage() {
       <main className="chatgpt-main">
         {/* Top Header */}
         <div className="chatgpt-top-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {!sidebarOpen && (
-              <button
-                className="sidebar-icon-btn"
-                onClick={() => setSidebarOpen(true)}
-                title="Open sidebar"
-              >
-                <PanelLeft size={18} />
-              </button>
-            )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            <button
+              className="sidebar-icon-btn"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              title={sidebarOpen ? "Close history" : "Open history"}
+              aria-label="Toggle chat history"
+            >
+              <PanelLeft size={18} />
+            </button>
 
             <div className="model-badge-selector">
               <span className="model-badge-dot" />
@@ -425,12 +434,12 @@ export default function ChatPage() {
               size="sm"
               value={selectedSemester}
               onChange={handleSemesterChange}
-              placeholder="All Semesters"
+              placeholder="Semester"
               options={[
                 { value: "", label: "All Semesters" },
                 ...Object.keys(subjectsBySemester).map(sem => ({ value: sem, label: sem }))
               ]}
-              style={{ minWidth: 130 }}
+              style={{ minWidth: 105 }}
             />
 
             <CustomSelect
@@ -438,12 +447,12 @@ export default function ChatPage() {
               value={selectedSubject}
               onChange={(val) => setSelectedSubject(val)}
               disabled={!selectedSemester}
-              placeholder={selectedSemester ? `All in ${selectedSemester}` : 'All Subjects'}
+              placeholder={selectedSemester ? `Subject` : 'All Subjects'}
               options={[
                 { value: "", label: selectedSemester ? `All in ${selectedSemester}` : 'All Subjects' },
                 ...availableSubjects.map(s => ({ value: s.name, label: s.name }))
               ]}
-              style={{ minWidth: 150 }}
+              style={{ minWidth: 115 }}
             />
 
             {messages.length > 0 && (
@@ -451,10 +460,9 @@ export default function ChatPage() {
                 className="action-icon-btn"
                 onClick={handleClearCurrentChat}
                 title="Clear current conversation"
-                style={{ marginLeft: 4 }}
+                style={{ marginLeft: 2 }}
               >
                 <Trash2 size={14} />
-                <span>Clear</span>
               </button>
             )}
           </div>

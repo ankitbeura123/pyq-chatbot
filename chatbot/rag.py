@@ -7,11 +7,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-api_key = os.getenv("GEMINI_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
+from .gemini_utils import call_gemini_text, _ensure_configured
 
-from .gemini_utils import call_gemini_text
+_ensure_configured()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHROMA_PATH = os.path.join(BASE_DIR, "chroma_db")
@@ -165,26 +163,33 @@ Below is relevant context retrieved from the student's PYQ database and syllabus
 {context_text}
 {filter_note}
 
-Student's question: {user_question}
+Student's query: {user_question}
 
 Instructions:
-- If the student is asking for probable/likely exam questions, practice questions, or listing questions:
-  * List each question clearly (e.g. Q1, Q2, Q3, etc.).
-  * For EVERY single question listed, ALWAYS generate its full, step-by-step detailed answer at the same time.
-  * Enclose each answer in an HTML details block immediately below its question, formatted exactly as:
-    <details>
-    <summary>Show Answer</summary>
+1. Adapt to the Student's Intent:
+   - TOPIC / CONCEPT / SYLLABUS QUERIES (e.g. "10 most probable topics", "important topics", "explain topic X", "overview of unit 2"):
+     * Focus on providing a clean, prioritized breakdown of the topics with concise explanations and why they are important based on exam patterns.
+     * Do NOT generate long forced question-and-answer blocks here; focus directly on the topic analysis and explanations. You can mention brief reference question titles if relevant.
 
-    **Solution:**
-    [Provide clear step-by-step answer, formulas, code, or explanation here]
+   - QUESTION / PRACTICE / PYQ LOOKUP QUERIES (e.g. "give me questions on this topic", "most probable questions", "what was the question from midsem 2024", "solve Q2"):
+     * Clearly list each question (e.g. Q1, Q2, etc.).
+     * Provide the complete step-by-step solution for each question immediately below it inside a collapsible HTML block:
+       <details>
+       <summary>Show Answer</summary>
 
-    </details>
+       **Solution:**
+       [Provide step-by-step answer, formulas, explanation, or code]
 
-- If asking for insight on a specific question or topic, explain the concept clearly and if questions are present, provide their answers inside <details><summary>Show Answer</summary> ... </details> blocks.
-- If the exact year/question requested isn't in the retrieved context, say so honestly, then offer the closest available match instead of refusing entirely.
-- Do not use LaTeX formatting (no $ symbols or \\frac, \\times etc.). Write formulas and equations in plain readable text instead, e.g. "Tm = ΔH / ΔS" or "k2/k1 = ...".
-- Be specific and reference the actual retrieved questions where relevant.
-- Keep your answer focused, beautifully organized, and easy for students to read.
+       </details>
+
+   - DIRECT EXPLANATION QUERIES (e.g. "What is X?", "Compare A and B"):
+     * Provide a direct, well-structured, clear explanation with bullet points and examples.
+
+2. Guidelines:
+   - If the exact year or question requested is not in the retrieved context, state so honestly, then provide the closest available match from the syllabus/PYQ records.
+   - Do not use raw LaTeX formatting (no $ symbols or \\frac, \\times etc.). Write equations in clean readable text (e.g. "Tm = ΔH / ΔS" or "k2/k1 = ...").
+   - Reference actual PYQ years and exam types where relevant.
+   - Keep the answer structured, focused, and student-friendly.
 """
     return prompt
 
