@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.http import JsonResponse, FileResponse, Http404, HttpResponse
+from django.http import JsonResponse, FileResponse, Http404, HttpResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from collections import defaultdict
@@ -11,7 +11,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from .rag import get_chatbot_response
+from .rag import get_chatbot_response, stream_chatbot_response
 from .models import Subject, Document, ChatMessage
 from . import analytics
 from .quiz_engine import generate_quiz, QuizGenerationError
@@ -80,6 +80,52 @@ def chat_api(request):
     except Exception as e:
         print(f"Chat API error: {e}")
         return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
+
+
+@csrf_exempt
+def chat_stream_api(request):
+    """
+    SSE Streaming endpoint for real-time token delivery.
+    POST /api/chat/stream/
+    Body: {"message": "...", "subject": "..."}
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+
+    user_message = data.get('message', '').strip()
+    subject_filter = data.get('subject', '').strip() or None
+
+    if not user_message:
+        return JsonResponse({'error': 'Empty message'}, status=400)
+
+    subj_obj = Subject.objects.filter(name=subject_filter).first() if subject_filter else None
+    ChatMessage.objects.create(role='user', content=user_message, subject=subj_obj)
+
+    def event_stream():
+        full_chunks = []
+        try:
+            for chunk in stream_chatbot_response(user_message, subject_filter=subject_filter):
+                if chunk:
+                    full_chunks.append(chunk)
+                    yield f"data: {json.dumps({'text': chunk})}\n\n"
+            
+            final_text = "".join(full_chunks)
+            if final_text:
+                ChatMessage.objects.create(role='assistant', content=final_text, subject=subj_obj)
+            yield f"data: {json.dumps({'done': True, 'full_response': final_text})}\n\n"
+        except Exception as e:
+            logger.exception("Chat streaming error")
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response['Cache-Control'] = 'no-cache'
+    response['X-Accel-Buffering'] = 'no'
+    return response
 
 
 def api_browse_subjects(request):

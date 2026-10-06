@@ -170,10 +170,21 @@ function QuizSetup({
 
         {error && <div className="quiz-error">{error}</div>}
 
-        <button type="submit" className="hero-btn-dark" style={{ marginTop: 20, alignSelf: 'flex-start' }} disabled={loading}>
+        <button type="submit" className="hero-btn-dark" style={{ marginTop: 20, alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 8 }} disabled={loading}>
           <Sparkles size={15} />
           {loading ? "Generating Quiz…" : "Generate Practice Quiz"}
         </button>
+
+        {loading && (
+          <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, color: '#64748b', fontSize: '0.88rem' }}>
+            <div className="loading-pulse-dots" style={{ display: 'inline-flex', gap: 4 }}>
+              <span className="loading-dot" style={{ width: 5, height: 5 }} />
+              <span className="loading-dot" style={{ width: 5, height: 5 }} />
+              <span className="loading-dot" style={{ width: 5, height: 5 }} />
+            </div>
+            <span>Matching syllabus & crafting exam-grade questions...</span>
+          </div>
+        )}
       </form>
     </div>
   );

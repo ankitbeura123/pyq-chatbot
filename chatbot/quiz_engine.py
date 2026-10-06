@@ -205,7 +205,7 @@ def find_syllabus_context(prompt_text):
     try:
         pyq_res = collection.query(
             query_embeddings=[emb],
-            n_results=20,
+            n_results=10,
             where=where_pyq
         )
     except Exception as e:
@@ -214,7 +214,7 @@ def find_syllabus_context(prompt_text):
     try:
         syl_res = collection.query(
             query_embeddings=[emb],
-            n_results=6,
+            n_results=4,
             where=where_syl
         )
     except Exception as e:

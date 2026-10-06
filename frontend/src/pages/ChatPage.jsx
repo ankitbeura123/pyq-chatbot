@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { marked } from 'marked';
+import { renderChatMarkdown } from '../utils/markdownUtils';
 import {
   Plus,
   Trash2,
@@ -215,8 +215,8 @@ export default function ChatPage() {
     }
 
     const userMsg = { role: 'user', content: text, isMarkdown: false, timestamp: Date.now() };
-    const updatedMessages = [...messages, userMsg];
-    updateActiveSessionMessages(updatedMessages, sessionTitle);
+    const baseMessages = [...messages, userMsg];
+    updateActiveSessionMessages(baseMessages, sessionTitle);
 
     setInputMessage('');
     if (textareaRef.current) {
@@ -225,6 +225,81 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
+      // 1. Attempt real-time SSE streaming for instant response
+      const streamRes = await fetch('/api/chat/stream/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, subject: currentSubj || '' })
+      });
+
+      if (streamRes.ok && streamRes.body) {
+        const reader = streamRes.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let accumulatedText = '';
+        let buffer = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('data:')) {
+              try {
+                const payload = JSON.parse(trimmed.slice(5).trim());
+                if (payload.text) {
+                  accumulatedText += payload.text;
+                  updateActiveSessionMessages(
+                    [
+                      ...baseMessages,
+                      {
+                        role: 'assistant',
+                        content: renderChatMarkdown(accumulatedText),
+                        rawContent: accumulatedText,
+                        isMarkdown: true,
+                        isStreaming: true,
+                        timestamp: Date.now()
+                      }
+                    ],
+                    sessionTitle
+                  );
+                } else if (payload.done) {
+                  accumulatedText = payload.full_response || accumulatedText;
+                } else if (payload.error) {
+                  throw new Error(payload.error);
+                }
+              } catch (parseErr) {
+                // Ignore partial JSON parse errors during streaming
+              }
+            }
+          }
+        }
+
+        if (accumulatedText) {
+          updateActiveSessionMessages(
+            [
+              ...baseMessages,
+              {
+                role: 'assistant',
+                content: renderChatMarkdown(accumulatedText),
+                rawContent: accumulatedText,
+                isMarkdown: true,
+                isStreaming: false,
+                timestamp: Date.now()
+              }
+            ],
+            sessionTitle
+          );
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // 2. Fallback to standard JSON endpoint
       const res = await fetch('/api/chat/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -234,12 +309,13 @@ export default function ChatPage() {
       if (data.response) {
         updateActiveSessionMessages(
           [
-            ...updatedMessages,
+            ...baseMessages,
             {
               role: 'assistant',
-              content: marked.parse(data.response),
+              content: renderChatMarkdown(data.response),
               rawContent: data.response,
               isMarkdown: true,
+              isStreaming: false,
               timestamp: Date.now()
             }
           ],
@@ -248,12 +324,13 @@ export default function ChatPage() {
       } else {
         updateActiveSessionMessages(
           [
-            ...updatedMessages,
+            ...baseMessages,
             {
               role: 'assistant',
               content: data.error || 'Unknown error occurred.',
               rawContent: data.error || '',
               isMarkdown: false,
+              isStreaming: false,
               timestamp: Date.now()
             }
           ],
@@ -263,12 +340,13 @@ export default function ChatPage() {
     } catch (err) {
       updateActiveSessionMessages(
         [
-          ...updatedMessages,
+          ...baseMessages,
           {
             role: 'assistant',
             content: `Connection lost: ${err.message}`,
             rawContent: err.message,
             isMarkdown: false,
+            isStreaming: false,
             timestamp: Date.now()
           }
         ],
@@ -515,7 +593,7 @@ export default function ChatPage() {
                         <>
                           <div
                             className="chat-bubble markdown-body"
-                            dangerouslySetInnerHTML={{ __html: m.content }}
+                            dangerouslySetInnerHTML={{ __html: renderChatMarkdown(m.rawContent || m.content) }}
                           />
                           <div className="assistant-actions">
                             <button
@@ -565,7 +643,7 @@ export default function ChatPage() {
                 );
               })}
 
-              {isLoading && (
+              {isLoading && !messages.some(m => m.role === 'assistant' && m.isStreaming) && (
                 <div className="chat-row assistant-row">
                   <div className="chat-avatar orchid-avatar">
                     <OrchidLogo size={16} />
@@ -605,8 +683,8 @@ export default function ChatPage() {
                 value={inputMessage}
                 placeholder={
                   selectedSubject
-                    ? `Ask Orchids about ${selectedSubject}…`
-                    : 'Message Orchids…'
+                    ? `Ask Orchids about ${selectedSubject} syllabus or PYQs…`
+                    : 'Ask questions within your course syllabus or PYQs…'
                 }
                 onChange={(e) => {
                   setInputMessage(e.target.value);
@@ -626,7 +704,7 @@ export default function ChatPage() {
           </div>
 
           <div className="chatgpt-disclaimer">
-            Orchids may produce inaccurate information about subjects or exams. Verify with official syllabus.
+            Orchids is strictly guardrailed for university course syllabus and PYQ exam preparation.
           </div>
         </div>
       </main>

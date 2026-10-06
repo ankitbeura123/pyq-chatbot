@@ -170,19 +170,16 @@ def _ensure_configured():
 
 
 MODELS_TO_TRY = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
-    "gemini-3-flash-preview",
-    "gemini-3.1-flash-lite-preview",
+    "gemini-3.5-flash-lite",
     "gemini-flash-lite-latest",
-    "gemma-4-31b-it",
-    "gemma-4-26b-a4b-it",
-    "gemini-flash-latest",
+    "gemini-3.1-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3-flash-preview",
+    "gemini-3.8-flash",
 ]
 
-# Free tier is ~5-15 requests/minute. 1s interval prevents flooding.
-MIN_SECONDS_BETWEEN_CALLS = 1
+# Minimal interval to prevent flooding while keeping responses fast
+MIN_SECONDS_BETWEEN_CALLS = 0.05
 _last_call_time = 0
 
 
@@ -209,7 +206,7 @@ def _extract_retry_delay(error, default=60):
     return default
 
 
-def call_gemini_text(prompt, max_retries=3):
+def call_gemini_text(prompt, generation_config=None, max_retries=3):
     """Call Gemini with active model fallback + API key rotation + throttling + 429-aware retry."""
     keys = get_all_api_keys()
     if not keys:
@@ -227,7 +224,7 @@ def call_gemini_text(prompt, max_retries=3):
 
             try:
                 model = genai.GenerativeModel(model_name)
-                response = model.generate_content(prompt)
+                response = model.generate_content(prompt, generation_config=generation_config)
                 if response and response.text:
                     return response.text
                 last_error = RuntimeError(f"Empty response from model {model_name}")
@@ -256,6 +253,65 @@ def call_gemini_text(prompt, max_retries=3):
                     break
 
     raise RuntimeError(f"All LLM models and API keys failed/exhausted. Last error: {last_error}")
+
+
+def stream_gemini_text(prompt, generation_config=None):
+    """
+    Generator that streams Gemini response tokens in real-time.
+    Supports API key rotation and model fallback on initial connection.
+    """
+    keys = get_all_api_keys()
+    if not keys:
+        raise RuntimeError("No valid GEMINI_API_KEY found in .env file.")
+
+    last_error = None
+    num_keys = len(keys)
+
+    for model_name in MODELS_TO_TRY:
+        for key_attempt in range(num_keys):
+            _throttle()
+            current_key = get_next_available_key(force_advance=(key_attempt > 0))
+            genai.configure(api_key=current_key)
+
+            try:
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(prompt, stream=True, generation_config=generation_config)
+                
+                # Check that stream yields successfully
+                first_chunk = True
+                for chunk in response:
+                    if chunk.text:
+                        yield chunk.text
+                        first_chunk = False
+                
+                if not first_chunk:
+                    return  # Streaming completed successfully
+                
+                last_error = RuntimeError(f"Empty stream from model {model_name}")
+                break
+            except Exception as e:
+                last_error = e
+                err_str = str(e).lower()
+                if (
+                    "429" in err_str
+                    or "quota" in err_str
+                    or "resource_exhausted" in err_str
+                    or "resourceexhausted" in err_str
+                    or "rate limit" in err_str
+                ):
+                    wait = _extract_retry_delay(e, default=60)
+                    mark_key_rate_limited(current_key, cooldown_seconds=max(wait, 30))
+                    if num_keys > 1 and key_attempt < num_keys - 1:
+                        print(f"    [API Key Failover] {model_name} quota hit on {_mask_key(current_key)}. Switching to next API key immediately...")
+                        continue
+                    else:
+                        print(f"    [rate limit] All {num_keys} API keys hit quota for {model_name}. Trying next fallback model...")
+                        break
+                else:
+                    print(f"    [fallback] {model_name} streaming failed ({e}), trying next model...")
+                    break
+
+    raise RuntimeError(f"All LLM models and API keys failed/exhausted for streaming. Last error: {last_error}")
 
 
 
@@ -407,7 +463,23 @@ def clean_data_latex(obj):
     return obj
 
 
-def call_gemini_json(prompt, max_retries=10):
+def call_gemini_json(prompt, max_retries=5):
+    # 1. Fast Path: Native JSON mode from Gemini
+    try:
+        raw_json = call_gemini_text(prompt, generation_config={"response_mime_type": "application/json"}, max_retries=max_retries)
+        if raw_json and raw_json.strip():
+            candidate = _strip_json_comments_and_trailing_commas(raw_json.strip())
+            try:
+                latex_preprocessed = preprocess_gemini_json_latex(candidate)
+                parsed = json.loads(latex_preprocessed)
+                return clean_data_latex(parsed)
+            except Exception:
+                parsed = json.loads(candidate)
+                return clean_data_latex(parsed)
+    except Exception:
+        pass
+
+    # 2. Fallback Path: Standard text response with multi-stage sanitizers
     raw = call_gemini_text(prompt, max_retries=max_retries)
     cleaned = re.sub(r"^```json\s*|^```\s*|```\s*$", "", raw.strip(), flags=re.MULTILINE).strip()
     cleaned = _strip_json_comments_and_trailing_commas(cleaned)
@@ -417,7 +489,7 @@ def call_gemini_json(prompt, max_retries=10):
     candidate = match.group(1) if match else cleaned
     candidate = _strip_json_comments_and_trailing_commas(candidate)
 
-    # 1. LaTeX-sanitized parse attempt
+    # Attempt A: LaTeX-sanitized parse attempt
     try:
         latex_preprocessed = preprocess_gemini_json_latex(candidate)
         parsed = json.loads(latex_preprocessed)
@@ -425,14 +497,14 @@ def call_gemini_json(prompt, max_retries=10):
     except Exception:
         pass
 
-    # 2. Direct attempt on candidate
+    # Attempt B: Direct attempt on candidate
     try:
         parsed = json.loads(candidate)
         return clean_data_latex(parsed)
     except Exception:
         pass
 
-    # 3. Handle unescaped backslashes with regex fallback
+    # Attempt C: Handle unescaped backslashes with regex fallback
     fixed_all = re.sub(r'\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})', lambda m: r'\\', candidate)
     try:
         parsed = json.loads(fixed_all)
@@ -440,7 +512,7 @@ def call_gemini_json(prompt, max_retries=10):
     except Exception:
         pass
 
-    # 4. Try with strict=False
+    # Attempt D: Try with strict=False
     for text_variant in (latex_preprocessed if 'latex_preprocessed' in locals() else candidate, fixed_all, candidate):
         try:
             parsed = json.loads(text_variant, strict=False)
@@ -448,7 +520,7 @@ def call_gemini_json(prompt, max_retries=10):
         except Exception:
             pass
 
-    # 5. Final fallback
+    # Attempt E: Aggressive escape fallback
     fixed_aggressive = re.sub(r'\\(?!["\\])', lambda m: r'\\', candidate)
     try:
         parsed = json.loads(fixed_aggressive, strict=False)

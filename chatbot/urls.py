@@ -5,6 +5,7 @@ urlpatterns = [
     # API Routes
     path('api/subjects/', views.api_subjects, name='api_subjects'),
     path('api/chat/', views.chat_api, name='chat_api'),
+    path('api/chat/stream/', views.chat_stream_api, name='chat_stream_api'),
     path('api/browse/', views.api_browse_subjects, name='api_browse_subjects'),
     path('api/browse/subject/<int:subject_id>/', views.api_browse_documents, name='api_browse_documents'),
 

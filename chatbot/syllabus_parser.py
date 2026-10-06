@@ -9,6 +9,9 @@ SYLLABUS_CACHE_DIR = os.path.join(BASE_DIR, "syllabus_cache")
 os.makedirs(SYLLABUS_CACHE_DIR, exist_ok=True)
 
 
+_SYLLABUS_MEM_CACHE = {}
+
+
 def _cache_path(subject_name):
     safe = "".join(c if c.isalnum() else "_" for c in subject_name)
     return os.path.join(SYLLABUS_CACHE_DIR, f"{safe}.json")
@@ -29,17 +32,27 @@ def get_raw_syllabus_text(subject_name):
 def parse_syllabus_structure(subject_name, force_refresh=False):
     """
     Returns: {"units": [{"unit": "Unit 1", "title": "...", "topics": ["...", ...]}, ...]}
-    Cached to disk per subject. Uses Gemini to structure the raw syllabus text
+    Cached in memory and to disk per subject. Uses Gemini to structure the raw syllabus text
     that was actually ingested into ChromaDB — never invents units.
     """
+    if not force_refresh and subject_name in _SYLLABUS_MEM_CACHE:
+        return _SYLLABUS_MEM_CACHE[subject_name]
+
     cache_file = _cache_path(subject_name)
     if not force_refresh and os.path.exists(cache_file):
-        with open(cache_file, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                _SYLLABUS_MEM_CACHE[subject_name] = data
+                return data
+        except Exception:
+            pass
 
     raw_text = get_raw_syllabus_text(subject_name)
     if not raw_text or not raw_text.strip():
-        return {"units": [], "error": "No syllabus ingested for this subject yet."}
+        res = {"units": [], "error": "No syllabus ingested for this subject yet."}
+        _SYLLABUS_MEM_CACHE[subject_name] = res
+        return res
 
     prompt = f"""You are parsing a college course syllabus into a strict structure.
 
