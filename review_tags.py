@@ -36,7 +36,7 @@ for subject in subjects:
     bad = untagged + unclassified
     bad_pct = round((bad / total) * 100, 1)
 
-    flag = " ⚠️  FLAGGED" if bad_pct > FLAG_THRESHOLD_PCT else ""
+    flag = " [FLAGGED]" if bad_pct > FLAG_THRESHOLD_PCT else ""
     if flag:
         flagged.append((subject.name, bad_pct))
 

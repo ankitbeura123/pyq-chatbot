@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FileSpreadsheet,
   Download,
@@ -11,20 +11,61 @@ import {
   FileText,
   HelpCircle,
   Eye,
-  Check
+  Check,
+  ChevronDown,
+  ChevronRight,
+  CheckSquare,
+  Square,
+  Search,
+  Layers,
+  TrendingUp,
+  Filter
 } from "lucide-react";
 import CustomSelect from "../components/CustomSelect";
 import MathRenderer from "../components/MathRenderer";
 import "../mock.css";
 
 const GENERATE_ENDPOINT = "/api/mock/generate/";
-const SYLLABUS_PREVIEW_ENDPOINT = "/api/mock/syllabus-preview/";
+
+// Tri-state checkbox for Unit-level selection (Checked, Unchecked, Indeterminate)
+function UnitCheckbox({ checked, indeterminate, onChange, id }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.indeterminate = Boolean(indeterminate);
+    }
+  }, [indeterminate]);
+
+  return (
+    <input
+      type="checkbox"
+      id={id}
+      ref={ref}
+      checked={Boolean(checked)}
+      onChange={onChange}
+      style={{
+        width: 17,
+        height: 17,
+        accentColor: "#2563eb",
+        cursor: "pointer",
+        flexShrink: 0
+      }}
+    />
+  );
+}
 
 export default function MockExamPage() {
   const [subjects, setSubjects] = useState([]);
   const [subjectId, setSubjectId] = useState("");
   const [examType, setExamType] = useState("midsem");
-  const [syllabusScope, setSyllabusScope] = useState(null);
+  const [units, setUnits] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [collapsedUnits, setCollapsedUnits] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activePreset, setActivePreset] = useState("midsem_default");
+  const [loadingTopics, setLoadingTopics] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -49,21 +90,107 @@ export default function MockExamPage() {
       .catch(() => {});
   }, []);
 
-  // Update syllabus preview whenever subjectId or examType changes
+  // Preset selector helper
+  const applyScopePreset = (preset, unitList = units, topicList = topics) => {
+    setActivePreset(preset);
+    if (!unitList.length) return;
+
+    if (preset === "full" || preset === "all") {
+      const allNames = topicList.map((t) => t.name || t.topic || (typeof t === "string" ? t : ""));
+      setSelectedTopics(allNames.filter(Boolean));
+    } else if (preset === "midsem_default") {
+      const n = unitList.length;
+      const halfCount = n / 2.0;
+      const midsemNames = [];
+      unitList.forEach((u, i) => {
+        const uTopics = u.topics || [];
+        if (i + 1 <= Math.floor(halfCount)) {
+          uTopics.forEach((t) => midsemNames.push(t.name || t.topic || (typeof t === "string" ? t : "")));
+        } else if (i + 1 === Math.ceil(halfCount) && n % 2 !== 0) {
+          const halfLen = Math.max(1, Math.ceil(uTopics.length / 2));
+          uTopics.slice(0, halfLen).forEach((t) => midsemNames.push(t.name || t.topic || (typeof t === "string" ? t : "")));
+        }
+      });
+      setSelectedTopics(midsemNames.filter(Boolean));
+    } else if (preset === "high_weight") {
+      const highTopics = topicList.filter((t) => (t.weight_pct || 0) >= 5);
+      if (highTopics.length > 0) {
+        setSelectedTopics(highTopics.map((t) => t.name || t.topic).filter(Boolean));
+      } else {
+        setSelectedTopics(topicList.slice(0, Math.ceil(topicList.length / 2)).map((t) => t.name || t.topic).filter(Boolean));
+      }
+    } else if (preset === "clear") {
+      setSelectedTopics([]);
+    }
+  };
+
+  // Fetch units & topics whenever subjectId changes
   useEffect(() => {
     if (!subjectId) {
-      setSyllabusScope(null);
+      setUnits([]);
+      setTopics([]);
+      setSelectedTopics([]);
       return;
     }
-    fetch(`${SYLLABUS_PREVIEW_ENDPOINT}?subject_id=${subjectId}&exam_type=${examType}`)
+
+    setLoadingTopics(true);
+    fetch(`/api/predict/topics/${subjectId}/`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.scope) {
-          setSyllabusScope(data.scope);
+        let unitList = data.units || [];
+        const topicList = data.topics || [];
+
+        // Fallback: If no structured units, group from topics
+        if (!unitList.length && topicList.length) {
+          const grouped = {};
+          topicList.forEach((t) => {
+            const uName = t.unit || "Unit 1";
+            if (!grouped[uName]) {
+              grouped[uName] = {
+                unit: uName,
+                title: t.unit_title || "",
+                label: t.unit_title ? `${uName}: ${t.unit_title}` : uName,
+                weight_pct: 0,
+                total_questions: 0,
+                topics: []
+              };
+            }
+            grouped[uName].topics.push(t);
+            grouped[uName].weight_pct += t.weight_pct || 0;
+            grouped[uName].total_questions += t.count || 0;
+          });
+          unitList = Object.values(grouped);
         }
+
+        // Extract all topics
+        const allExtractedTopics = [];
+        unitList.forEach((u) => {
+          (u.topics || []).forEach((t) => {
+            allExtractedTopics.push({
+              name: t.name || t.topic || (typeof t === "string" ? t : ""),
+              topic: t.name || t.topic || (typeof t === "string" ? t : ""),
+              count: t.count || 0,
+              weight_pct: t.weight_pct || 0,
+              unit: u.unit || t.unit || "",
+              unit_title: u.title || t.unit_title || ""
+            });
+          });
+        });
+
+        const finalTopics = topicList.length ? topicList : allExtractedTopics;
+        setUnits(unitList);
+        setTopics(finalTopics);
+
+        // By default, if midsem, select first half; if endsem, select all
+        applyScopePreset(examType === "midsem" ? "midsem_default" : "full", unitList, finalTopics);
       })
-      .catch(() => {});
-  }, [subjectId, examType]);
+      .catch((err) => {
+        console.error("Failed to load subject topics:", err);
+      })
+      .finally(() => {
+        setLoadingTopics(false);
+      });
+  }, [subjectId]);
 
   // Loading animation simulation steps
   useEffect(() => {
@@ -79,10 +206,68 @@ export default function MockExamPage() {
     return () => clearInterval(timer);
   }, [loading]);
 
+  const handleExamTypeChange = (newType) => {
+    setExamType(newType);
+    if (newType === "midsem" && activePreset === "full") {
+      applyScopePreset("midsem_default");
+    } else if (newType === "endsem" && activePreset === "midsem_default") {
+      applyScopePreset("full");
+    }
+  };
+
+  const handleTopicToggle = (topicName) => {
+    setActivePreset("custom");
+    setSelectedTopics((prev) =>
+      prev.includes(topicName)
+        ? prev.filter((t) => t !== topicName)
+        : [...prev, topicName]
+    );
+  };
+
+  const handleUnitToggle = (unit) => {
+    setActivePreset("custom");
+    const unitTopics = unit.topics || [];
+    const unitTopicNames = unitTopics.map(
+      (t) => t.name || t.topic || (typeof t === "string" ? t : "")
+    ).filter(Boolean);
+    if (!unitTopicNames.length) return;
+
+    const allSelected = unitTopicNames.every((name) => selectedTopics.includes(name));
+    if (allSelected) {
+      setSelectedTopics((prev) => prev.filter((name) => !unitTopicNames.includes(name)));
+    } else {
+      setSelectedTopics((prev) => {
+        const next = new Set(prev);
+        unitTopicNames.forEach((name) => next.add(name));
+        return Array.from(next);
+      });
+    }
+  };
+
+  const toggleUnitCollapse = (unitName) => {
+    setCollapsedUnits((prev) => ({
+      ...prev,
+      [unitName]: !prev[unitName]
+    }));
+  };
+
+  const handleExpandAll = () => setCollapsedUnits({});
+  const handleCollapseAll = () => {
+    const collapsed = {};
+    units.forEach((u) => {
+      collapsed[u.unit] = true;
+    });
+    setCollapsedUnits(collapsed);
+  };
+
   async function handleGenerate(e) {
     if (e) e.preventDefault();
     if (!subjectId) {
       setError("Please select a subject.");
+      return;
+    }
+    if (selectedTopics.length === 0) {
+      setError("Please select at least one unit or topic to generate your mock paper.");
       return;
     }
 
@@ -92,6 +277,17 @@ export default function MockExamPage() {
     setQpFilename(null);
     setAnsFilename(null);
 
+    // Collect units that have at least one topic selected
+    const selectedUnitsSet = new Set();
+    units.forEach((u) => {
+      const uTopicNames = (u.topics || []).map(
+        (t) => t.name || t.topic || (typeof t === "string" ? t : "")
+      );
+      if (uTopicNames.some((tName) => selectedTopics.includes(tName))) {
+        selectedUnitsSet.add(u.unit);
+      }
+    });
+
     try {
       const res = await fetch(GENERATE_ENDPOINT, {
         method: "POST",
@@ -99,6 +295,8 @@ export default function MockExamPage() {
         body: JSON.stringify({
           subject_id: parseInt(subjectId, 10),
           exam_type: examType,
+          selected_topics: selectedTopics,
+          selected_units: Array.from(selectedUnitsSet),
         }),
       });
       const data = await res.json();
@@ -125,6 +323,44 @@ export default function MockExamPage() {
 
   const selectedSubjectObj = subjects.find((s) => String(s.id) === String(subjectId));
 
+  // Filter units and topics by search query
+  const filteredUnits = units.map((u) => {
+    const uTopics = u.topics || [];
+    if (!searchQuery.trim()) return u;
+
+    const q = searchQuery.toLowerCase();
+    const matchesUnit =
+      (u.unit && u.unit.toLowerCase().includes(q)) ||
+      (u.title && u.title.toLowerCase().includes(q));
+    const matchingTopics = uTopics.filter((t) => {
+      const name = t.name || t.topic || (typeof t === "string" ? t : "");
+      return name.toLowerCase().includes(q);
+    });
+
+    if (matchesUnit) return u;
+    if (matchingTopics.length > 0) {
+      return { ...u, topics: matchingTopics };
+    }
+    return null;
+  }).filter(Boolean);
+
+  // Calculate total weight % and active units count
+  let selectedWeightPct = 0;
+  let activeUnitsCount = 0;
+  units.forEach((u) => {
+    const uTopics = u.topics || [];
+    let hasSelectedInUnit = false;
+    uTopics.forEach((t) => {
+      const name = t.name || t.topic || (typeof t === "string" ? t : "");
+      if (selectedTopics.includes(name)) {
+        selectedWeightPct += (t.weight_pct || 0);
+        hasSelectedInUnit = true;
+      }
+    });
+    if (hasSelectedInUnit) activeUnitsCount++;
+  });
+  selectedWeightPct = Math.min(100, Math.round(selectedWeightPct * 10) / 10);
+
   return (
     <div className="mock-page">
       {/* 1. SETUP CARD (When no paper is generated yet) */}
@@ -135,9 +371,8 @@ export default function MockExamPage() {
             Generate Mock Examination Paper
           </h1>
           <p className="mock-subtitle">
-            Generate authentic KIIT university-standard examination question papers
-            grounded in past paper patterns and syllabus limits, complete with downloadable
-            LaTeX-styled Question Paper and Step-by-Step Answer Key PDFs.
+            Customize units & topics to simulate a realistic KIIT examination paper.
+            Questions will be dynamically focused on the most probable topics and grounded in real university PYQs.
           </p>
 
           <form onSubmit={handleGenerate} className="mock-form">
@@ -163,19 +398,19 @@ export default function MockExamPage() {
               />
             </div>
 
-            {/* Exam Type Selector */}
+            {/* Exam Pattern Selector */}
             <div>
-              <label className="mock-label">Select Examination Type</label>
+              <label className="mock-label">Select Examination Pattern</label>
               <div className="exam-type-grid">
                 {/* Midsem Option */}
                 <div
                   className={`exam-type-card ${examType === "midsem" ? "selected" : ""}`}
-                  onClick={() => setExamType("midsem")}
+                  onClick={() => handleExamTypeChange("midsem")}
                   role="button"
                   tabIndex={0}
                 >
                   <div className="exam-type-header">
-                    <span className="exam-type-name">Mid-Semester Exam</span>
+                    <span className="exam-type-name">Mid-Semester Pattern</span>
                     <span className="exam-badge">20 Marks</span>
                   </div>
                   <div className="exam-type-meta">
@@ -189,19 +424,19 @@ export default function MockExamPage() {
                     </span>
                   </div>
                   <p className="exam-type-desc">
-                    Covers <b>first half of course syllabus</b> (e.g. 3 of 6 units, or 2.5 of 5 units).
+                    Official 20-mark midsem structure. Generates compulsory 1m questions + 5m long questions with sub-parts.
                   </p>
                 </div>
 
                 {/* Endsem Option */}
                 <div
                   className={`exam-type-card ${examType === "endsem" ? "selected" : ""}`}
-                  onClick={() => setExamType("endsem")}
+                  onClick={() => handleExamTypeChange("endsem")}
                   role="button"
                   tabIndex={0}
                 >
                   <div className="exam-type-header">
-                    <span className="exam-type-name">End-Semester Exam</span>
+                    <span className="exam-type-name">End-Semester Pattern</span>
                     <span className="exam-badge">50 Marks</span>
                   </div>
                   <div className="exam-type-meta">
@@ -215,37 +450,237 @@ export default function MockExamPage() {
                     </span>
                   </div>
                   <p className="exam-type-desc">
-                    Covers <b>entire course syllabus</b> across all modules and units.
+                    Comprehensive 50-mark endsem format. Generates 10 compulsory 1m questions + 6 long questions (10m each).
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Syllabus Coverage & PYQ Grounding Live Preview */}
-            {syllabusScope && (
-              <div className="syllabus-scope-card">
-                <div className="syllabus-scope-head">
-                  <span>
-                    <BookOpen size={13} style={{ display: "inline", marginRight: 5 }} />
-                    {syllabusScope.scope_label}
-                  </span>
-                  <span>
-                    {syllabusScope.units?.length || 0} Units • {syllabusScope.pyq_doc_count ? `${syllabusScope.pyq_doc_count} PYQ Papers Grounded` : 'PYQs Grounded'}
-                  </span>
+            {/* Interactive Units & Topics Selection Section (Like Score Predictor) */}
+            <div className="mock-topics-section">
+              <div className="mock-scope-header">
+                <div className="mock-scope-title-group">
+                  <h3>
+                    <Layers size={17} color="#2563eb" />
+                    Select Syllabus Units & Topics
+                  </h3>
+                  <div className="mock-scope-stats">
+                    <strong style={{ color: "#2563eb" }}>{selectedTopics.length}</strong> of {topics.length} topics selected across {activeUnitsCount} units
+                    {selectedWeightPct > 0 && ` (~${selectedWeightPct}% past exam weight)`}
+                  </div>
                 </div>
-                <div className="syllabus-unit-tags">
-                  {(syllabusScope.units || []).map((u, i) => (
-                    <span key={i} className="unit-tag">
-                      <b>{u.unit}:</b> {u.title}
-                    </span>
-                  ))}
-                </div>
-                <div style={{ marginTop: 8, fontSize: "0.82rem", color: "#1e40af", display: "flex", alignItems: "center", gap: 6, background: "rgba(37,99,235,0.06)", padding: "4px 8px", borderRadius: 4 }}>
-                  <CheckCircle2 size={13} color="#2563eb" />
-                  <span>Dual Grounding Active: Synthesizes real KIIT PYQ question archetypes & formula derivations with official syllabus scope.</span>
+
+                {/* Quick Presets & Search Toolbar */}
+                <div className="mock-toolbar">
+                  <div className="mock-search-wrap">
+                    <Search size={13} className="mock-search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Search topics / units…"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`mock-btn-sm ${activePreset === "midsem_default" ? "active-preset" : ""}`}
+                    onClick={() => applyScopePreset("midsem_default")}
+                    title="Select first half of syllabus (traditional midsem scope)"
+                  >
+                    <BookOpen size={12} color="#2563eb" />
+                    First Half (Midsem)
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`mock-btn-sm ${activePreset === "full" ? "active-preset" : ""}`}
+                    onClick={() => applyScopePreset("full")}
+                    title="Select all units and topics"
+                  >
+                    <CheckSquare size={12} color="#2563eb" />
+                    All Units
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`mock-btn-sm ${activePreset === "high_weight" ? "active-preset" : ""}`}
+                    onClick={() => applyScopePreset("high_weight")}
+                    title="Select high-frequency exam topics"
+                  >
+                    <TrendingUp size={12} color="#2563eb" />
+                    High Probable
+                  </button>
+
+                  <button
+                    type="button"
+                    className="mock-btn-sm"
+                    onClick={() => applyScopePreset("clear")}
+                    title="Clear all selections"
+                  >
+                    <Square size={12} color="#64748b" />
+                    Clear
+                  </button>
+
+                  <button
+                    type="button"
+                    className="mock-btn-sm"
+                    onClick={handleExpandAll}
+                    title="Expand all units"
+                  >
+                    <ChevronDown size={12} />
+                    Expand
+                  </button>
+
+                  <button
+                    type="button"
+                    className="mock-btn-sm"
+                    onClick={handleCollapseAll}
+                    title="Collapse all units"
+                  >
+                    <ChevronRight size={12} />
+                    Collapse
+                  </button>
                 </div>
               </div>
-            )}
+
+              {loadingTopics ? (
+                <div style={{ padding: "20px", textAlign: "center", color: "#64748b", fontSize: "0.9rem" }}>
+                  Loading units and topic analytics from syllabus & past papers…
+                </div>
+              ) : units.length === 0 ? (
+                <div style={{ padding: "16px", background: "#f8fafc", borderRadius: "10px", color: "#64748b", fontSize: "0.88rem" }}>
+                  No syllabus units found for this subject.
+                </div>
+              ) : (
+                <div className="mock-unit-list">
+                  {filteredUnits.map((u, uIdx) => {
+                    const unitTopics = u.topics || [];
+                    const unitTopicNames = unitTopics.map(
+                      (t) => t.name || t.topic || (typeof t === "string" ? t : "")
+                    ).filter(Boolean);
+                    const selectedInUnit = unitTopicNames.filter((name) => selectedTopics.includes(name));
+                    const isAllSelected = unitTopicNames.length > 0 && selectedInUnit.length === unitTopicNames.length;
+                    const isSomeSelected = selectedInUnit.length > 0 && !isAllSelected;
+                    const isCollapsed = Boolean(collapsedUnits[u.unit]);
+                    const unitWeight = u.weight_pct || 0;
+
+                    return (
+                      <div
+                        key={u.unit || uIdx}
+                        className={`mock-unit-card ${isCollapsed ? "collapsed" : "is-expanded"}`}
+                      >
+                        {/* Unit Header with Tri-state Checkbox */}
+                        <div
+                          className="mock-unit-header"
+                          onClick={(e) => {
+                            if (e.target.type !== "checkbox" && e.target.tagName !== "LABEL") {
+                              toggleUnitCollapse(u.unit);
+                            }
+                          }}
+                        >
+                          <div className="mock-unit-left">
+                            <div
+                              style={{ display: "flex", alignItems: "center" }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <UnitCheckbox
+                                id={`mock-unit-cb-${uIdx}`}
+                                checked={isAllSelected}
+                                indeterminate={isSomeSelected}
+                                onChange={() => handleUnitToggle(u)}
+                              />
+                            </div>
+                            <span className="mock-unit-tag">{u.unit}</span>
+                            <span className="mock-unit-title">{u.title || u.label || u.unit}</span>
+                          </div>
+
+                          <div className="mock-unit-right">
+                            {unitWeight > 0 && (
+                              <span className="mock-weight-chip med" title="Total weight from past year papers">
+                                {unitWeight}% weight
+                              </span>
+                            )}
+                            <span
+                              className={`mock-unit-counter ${
+                                isAllSelected
+                                  ? "all-selected"
+                                  : isSomeSelected
+                                  ? "some-selected"
+                                  : ""
+                              }`}
+                            >
+                              {selectedInUnit.length} / {unitTopicNames.length} selected
+                            </span>
+                            <div className="mock-chevron-wrap">
+                              {isCollapsed ? <ChevronRight size={15} /> : <ChevronDown size={15} />}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Collapsible Topics in this Unit */}
+                        {!isCollapsed && (
+                          <div className="mock-topic-list">
+                            {unitTopics.length === 0 ? (
+                              <div style={{ color: "#94a3b8", fontSize: "0.8rem", padding: "6px 8px" }}>
+                                No sub-topics listed under this unit.
+                              </div>
+                            ) : (
+                              unitTopics.map((t, tIdx) => {
+                                const topicName = t.name || t.topic || (typeof t === "string" ? t : "");
+                                const isChecked = selectedTopics.includes(topicName);
+                                const tWeight = t.weight_pct || 0;
+                                const tCount = t.count || 0;
+                                const weightClass = tWeight >= 10 ? "high" : tWeight >= 5 ? "med" : "standard";
+
+                                return (
+                                  <div
+                                    key={topicName || tIdx}
+                                    className={`mock-topic-item ${isChecked ? "checked" : ""}`}
+                                    onClick={() => handleTopicToggle(topicName)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isChecked}
+                                      onChange={() => {}} // Handled by container row onClick
+                                      style={{
+                                        accentColor: "#2563eb",
+                                        cursor: "pointer",
+                                        width: 15,
+                                        height: 15,
+                                        flexShrink: 0
+                                      }}
+                                    />
+                                    <span className="mock-topic-name">{topicName}</span>
+                                    {tWeight > 0 ? (
+                                      <span className={`mock-weight-chip ${weightClass}`}>
+                                        {tWeight}% weight {tCount > 0 && `(${tCount} PYQs)`}
+                                      </span>
+                                    ) : (
+                                      <span className="mock-weight-chip standard">
+                                        Syllabus topic
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Informative Grounding Banner */}
+              <div style={{ fontSize: "0.82rem", color: "#1e40af", display: "flex", alignItems: "center", gap: 7, background: "rgba(37,99,235,0.06)", padding: "7px 12px", borderRadius: 8, marginTop: 4 }}>
+                <CheckCircle2 size={15} color="#2563eb" style={{ flexShrink: 0 }} />
+                <span>
+                  <b>Dual Grounding Active:</b> Questions will be drawn from your selected units & topics, prioritizing the most probable, high-frequency question archetypes from real KIIT PYQs.
+                </span>
+              </div>
+            </div>
 
             {error && <div className="notes-error">{error}</div>}
 
@@ -254,10 +689,10 @@ export default function MockExamPage() {
               type="submit"
               className="hero-btn-dark"
               style={{ marginTop: 10, alignSelf: "flex-start" }}
-              disabled={loading}
+              disabled={loading || selectedTopics.length === 0}
             >
               <Sparkles size={16} />
-              {loading ? "Synthesizing Mock Paper…" : "Generate Mock Paper & Solutions"}
+              {loading ? "Synthesizing Mock Paper…" : `Generate Mock Paper (${selectedTopics.length} Topics Selected)`}
             </button>
           </form>
         </div>
@@ -308,6 +743,11 @@ export default function MockExamPage() {
                 <span><b>Exam:</b> {paperData.exam_title}</span>
                 <span><b>Time:</b> {paperData.time_allowed}</span>
                 <span><b>Full Marks:</b> {paperData.full_marks}</span>
+                {paperData.syllabus_scope?.scope_label && (
+                  <span style={{ color: "#2563eb", fontWeight: 600 }}>
+                    <b>Scope:</b> {paperData.syllabus_scope.scope_label}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -377,6 +817,11 @@ export default function MockExamPage() {
               <div>
                 <div><b>Subject:</b> {paperData.subject_name}</div>
                 <div><b>Semester / Programme:</b> {paperData.semester || "B.Tech"}</div>
+                {paperData.syllabus_scope?.scope_label && (
+                  <div style={{ fontSize: "0.86rem", color: "#475569", marginTop: 2 }}>
+                    <b>Scope:</b> {paperData.syllabus_scope.scope_label}
+                  </div>
+                )}
               </div>
               <div style={{ textAlign: "right" }}>
                 <div><b>Time:</b> {paperData.time_allowed}</div>

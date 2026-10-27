@@ -367,19 +367,37 @@ def download_notes_pdf(request, filename):
 
 # ---------------- Mock Exam Paper Generator ----------------
 
+@csrf_exempt
 def mock_syllabus_preview_api(request):
     """
-    GET /api/mock/syllabus-preview/?subject_id=X&exam_type=midsem|endsem
-    Returns syllabus units and topics included in this specific exam type plus available PYQ grounding counts.
+    GET or POST /api/mock/syllabus-preview/
+    Returns syllabus units and topics included in this specific exam type/selection plus available PYQ grounding counts.
     """
-    subject_id = request.GET.get('subject_id')
-    exam_type = request.GET.get('exam_type', 'midsem')
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+        except Exception:
+            data = {}
+        subject_id = data.get('subject_id')
+        exam_type = data.get('exam_type', 'midsem')
+        selected_topics = data.get('selected_topics')
+        selected_units = data.get('selected_units')
+    else:
+        subject_id = request.GET.get('subject_id')
+        exam_type = request.GET.get('exam_type', 'midsem')
+        selected_topics = request.GET.getlist('selected_topics') or None
+        selected_units = request.GET.getlist('selected_units') or None
 
     if not subject_id:
         return JsonResponse({'error': 'subject_id parameter is required'}, status=400)
 
     subject = get_object_or_404(Subject, id=subject_id)
-    scope = get_exam_syllabus_scope(subject.name, exam_type)
+    scope = get_exam_syllabus_scope(
+        subject.name,
+        exam_type,
+        selected_topics=selected_topics,
+        selected_units=selected_units
+    )
     pyq_doc_count = Document.objects.filter(subject=subject, doc_type='pyq').count()
     scope["pyq_doc_count"] = pyq_doc_count
 
@@ -396,7 +414,7 @@ def mock_syllabus_preview_api(request):
 def mock_generate_api(request):
     """
     POST /api/mock/generate/
-    Body: {"subject_id": int, "exam_type": "midsem" | "endsem"}
+    Body: {"subject_id": int, "exam_type": "midsem" | "endsem", "selected_topics": [...], "selected_units": [...]}
     Returns: {"paper": {...}, "qp_filename": "...", "ans_filename": "..."}
     """
     if request.method != 'POST':
@@ -409,9 +427,14 @@ def mock_generate_api(request):
 
     subject_id = data.get('subject_id')
     exam_type = data.get('exam_type', 'midsem')
+    selected_topics = data.get('selected_topics')
+    selected_units = data.get('selected_units')
 
     if not subject_id:
         return JsonResponse({'error': 'subject_id is required'}, status=400)
+
+    if selected_topics is not None and len(selected_topics) == 0:
+        return JsonResponse({'error': 'Please select at least one unit or topic to generate your mock paper.'}, status=400)
 
     subject = get_object_or_404(Subject, id=subject_id)
 
@@ -419,7 +442,9 @@ def mock_generate_api(request):
         paper_data = generate_mock_exam(
             subject_name=subject.name,
             exam_type=exam_type,
-            semester=subject.semester
+            semester=subject.semester,
+            selected_topics=selected_topics,
+            selected_units=selected_units
         )
         qp_filename = build_exam_pdf(paper_data, is_solution=False)
         ans_filename = build_exam_pdf(paper_data, is_solution=True)

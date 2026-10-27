@@ -389,14 +389,108 @@ def _render_question_flowables(raw_text, base_style, prefix="", total_width=5.8 
     return flowables
 
 
-def get_exam_syllabus_scope(subject_name, exam_type):
+def get_exam_syllabus_scope(subject_name, exam_type, selected_topics=None, selected_units=None):
     """
     Returns the units and topics matching the exam scope:
-    - Midsem: First half of syllabus (e.g. 3 of 6 units, or 2.5 of 5 units).
-    - Endsem: Complete syllabus (all units).
+    - If selected_topics/selected_units are provided: accurately filters syllabus structure to only
+      include the student's chosen units and topics, along with their PYQ frequencies/weights.
+    - If not provided (legacy/fallback):
+      - Midsem: First half of syllabus (e.g. 3 of 6 units, or 2.5 of 5 units).
+      - Endsem: Complete syllabus (all units).
     """
+    from . import analytics
+
     struct = parse_syllabus_structure(subject_name)
     all_units = struct.get("units", [])
+
+    # Fetch topic stats/weights from analytics for probability ranking
+    try:
+        topic_meta_list = analytics.get_topics_for_subject(subject_name) or []
+    except Exception:
+        topic_meta_list = []
+
+    topic_weights_map = {}
+    topic_counts_map = {}
+    for t_info in topic_meta_list:
+        t_name = (t_info.get("name") or t_info.get("topic") or "").strip().lower()
+        if t_name:
+            topic_weights_map[t_name] = t_info.get("weight_pct", 0)
+            topic_counts_map[t_name] = t_info.get("count", 0)
+
+    if selected_topics:
+        selected_topics_set = {t.strip().lower() for t in selected_topics if t and t.strip()}
+        selected_units_set = {u.strip().lower() for u in (selected_units or []) if u and u.strip()}
+
+        filtered_units = []
+        seen_selected_topics = set()
+
+        for idx, u in enumerate(all_units):
+            u_name = u.get("unit", f"Unit {idx + 1}")
+            u_title = u.get("title", "")
+            raw_topics = u.get("topics", [])
+            is_unit_explicitly_selected = (
+                u_name.strip().lower() in selected_units_set or
+                u_title.strip().lower() in selected_units_set
+            )
+
+            matched_topics = []
+            for t in raw_topics:
+                t_str = t if isinstance(t, str) else t.get("name", "")
+                t_lower = t_str.strip().lower()
+                if is_unit_explicitly_selected or t_lower in selected_topics_set or any(st == t_lower for st in selected_topics_set):
+                    matched_topics.append(t_str)
+                    seen_selected_topics.add(t_lower)
+
+            if matched_topics or is_unit_explicitly_selected:
+                topic_entries = matched_topics if matched_topics else raw_topics
+                filtered_units.append({
+                    "unit": u_name,
+                    "title": u_title,
+                    "topics": topic_entries
+                })
+                for t in topic_entries:
+                    seen_selected_topics.add(t.strip().lower())
+
+        # Catch any selected topics that originated from PYQ analytics outside syllabus unit text
+        remaining_selected = [
+            t for t in selected_topics
+            if t.strip().lower() not in seen_selected_topics
+        ]
+        if remaining_selected:
+            filtered_units.append({
+                "unit": "Selected Topics",
+                "title": "Selected Units & Modules",
+                "topics": remaining_selected
+            })
+
+        # Calculate most probable topics among the selected ones
+        selected_topic_ranking = []
+        for t in selected_topics:
+            t_str = t.strip()
+            t_lower = t_str.lower()
+            w = topic_weights_map.get(t_lower, 0)
+            c = topic_counts_map.get(t_lower, 0)
+            selected_topic_ranking.append({
+                "topic": t_str,
+                "weight_pct": w,
+                "count": c
+            })
+
+        selected_topic_ranking.sort(key=lambda x: (x["weight_pct"], x["count"]), reverse=True)
+        most_probable_topics = [item for item in selected_topic_ranking if item["weight_pct"] > 0][:10]
+        if not most_probable_topics:
+            most_probable_topics = selected_topic_ranking[:8]
+
+        return {
+            "scope_label": f"Custom Scope ({len(filtered_units)} Units · {len(selected_topics)} Topics Selected)",
+            "units": filtered_units,
+            "is_partial": True,
+            "total_units_in_subject": len(all_units),
+            "selected_topics": selected_topics,
+            "most_probable_topics": most_probable_topics
+        }
+
+    # Fallback to default if no selected_topics
     if not all_units:
         return {"scope_label": "Entire Course", "units": [], "is_partial": False}
 
@@ -404,14 +498,14 @@ def get_exam_syllabus_scope(subject_name, exam_type):
     if "mid" in norm_type:
         n = len(all_units)
         half_count = n / 2.0
-        selected_units = []
+        selected_units_list = []
         for i, u in enumerate(all_units):
             if i + 1 <= math.floor(half_count):
-                selected_units.append(u)
+                selected_units_list.append(u)
             elif i + 1 == math.ceil(half_count) and (n % 2 != 0):
                 topics = u.get("topics", [])
                 half_topics_cnt = max(1, math.ceil(len(topics) / 2))
-                selected_units.append({
+                selected_units_list.append({
                     "unit": u.get("unit", f"Unit {i+1}"),
                     "title": f"{u.get('title', '')} (First Half)",
                     "topics": topics[:half_topics_cnt]
@@ -421,8 +515,8 @@ def get_exam_syllabus_scope(subject_name, exam_type):
                 break
 
         return {
-            "scope_label": f"Mid-Semester Scope (First {len(selected_units)} Units / Half Syllabus)",
-            "units": selected_units,
+            "scope_label": f"Mid-Semester Scope (First {len(selected_units_list)} Units / Half Syllabus)",
+            "units": selected_units_list,
             "is_partial": True,
             "total_units_in_subject": n,
         }
@@ -435,10 +529,10 @@ def get_exam_syllabus_scope(subject_name, exam_type):
         }
 
 
-def _retrieve_grounded_pyqs(subject_name, exam_type, syllabus_scope, max_samples=30):
+def _retrieve_grounded_pyqs(subject_name, exam_type, syllabus_scope, selected_topics=None, max_samples=30):
     """
     Retrieve rich, structured Previous Year Question (PYQ) samples from ChromaDB
-    aligned with the exam type (Midsem vs Endsem) and syllabus scope units.
+    aligned with the exam type (Midsem vs Endsem) and syllabus scope units/topics.
     Returns: A formatted string of past exam questions categorized by 1-mark and long questions.
     """
     try:
@@ -465,12 +559,14 @@ def _retrieve_grounded_pyqs(subject_name, exam_type, syllabus_scope, max_samples
             return "No previous year question records found for this subject."
 
         norm_exam = "midsem" if "mid" in exam_type.lower() else "endsem"
-        scope_unit_names = {u.get("unit", "").lower() for u in syllabus_scope.get("units", []) if u.get("unit")}
+        scope_unit_names = {u.get("unit", "").lower().strip() for u in syllabus_scope.get("units", []) if u.get("unit")}
+        selected_topics_lower = {
+            t.lower().strip() for t in (selected_topics or syllabus_scope.get("selected_topics") or [])
+        }
 
         # Categorize into Compulsory 1-Mark vs Long Questions
         short_compulsory = []
         long_questions = []
-        other_questions = []
 
         for doc, meta in zip(docs, metas):
             qtext = doc.strip()
@@ -480,15 +576,32 @@ def _retrieve_grounded_pyqs(subject_name, exam_type, syllabus_scope, max_samples
             year = meta.get("year", "Past Year")
             q_exam = meta.get("exam_type", "Exam")
             qnum = str(meta.get("question_number", ""))
-            unit = meta.get("unit", "")
-            topic = meta.get("topic", "")
+            unit = (meta.get("unit") or "").strip()
+            topic = (meta.get("topic") or "").strip()
 
-            # For Midsem, filter/prioritize questions from scope units
-            is_in_scope = True
-            if norm_exam == "midsem" and scope_unit_names and unit:
-                if unit.lower() not in scope_unit_names and not any(su in unit.lower() for su in scope_unit_names):
-                    # Lower priority for out-of-scope units in midsem
-                    is_in_scope = False
+            is_topic_match = False
+            is_unit_match = False
+            is_text_match = False
+
+            if selected_topics_lower:
+                if topic and topic.lower() in selected_topics_lower:
+                    is_topic_match = True
+                elif topic and any(st in topic.lower() for st in selected_topics_lower if len(st) > 4):
+                    is_topic_match = True
+
+                if unit and (unit.lower() in scope_unit_names or any(su in unit.lower() for su in scope_unit_names if len(su) > 3)):
+                    is_unit_match = True
+
+                qtext_low = qtext.lower()
+                if any(st in qtext_low for st in selected_topics_lower if len(st) > 5):
+                    is_text_match = True
+
+                is_in_scope = is_topic_match or is_unit_match or is_text_match
+            else:
+                is_in_scope = True
+                if norm_exam == "midsem" and scope_unit_names and unit:
+                    if unit.lower() not in scope_unit_names and not any(su in unit.lower() for su in scope_unit_names):
+                        is_in_scope = False
 
             item = {
                 "year": year,
@@ -496,13 +609,14 @@ def _retrieve_grounded_pyqs(subject_name, exam_type, syllabus_scope, max_samples
                 "qnum": qnum,
                 "unit": unit,
                 "topic": topic,
-                "text": qtext[:1000],  # Full rich text
+                "text": qtext[:1000],
                 "is_in_scope": is_in_scope,
+                "is_topic_match": is_topic_match,
+                "is_unit_match": is_unit_match,
+                "is_text_match": is_text_match,
                 "is_exam_match": norm_exam in q_exam.lower()
             }
 
-            # Classify by question type
-            # 1-mark or subpart 1(a), 1(b) etc.
             if qnum.startswith("1") or "(a)" in qnum or "(b)" in qnum or "define" in qtext.lower()[:30] or "what is" in qtext.lower()[:30] or "state" in qtext.lower()[:30]:
                 if len(qtext) < 400 or qnum.startswith("1"):
                     short_compulsory.append(item)
@@ -511,12 +625,18 @@ def _retrieve_grounded_pyqs(subject_name, exam_type, syllabus_scope, max_samples
             else:
                 long_questions.append(item)
 
-        # Prioritize items that match exam type and are in scope
+        # Prioritize items that match selected topic/unit and exam type
         def _sort_key(item):
             score = 0
-            if item["is_in_scope"]:
-                score += 10
-            if item["is_exam_match"]:
+            if item.get("is_topic_match"):
+                score += 30
+            elif item.get("is_unit_match"):
+                score += 15
+            elif item.get("is_text_match"):
+                score += 12
+            elif item.get("is_in_scope"):
+                score += 8
+            if item.get("is_exam_match"):
                 score += 5
             try:
                 score += int(item["year"]) / 1000.0
@@ -527,8 +647,11 @@ def _retrieve_grounded_pyqs(subject_name, exam_type, syllabus_scope, max_samples
         short_compulsory.sort(key=_sort_key, reverse=True)
         long_questions.sort(key=_sort_key, reverse=True)
 
-        selected_short = short_compulsory[:12]
-        selected_long = long_questions[:18]
+        in_scope_short = [x for x in short_compulsory if x["is_in_scope"]]
+        in_scope_long = [x for x in long_questions if x["is_in_scope"]]
+
+        selected_short = in_scope_short[:12] if len(in_scope_short) >= 5 else short_compulsory[:12]
+        selected_long = in_scope_long[:18] if len(in_scope_long) >= 6 else long_questions[:18]
 
         output_sections = []
 
@@ -560,25 +683,39 @@ def _retrieve_grounded_pyqs(subject_name, exam_type, syllabus_scope, max_samples
 def build_exam_generation_prompt(subject_name, exam_type, semester, syllabus_scope, pyq_grounding):
     norm_type = "Midsem" if "mid" in exam_type.lower() else "Endsem"
     units_text = []
-    for u in syllabus_scope["units"]:
-        topics = ", ".join(u.get("topics", []))
-        units_text.append(f"• {u.get('unit', '')} ({u.get('title', '')}): {topics}")
+    for u in syllabus_scope.get("units", []):
+        raw_topics = u.get("topics", [])
+        topics_str = ", ".join([t if isinstance(t, str) else t.get("name", "") for t in raw_topics])
+        units_text.append(f"• {u.get('unit', '')} ({u.get('title', '')}): {topics_str}")
     syllabus_str = "\n".join(units_text)
+
+    most_probable = syllabus_scope.get("most_probable_topics", [])
+    if most_probable:
+        prob_lines = []
+        for p in most_probable:
+            w = p.get("weight_pct", 0)
+            prob_lines.append(f"• {p.get('topic')}: ~{w}% past exam weight ({p.get('count', 0)} past questions in PYQs)")
+        probable_topics_str = "\n".join(prob_lines)
+    else:
+        probable_topics_str = "Prioritize core foundational topics from the selected scope above."
 
     if norm_type == "Midsem":
         blueprint_instructions = """
 BLUEPRINT SPECIFICATIONS FOR MIDSEM EXAMINATION (Total Marks: 20 | Time: 1.5 Hours):
 1. **Syllabus Coverage & PYQ Synergy**:
-   - Every question MUST be drawn from the provided half-syllabus units.
-   - Questions MUST reflect the authentic styles, recurring question themes, formula derivations, definitions, and problem types found in the KIIT Past Year Questions (PYQs).
+   - Every question MUST be drawn strictly from the student's selected units and topics listed above.
+   - Do NOT include questions from unselected units or topics.
+   - IMPORTANT: You do NOT need to include questions from each individual selected topic. Instead, focus questions on the MOST PROBABLE, high-frequency topics and core problem archetypes from the selected list based on past exam patterns.
+   - Ground question styles, definitions, numerical problems, and proofs in the actual KIIT Past Year Questions (PYQs) provided.
+   - If the student selected only a small set of topics (e.g. 1-2 topics), construct rigorous questions exploring distinct theoretical, derivation, and numerical dimensions of those topics to satisfy the full paper marks structure.
 2. **Question Structure**:
    - **Question 1 (Compulsory - Total: 5 Marks)**: Exactly 5 one-mark sub-questions: 1(a), 1(b), 1(c), 1(d), 1(e).
      - Each sub-question is worth 1 mark.
-     - Direct definitions, short reasoning, core properties, or quick formula applications matching past Q1 styles.
+     - Direct definitions, short reasoning, core properties, or quick formula applications matching past Q1 styles for the selected topics.
    - **Questions 2, 3, 4, 5 (Long Questions - Answer any THREE | 3 × 5 = 15 Marks)**:
      - Exactly 4 long questions: Q.2, Q.3, Q.4, Q.5 (3 required + 1 choice).
      - Each question has sub-parts e.g. (a) [2.5] + (b) [2.5] = 5 Marks, or (a) [3] + (b) [2] = 5 Marks, summing EXACTLY to 5 MARKS per question.
-     - Modeled directly after actual KIIT past examination problem formulations, mathematical derivations, algorithm steps, and proofs.
+     - Modeled directly after actual KIIT past examination problem formulations, mathematical derivations, algorithm steps, and proofs from the selected topics.
    - Total Marks achievable: Q1 (5 marks) + Any 3 from (Q2-Q5, 3 × 5 = 15 marks) = **20 Marks**.
 """
         json_example = """{
@@ -645,8 +782,11 @@ BLUEPRINT SPECIFICATIONS FOR MIDSEM EXAMINATION (Total Marks: 20 | Time: 1.5 Hou
         blueprint_instructions = """
 BLUEPRINT SPECIFICATIONS FOR ENDSEM EXAMINATION (Total Marks: 50 | Time: 3.0 Hours):
 1. **Syllabus Coverage & PYQ Synergy**:
-   - Questions MUST span across the entire course syllabus (all units) in balanced proportion.
-   - Questions MUST reflect the authentic styles, recurring question themes, formula derivations, definitions, and problem types found in the KIIT Past Year Questions (PYQs).
+   - Every question MUST be drawn strictly from the student's selected units and topics listed above.
+   - Do NOT include questions from unselected units or topics.
+   - IMPORTANT: You do NOT need to include questions from each individual selected topic. Instead, focus questions on the MOST PROBABLE, high-frequency topics and core problem archetypes from the selected list based on past exam patterns.
+   - Ground question styles, definitions, numerical problems, formula derivations, and proofs in the actual KIIT Past Year Questions (PYQs) provided.
+   - If the student selected only a small set of topics, construct rigorous questions exploring distinct theoretical, derivation, and numerical dimensions of those topics to satisfy the full paper marks structure.
 2. **Question Structure**:
    - **Question 1 (Compulsory - Total: 10 Marks)**: Exactly 10 one-mark sub-questions: 1(a) to 1(j).
      - Each sub-question is worth 1 mark.
@@ -720,12 +860,16 @@ BLUEPRINT SPECIFICATIONS FOR ENDSEM EXAMINATION (Total Marks: 50 | Time: 3.0 Hou
 
     prompt = f"""You are the Chief Examination Controller and Senior Professor at KIIT University designing an authentic, high-quality university {norm_type} Examination Question Paper and comprehensive Solution Key for the course: "{subject_name}" ({semester or 'B.Tech'}).
 
-COURSE SYLLABUS SCOPE (MANDATORY BOUNDARIES):
+STUDENT SELECTED UNITS & TOPICS (MANDATORY EXAMINATION BOUNDARIES):
 ---
 {syllabus_str}
 ---
 
-KIIT PREVIOUS YEAR QUESTIONS (PYQ GROUNDING & STYLE BENCHMARK):
+MOST PROBABLE SELECTED TOPICS (GROUNDED IN KIIT PYQ FREQUENCY):
+The following topics from the student's selected scope have the highest probability and recurring weightage in KIIT exams:
+{probable_topics_str}
+
+KIIT PREVIOUS YEAR QUESTIONS (PYQ GROUNDING & STYLE BENCHMARK FOR SELECTED SCOPE):
 ---
 The following are ACTUAL questions from past KIIT University examinations in this subject. You MUST use them to ground your question styles, numerical problem archetypes, formula questions, proofs, and difficulty levels:
 
@@ -735,8 +879,10 @@ The following are ACTUAL questions from past KIIT University examinations in thi
 {blueprint_instructions}
 
 CRITICAL RULES:
-1. **PYQ + Syllabus Dual Grounding**:
-   - Synthesize questions that rigorously cover the topics in the syllabus scope, while reflecting the recurring problem archetypes, mathematical derivations, question phrasings, and standard KIIT academic rigor shown in the past examination papers above.
+1. **Strict Selected Scope & Most Probable Topics**:
+   - Confine ALL questions in Section A and Section B strictly to the student's selected units and topics listed above.
+   - You do NOT need to include questions from every single selected topic. Instead, focus on the MOST PROBABLE, high-frequency topics and core problem archetypes from the selected list based on past exam patterns.
+   - Synthesize questions that reflect the recurring problem archetypes, mathematical derivations, question phrasings, and standard KIIT academic rigor shown in the past examination papers above.
 2. **Mathematical / Scientific Formulas & Equations**:
    - Format all mathematical formulas, differential equations, integrals, summations, matrices, limits, and notation using valid, clean LaTeX syntax (e.g. `\\\\int_0^\\\\infty e^{{-x^2}} dx`, `\\\\frac{{d^2y}}{{dx^2}} + \\\\omega^2 y = 0`, `\\\\sum_{{i=1}}^n i^2`, `\\\\lim_{{x \\\\to 0}} \\\\frac{{\\\\sin x}}{{x}} = 1`).
    - If a question or sub-part has a primary equation or formula, provide it explicitly in the `"formula"` field.
@@ -789,12 +935,23 @@ def _validate_mock_data(data, exam_type):
     return data
 
 
-def generate_mock_exam(subject_name, exam_type, semester=None):
+def generate_mock_exam(subject_name, exam_type, semester=None, selected_topics=None, selected_units=None):
     """
     Generates a structured mock paper + solution key grounded in syllabus and PYQ patterns.
+    Supports user-customized unit & topic selection just like the Score Predictor.
     """
-    syllabus_scope = get_exam_syllabus_scope(subject_name, exam_type)
-    pyq_grounding = _retrieve_grounded_pyqs(subject_name, exam_type, syllabus_scope)
+    syllabus_scope = get_exam_syllabus_scope(
+        subject_name=subject_name,
+        exam_type=exam_type,
+        selected_topics=selected_topics,
+        selected_units=selected_units
+    )
+    pyq_grounding = _retrieve_grounded_pyqs(
+        subject_name=subject_name,
+        exam_type=exam_type,
+        syllabus_scope=syllabus_scope,
+        selected_topics=selected_topics
+    )
 
     prompt = build_exam_generation_prompt(
         subject_name=subject_name,

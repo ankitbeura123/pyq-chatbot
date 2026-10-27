@@ -12,7 +12,6 @@ import {
   Search,
   Award,
   RotateCcw,
-  Flame,
   ArrowRight,
   Check,
   Percent,
@@ -844,7 +843,7 @@ export default function ScorePredictorPage() {
                       gap: 8
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 700, color: '#b45309' }}>
-                        <Flame size={16} color="#d97706" />
+                        <TrendingUp size={16} color="#d97706" />
                         High-Impact Score Boosters (Prepare these next):
                       </div>
                       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>

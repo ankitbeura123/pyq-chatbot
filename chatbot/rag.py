@@ -285,7 +285,7 @@ CRITICAL SYLLABUS & ACADEMIC GUARDRAILS (STRICTLY ENFORCED):
    - Do NOT provide the answer, do NOT provide recipes, code, or off-topic facts.
    - Format your refusal clearly and politely using this exact markdown structure:
 
-### ⚠️ Out of Syllabus Query
+### Notice: Out of Syllabus Query
 
 I am your **Academic & Exam Preparation Assistant**, strictly specialized in your university course syllabus and Previous Year Questions (PYQs).
 
@@ -295,7 +295,7 @@ I am your **Academic & Exam Preparation Assistant**, strictly specialized in you
 {f"**Syllabus Topics you can ask about in {subject_filter}:**" if subject_filter else "**Available Academic Areas:**"}
 [Brief bullet list of 3-4 key units/topics from the active subject or curriculum]
 
-💡 *Please ask a question related to your syllabus units, core concepts, or previous exam papers!*
+*Please ask a question related to your syllabus units, core concepts, or previous exam papers!*
 
 4. GREETINGS & CASUAL ONBOARDING:
    - If the user sends a friendly greeting (e.g. "hi", "hello", "hey", "help", "who are you"):
@@ -311,7 +311,7 @@ I am your **Academic & Exam Preparation Assistant**, strictly specialized in you
      * Provide the complete step-by-step solution immediately below it inside a clean collapsible HTML block with exact spacing:
 
        <details>
-       <summary>💡 Show Step-by-Step Solution</summary>
+       <summary>Show Step-by-Step Solution</summary>
 
        **Step-by-Step Solution:**
        1. **Given Data & Formula:**
