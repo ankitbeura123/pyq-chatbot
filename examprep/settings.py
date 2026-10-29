@@ -12,21 +12,40 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if present
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# SECURITY WARNING: don't run with debug turned on in production!
+# Defaults to False unless explicitly set to 'true', '1', etc. in the environment.
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't', 'yes')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ftml=chvj4f1w$mf6aa6fjo^ld9)b09rkw$mue2l!7$t%i-xu*'
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        # Safe default used strictly for local development
+        SECRET_KEY = 'django-insecure-ftml=chvj4f1w$mf6aa6fjo^ld9)b09rkw$mue2l!7$t%i-xu*'
+    else:
+        from django.core.exceptions import ImproperlyConfigured
+        raise ImproperlyConfigured("The SECRET_KEY environment variable must be set in production when DEBUG=False.")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Configure ALLOWED_HOSTS through environment variable, with local development defaults
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
-ALLOWED_HOSTS = ['*']
+# Automatically include Render external hostname if provided by Render environment
+render_external_hostname = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if render_external_hostname and render_external_hostname not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_external_hostname)
+
 
 
 # Application definition
@@ -43,6 +62,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,6 +70,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Gracefully fallback if whitenoise is not yet installed in local development venv
+try:
+    import whitenoise  # noqa: F401
+except ImportError:
+    MIDDLEWARE.remove('whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'examprep.urls'
 
@@ -123,6 +149,23 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'frontend' / 'dist',
 ]
+
+# Directory where collectstatic collects static files for production deployment
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise production static files storage (with compression and caching)
+try:
+    import whitenoise  # noqa: F401
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        },
+    }
+except ImportError:
+    pass
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

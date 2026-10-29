@@ -2,9 +2,11 @@
 # KIIT ExamPrep AI & Mock Portal - Core Python Dependencies
 # ==============================================================================
 
-# Core Web Framework
+# Core Web Framework & Production Server
 Django>=5.0,<6.0
 python-dotenv>=1.0.0
+gunicorn>=21.2.0
+whitenoise>=6.6.0
 
 # AI & LLM Engine (Google Gemini API)
 google-generativeai>=0.8.0

@@ -1,24 +1,13 @@
 import os
 import re
 import pypdf
-import pytesseract
-from pdf2image import convert_from_path
-from sentence_transformers import SentenceTransformer
-import chromadb
 from django.core.management.base import BaseCommand
 from chatbot.models import Subject, Document
 
-# ---- Config ----
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# ---- Config Constants ----
 POPPLER_PATH = r"C:\Users\KIIT0001\AppData\Local\Microsoft\WinGet\Packages\oschwartz10612.Poppler_Microsoft.Winget.Source_8wekyb3d8bbwe\poppler-25.07.0\Library\bin"
 ROOT_PATH = r"C:\Users\KIIT0001\OneDrive\Desktop\exam qs"
 CHROMA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "chroma_db")
-
-print("Loading embedding model (first run downloads it, may take a minute)...")
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
-
-chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
-collection = chroma_client.get_or_create_collection(name="pyq_chunks")
 
 
 def extract_text_from_pdf(file_path):
@@ -30,6 +19,12 @@ def extract_text_from_pdf(file_path):
 
         if full_text.strip():
             return full_text, "normal"
+
+        # Lazy import of OCR dependencies only if fallback is needed
+        import pytesseract
+        from pdf2image import convert_from_path
+        if os.name == 'nt' and os.path.exists(r"C:\Program Files\Tesseract-OCR\tesseract.exe"):
+            pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
         images = convert_from_path(file_path, poppler_path=POPPLER_PATH)
         ocr_text = ""
@@ -91,6 +86,20 @@ class Command(BaseCommand):
     help = "Ingest PYQs and syllabus files into ChromaDB + Django DB"
 
     def handle(self, *args, **options):
+        # Lazy import of heavyweight ML and vector database dependencies
+        from sentence_transformers import SentenceTransformer
+        import chromadb
+        import pytesseract
+
+        if os.name == 'nt' and os.path.exists(r"C:\Program Files\Tesseract-OCR\tesseract.exe"):
+            pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+        self.stdout.write("Loading embedding model (first run downloads it, may take a minute)...")
+        embedder = SentenceTransformer('all-MiniLM-L6-v2')
+
+        chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
+        collection = chroma_client.get_or_create_collection(name="pyq_chunks")
+
         stats = {"subjects": 0, "pyq_files": 0, "syllabus_files": 0, "chunks": 0, "skipped": 0, "errors": 0}
 
         for semester in sorted(os.listdir(ROOT_PATH)):

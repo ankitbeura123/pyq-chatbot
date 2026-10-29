@@ -8,11 +8,11 @@ __pycache__/
 # Environment variables
 .env
 
-# Database & Storage
-db.sqlite3
+# Database & Storage (db.sqlite3 and chroma_db/ are tracked as seed data for deployment)
+db.sqlite3.backup
+*.backup
 media/
-chroma_db/
-syllabus_cache/
+staticfiles/
 
 # Temporary generated files (PDFs, Notes, Mocks)
 mock_papers/
@@ -25,12 +25,11 @@ revision_notes/
 !docs/screenshots/*.png
 !docs/screenshots/*.jpg
 !frontend/src/assets/*
+!frontend/dist/assets/*
 
-# Frontend build & dependencies
+# Frontend dependencies (pre-compiled frontend/dist/ is tracked for deployment)
 node_modules/
 frontend/node_modules/
-dist/
-frontend/dist/
 
 # OS artifacts
 .DS_Store
