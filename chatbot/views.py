@@ -73,13 +73,22 @@ def chat_api(request):
 
     try:
         subj_obj = Subject.objects.filter(name=subject_filter).first() if subject_filter else None
-        ChatMessage.objects.create(role='user', content=user_message, subject=subj_obj)
+        try:
+            ChatMessage.objects.create(role='user', content=user_message, subject=subj_obj)
+        except Exception as db_err:
+            logger.warning(f"Could not record user ChatMessage: {db_err}")
+
         bot_response = get_chatbot_response(user_message, subject_filter=subject_filter)
-        ChatMessage.objects.create(role='assistant', content=bot_response, subject=subj_obj)
+
+        try:
+            ChatMessage.objects.create(role='assistant', content=bot_response, subject=subj_obj)
+        except Exception as db_err:
+            logger.warning(f"Could not record assistant ChatMessage: {db_err}")
+
         return JsonResponse({'response': bot_response})
     except Exception as e:
-        print(f"Chat API error: {e}")
-        return JsonResponse({'error': f"An error occurred: {str(e)}"}, status=500)
+        logger.exception("Chat API error")
+        return JsonResponse({'error': f"AI service error: {str(e)}"}, status=500)
 
 
 @csrf_exempt
@@ -104,9 +113,14 @@ def chat_stream_api(request):
         return JsonResponse({'error': 'Empty message'}, status=400)
 
     subj_obj = Subject.objects.filter(name=subject_filter).first() if subject_filter else None
-    ChatMessage.objects.create(role='user', content=user_message, subject=subj_obj)
+    try:
+        ChatMessage.objects.create(role='user', content=user_message, subject=subj_obj)
+    except Exception as db_err:
+        logger.warning(f"Could not record user ChatMessage: {db_err}")
 
     def event_stream():
+        # Flush initial comment immediately so HTTP 200 headers and SSE stream start without delay
+        yield ": ping\n\n"
         full_chunks = []
         try:
             for chunk in stream_chatbot_response(user_message, subject_filter=subject_filter):
@@ -116,14 +130,17 @@ def chat_stream_api(request):
             
             final_text = "".join(full_chunks)
             if final_text:
-                ChatMessage.objects.create(role='assistant', content=final_text, subject=subj_obj)
+                try:
+                    ChatMessage.objects.create(role='assistant', content=final_text, subject=subj_obj)
+                except Exception as db_err:
+                    logger.warning(f"Could not record assistant ChatMessage: {db_err}")
             yield f"data: {json.dumps({'done': True, 'full_response': final_text})}\n\n"
         except Exception as e:
             logger.exception("Chat streaming error")
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
-    response['Cache-Control'] = 'no-cache'
+    response['Cache-Control'] = 'no-cache, no-transform'
     response['X-Accel-Buffering'] = 'no'
     return response
 

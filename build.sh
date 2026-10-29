@@ -42,6 +42,8 @@ echo ">>> [Step 2/4] Installing Python Backend Dependencies..."
 echo "======================================================================"
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+echo ">>> Pre-caching Chroma ONNX embedding model..."
+python -c "import chromadb.utils.embedding_functions as ef; ef.DefaultEmbeddingFunction()(['warmup'])" || echo "Notice: ONNX model pre-cache skipped or completed."
 
 echo "======================================================================"
 echo ">>> [Step 3/4] Collecting Django Static Files via WhiteNoise..."

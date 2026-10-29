@@ -224,89 +224,128 @@ export default function ChatPage() {
     }
     setIsLoading(true);
 
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => {
+      abortController.abort();
+    }, 60000);
+
     try {
       // 1. Attempt real-time SSE streaming for instant response
-      const streamRes = await fetch('/api/chat/stream/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, subject: currentSubj || '' })
-      });
+      let streamSucceeded = false;
+      let streamError = null;
 
-      if (streamRes.ok && streamRes.body) {
-        const reader = streamRes.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let accumulatedText = '';
-        let buffer = '';
+      try {
+        const streamRes = await fetch('/api/chat/stream/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, subject: currentSubj || '' }),
+          signal: abortController.signal
+        });
 
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
+        if (streamRes.ok && streamRes.body) {
+          const reader = streamRes.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let accumulatedText = '';
+          let buffer = '';
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n\n');
-          buffer = lines.pop() || '';
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
 
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith('data:')) {
-              try {
-                const payload = JSON.parse(trimmed.slice(5).trim());
-                if (payload.text) {
-                  accumulatedText += payload.text;
-                  updateActiveSessionMessages(
-                    [
-                      ...baseMessages,
-                      {
-                        role: 'assistant',
-                        content: renderChatMarkdown(accumulatedText),
-                        rawContent: accumulatedText,
-                        isMarkdown: true,
-                        isStreaming: true,
-                        timestamp: Date.now()
-                      }
-                    ],
-                    sessionTitle
-                  );
-                } else if (payload.done) {
-                  accumulatedText = payload.full_response || accumulatedText;
-                } else if (payload.error) {
-                  throw new Error(payload.error);
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed.startsWith('data:')) {
+                try {
+                  const payload = JSON.parse(trimmed.slice(5).trim());
+                  if (payload.text) {
+                    accumulatedText += payload.text;
+                    updateActiveSessionMessages(
+                      [
+                        ...baseMessages,
+                        {
+                          role: 'assistant',
+                          content: renderChatMarkdown(accumulatedText),
+                          rawContent: accumulatedText,
+                          isMarkdown: true,
+                          isStreaming: true,
+                          timestamp: Date.now()
+                        }
+                      ],
+                      sessionTitle
+                    );
+                  } else if (payload.done) {
+                    accumulatedText = payload.full_response || accumulatedText;
+                  } else if (payload.error) {
+                    streamError = payload.error;
+                    break;
+                  }
+                } catch (parseErr) {
+                  // Ignore partial JSON parse errors during chunk splitting
                 }
-              } catch (parseErr) {
-                // Ignore partial JSON parse errors during streaming
               }
             }
+            if (streamError) break;
+          }
+
+          if (streamError) {
+            throw new Error(streamError);
+          }
+
+          if (accumulatedText) {
+            updateActiveSessionMessages(
+              [
+                ...baseMessages,
+                {
+                  role: 'assistant',
+                  content: renderChatMarkdown(accumulatedText),
+                  rawContent: accumulatedText,
+                  isMarkdown: true,
+                  isStreaming: false,
+                  timestamp: Date.now()
+                }
+              ],
+              sessionTitle
+            );
+            streamSucceeded = true;
+            return;
           }
         }
-
-        if (accumulatedText) {
-          updateActiveSessionMessages(
-            [
-              ...baseMessages,
-              {
-                role: 'assistant',
-                content: renderChatMarkdown(accumulatedText),
-                rawContent: accumulatedText,
-                isMarkdown: true,
-                isStreaming: false,
-                timestamp: Date.now()
-              }
-            ],
-            sessionTitle
-          );
-          setIsLoading(false);
-          return;
-        }
+      } catch (streamErr) {
+        if (streamErr.name === 'AbortError') throw streamErr;
+        if (streamError) throw streamErr;
+        console.warn('Streaming failed or was not supported, falling back to standard JSON endpoint:', streamErr.message);
       }
+
+      if (streamSucceeded) return;
 
       // 2. Fallback to standard JSON endpoint
       const res = await fetch('/api/chat/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, subject: currentSubj || '' })
+        body: JSON.stringify({ message: text, subject: currentSubj || '' }),
+        signal: abortController.signal
       });
-      const data = await res.json();
-      if (data.response) {
+
+      const resText = await res.text();
+      let data = null;
+      try {
+        data = resText ? JSON.parse(resText) : null;
+      } catch (jsonErr) {
+        if (!res.ok) {
+          throw new Error(`Server returned error (${res.status}): ${resText.slice(0, 120) || res.statusText}`);
+        }
+        throw new Error('Received unexpected or malformed response from server.');
+      }
+
+      if (!res.ok) {
+        throw new Error((data && data.error) || `Server returned error (${res.status})`);
+      }
+
+      if (data && data.response) {
         updateActiveSessionMessages(
           [
             ...baseMessages,
@@ -322,14 +361,15 @@ export default function ChatPage() {
           sessionTitle
         );
       } else {
+        const errorMsg = (data && data.error) || 'No response returned by the AI service.';
         updateActiveSessionMessages(
           [
             ...baseMessages,
             {
               role: 'assistant',
-              content: data.error || 'Unknown error occurred.',
-              rawContent: data.error || '',
-              isMarkdown: false,
+              content: `⚠️ **Chatbot Error:** ${errorMsg}`,
+              rawContent: errorMsg,
+              isMarkdown: true,
               isStreaming: false,
               timestamp: Date.now()
             }
@@ -338,14 +378,19 @@ export default function ChatPage() {
         );
       }
     } catch (err) {
+      const isTimeout = err.name === 'AbortError';
+      const displayMsg = isTimeout
+        ? 'Request timed out after 60 seconds. The server or AI service took too long to respond. Please try again.'
+        : (err.message || 'Connection lost. Please check your network and try again.');
+
       updateActiveSessionMessages(
         [
           ...baseMessages,
           {
             role: 'assistant',
-            content: `Connection lost: ${err.message}`,
-            rawContent: err.message,
-            isMarkdown: false,
+            content: `⚠️ **Chatbot Error:** ${displayMsg}`,
+            rawContent: displayMsg,
+            isMarkdown: true,
             isStreaming: false,
             timestamp: Date.now()
           }
@@ -353,6 +398,7 @@ export default function ChatPage() {
         sessionTitle
       );
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };
