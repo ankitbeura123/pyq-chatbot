@@ -34,17 +34,23 @@ if not SECRET_KEY:
         from django.core.exceptions import ImproperlyConfigured
         raise ImproperlyConfigured("The SECRET_KEY environment variable must be set in production when DEBUG=False.")
 
-# Configure ALLOWED_HOSTS through environment variable, with local development defaults
+# Configure ALLOWED_HOSTS: retain loopback addresses, and merge configured/Render hosts
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
+
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS')
 if allowed_hosts_env:
-    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
-else:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
+    for host in allowed_hosts_env.split(','):
+        clean_host = host.strip()
+        if clean_host and clean_host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(clean_host)
 
 # Automatically include Render external hostname if provided by Render environment
 render_external_hostname = os.getenv('RENDER_EXTERNAL_HOSTNAME')
-if render_external_hostname and render_external_hostname not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append(render_external_hostname)
+if render_external_hostname:
+    if render_external_hostname not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(render_external_hostname)
+    if render_external_hostname.endswith('.onrender.com') and '.onrender.com' not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append('.onrender.com')
 
 
 

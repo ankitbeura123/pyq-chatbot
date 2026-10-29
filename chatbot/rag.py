@@ -1,7 +1,6 @@
 import os
 import re
 import chromadb
-from sentence_transformers import SentenceTransformer
 import google.generativeai as genai
 from dotenv import load_dotenv
 
@@ -20,6 +19,7 @@ _embedder = None
 def get_embedder():
     global _embedder
     if _embedder is None:
+        from sentence_transformers import SentenceTransformer
         _embedder = SentenceTransformer('all-MiniLM-L6-v2')
     return _embedder
 
