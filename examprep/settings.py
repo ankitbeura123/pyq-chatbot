@@ -173,6 +173,10 @@ try:
 except ImportError:
     pass
 
+# Google Drive API Configuration (PDF Storage & Streaming for Browse Documents)
+GOOGLE_SERVICE_ACCOUNT_JSON = os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')
+GOOGLE_DRIVE_FOLDER_ID = os.getenv('GOOGLE_DRIVE_FOLDER_ID')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

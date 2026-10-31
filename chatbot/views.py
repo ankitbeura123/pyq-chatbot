@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 from .rag import get_chatbot_response, stream_chatbot_response
 from .models import Subject, Document, ChatMessage
 from . import analytics
+from .gdrive import is_gdrive_configured, locate_drive_file, stream_drive_file_chunks
 from .quiz_engine import generate_quiz, QuizGenerationError
 from .notes_engine import generate_revision_notes, build_notes_pdf, NotesGenerationError, NOTES_DIR
 from .mock_engine import (
@@ -198,8 +199,31 @@ def api_browse_documents(request, subject_id):
 
 def download_document(request, doc_id):
     document = get_object_or_404(Document, id=doc_id)
+    filename = f"{document.subject.name}_Syllabus.txt" if document.doc_type == 'syllabus' else document.file_name
+
+    # 1. Attempt retrieval from Google Drive if configured
+    if is_gdrive_configured():
+        try:
+            drive_file = locate_drive_file(
+                semester=document.subject.semester,
+                subject_name=document.subject.name,
+                file_name=document.file_name
+            )
+            if drive_file:
+                content_type = 'application/pdf' if document.file_name.lower().endswith('.pdf') else drive_file.get('mimeType', 'application/octet-stream')
+                response = StreamingHttpResponse(
+                    stream_drive_file_chunks(drive_file['id']),
+                    content_type=content_type
+                )
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                if drive_file.get('size'):
+                    response['Content-Length'] = str(drive_file['size'])
+                return response
+        except Exception as e:
+            logger.error(f"Google Drive streaming error for document {doc_id} ({document.file_name}): {e}")
+
+    # 2. Local disk fallback (if local file exists)
     if document.source_path and os.path.exists(document.source_path):
-        filename = f"{document.subject.name}_Syllabus.txt" if document.doc_type == 'syllabus' else document.file_name
         return FileResponse(
             open(document.source_path, 'rb'),
             as_attachment=True,
@@ -231,23 +255,48 @@ def download_document(request, doc_id):
             response['Content-Disposition'] = f'attachment; filename="{clean_filename}"'
             return response
 
-    raise Http404("File not found on disk.")
+    raise Http404("Document could not be located on Google Drive or local storage.")
 
 
 def download_subject_syllabus(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
     syl_doc = Document.objects.filter(subject=subject, doc_type='syllabus').first()
+    syl_filename = f"{subject.name}_Syllabus.txt"
+
+    # 1. Attempt retrieval from Google Drive if configured
+    if is_gdrive_configured():
+        file_to_search = syl_doc.file_name if syl_doc else "syllabus.txt"
+        try:
+            drive_file = locate_drive_file(
+                semester=subject.semester,
+                subject_name=subject.name,
+                file_name=file_to_search
+            )
+            if drive_file:
+                content_type = drive_file.get('mimeType', 'text/plain; charset=utf-8')
+                response = StreamingHttpResponse(
+                    stream_drive_file_chunks(drive_file['id']),
+                    content_type=content_type
+                )
+                response['Content-Disposition'] = f'attachment; filename="{syl_filename}"'
+                if drive_file.get('size'):
+                    response['Content-Length'] = str(drive_file['size'])
+                return response
+        except Exception as e:
+            logger.error(f"Google Drive streaming error for syllabus of {subject.name}: {e}")
+
+    # 2. Local disk fallback
     if syl_doc and os.path.exists(syl_doc.source_path):
         return FileResponse(
             open(syl_doc.source_path, 'rb'),
             as_attachment=True,
-            filename=f"{subject.name}_Syllabus.txt"
+            filename=syl_filename
         )
     from .syllabus_parser import get_raw_syllabus_text
     text = get_raw_syllabus_text(subject.name)
     if text:
         response = HttpResponse(text, content_type='text/plain; charset=utf-8')
-        response['Content-Disposition'] = f'attachment; filename="{subject.name}_Syllabus.txt"'
+        response['Content-Disposition'] = f'attachment; filename="{syl_filename}"'
         return response
     raise Http404("Syllabus not found.")
 

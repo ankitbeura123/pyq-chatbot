@@ -14,6 +14,7 @@ export default function CustomSelect({
   dropdownStyle = {},
   size = 'md',
   icon = null,
+  align = 'left',
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
@@ -43,9 +44,11 @@ export default function CustomSelect({
     }
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside, { passive: true });
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [isOpen]);
 
@@ -71,7 +74,7 @@ export default function CustomSelect({
   return (
     <div
       ref={containerRef}
-      className={`custom-select-container custom-select-${size} ${disabled ? 'disabled' : ''} ${isOpen ? 'open' : ''} ${className}`}
+      className={`custom-select-container custom-select-${size} ${disabled ? 'disabled' : ''} ${isOpen ? 'open' : ''} ${align === 'right' ? 'align-right' : ''} ${className}`}
       style={style}
     >
       <button

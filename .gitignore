@@ -5,8 +5,13 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Environment variables
+# Environment variables & secrets
 .env
+*.json.secret
+*service_account*.json
+*credentials*.json
+service-account*.json
+google_credentials.json
 
 # Database & Storage (db.sqlite3 and chroma_db/ are tracked as seed data for deployment)
 db.sqlite3.backup

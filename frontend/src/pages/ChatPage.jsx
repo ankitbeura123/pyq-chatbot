@@ -537,7 +537,7 @@ export default function ChatPage() {
       <main className="chatgpt-main">
         {/* Top Header */}
         <div className="chatgpt-top-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <div className="chatgpt-top-left">
             <button
               className="sidebar-icon-btn"
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -549,7 +549,8 @@ export default function ChatPage() {
 
             <div className="model-badge-selector">
               <span className="model-badge-dot" />
-              <span>Orchids 4.0 Pro</span>
+              <span className="model-badge-name-full">Orchids 4.0 Pro</span>
+              <span className="model-badge-name-mobile">4.0 Pro</span>
             </div>
           </div>
 
@@ -561,9 +562,9 @@ export default function ChatPage() {
               placeholder="Semester"
               options={[
                 { value: "", label: "All Semesters" },
-                ...Object.keys(subjectsBySemester).map(sem => ({ value: sem, label: sem }))
+                ...Object.keys(subjectsBySemester).map(sem => ({ value: sem, label: sem.toUpperCase() }))
               ]}
-              style={{ minWidth: 105 }}
+              className="chat-select-sem"
             />
 
             <CustomSelect
@@ -571,12 +572,13 @@ export default function ChatPage() {
               value={selectedSubject}
               onChange={(val) => setSelectedSubject(val)}
               disabled={!selectedSemester}
-              placeholder={selectedSemester ? `Subject` : 'All Subjects'}
+              placeholder={selectedSemester ? "Subject" : "All Subjects"}
               options={[
-                { value: "", label: selectedSemester ? `All in ${selectedSemester}` : 'All Subjects' },
+                { value: "", label: selectedSemester ? `All in ${selectedSemester.toUpperCase()}` : 'All Subjects' },
                 ...availableSubjects.map(s => ({ value: s.name, label: s.name }))
               ]}
-              style={{ minWidth: 115 }}
+              align="right"
+              className="chat-select-subj"
             />
 
             {messages.length > 0 && (

@@ -56,6 +56,8 @@ function UnitCheckbox({ checked, indeterminate, onChange, id }) {
 }
 
 export default function MockExamPage() {
+  const [semesters, setSemesters] = useState([]);
+  const [selectedSem, setSelectedSem] = useState("");
   const [subjects, setSubjects] = useState([]);
   const [subjectId, setSubjectId] = useState("");
   const [examType, setExamType] = useState("midsem");
@@ -82,13 +84,32 @@ export default function MockExamPage() {
       .then((res) => res.json())
       .then((data) => {
         const all = data.all_subjects || [];
+        const sems = data.semesters || Array.from(new Set(all.map((s) => s.semester))).filter(Boolean);
+        setSemesters(sems);
         setSubjects(all);
-        if (all.length > 0 && !subjectId) {
+        if (sems.length > 0 && !selectedSem) {
+          const firstSem = sems[0];
+          setSelectedSem(firstSem);
+          const firstSubs = all.filter((s) => s.semester === firstSem);
+          if (firstSubs.length > 0 && !subjectId) {
+            setSubjectId(String(firstSubs[0].id));
+          }
+        } else if (all.length > 0 && !subjectId) {
           setSubjectId(String(all[0].id));
         }
       })
       .catch(() => {});
   }, []);
+
+  const handleSemesterChange = (newSem) => {
+    setSelectedSem(newSem);
+    const subsInSem = subjects.filter((s) => s.semester === newSem);
+    if (subsInSem.length > 0) {
+      setSubjectId(String(subsInSem[0].id));
+    } else {
+      setSubjectId("");
+    }
+  };
 
   // Preset selector helper
   const applyScopePreset = (preset, unitList = units, topicList = topics) => {
@@ -322,6 +343,10 @@ export default function MockExamPage() {
   }
 
   const selectedSubjectObj = subjects.find((s) => String(s.id) === String(subjectId));
+  const activeSemester = selectedSem || (selectedSubjectObj ? selectedSubjectObj.semester : (semesters[0] || ""));
+  const filteredSubjects = activeSemester
+    ? subjects.filter((s) => s.semester === activeSemester)
+    : subjects;
 
   // Filter units and topics by search query
   const filteredUnits = units.map((u) => {
@@ -376,26 +401,39 @@ export default function MockExamPage() {
           </p>
 
           <form onSubmit={handleGenerate} className="mock-form">
-            {/* Subject Selector */}
-            <div>
-              <label className="mock-label" htmlFor="mock-subject-select">
-                Select Subject
-                {selectedSubjectObj && (
-                  <span style={{ color: "#2563eb", textTransform: "none", fontWeight: 600 }}>
-                    Semester: {selectedSubjectObj.semester}
-                  </span>
-                )}
-              </label>
-              <CustomSelect
-                id="mock-subject-select"
-                value={subjectId}
-                onChange={(val) => setSubjectId(val)}
-                placeholder="— Choose Course / Subject —"
-                options={subjects.map((s) => ({
-                  value: String(s.id),
-                  label: `${s.name} (${s.semester})`,
-                }))}
-              />
+            {/* 1. Selection of Semester, then 2. Selection of Subject */}
+            <div className="mock-selectors-row">
+              <div className="mock-selector-group">
+                <label className="mock-label" htmlFor="mock-semester-select">
+                  Select Semester
+                </label>
+                <CustomSelect
+                  id="mock-semester-select"
+                  value={activeSemester}
+                  onChange={handleSemesterChange}
+                  placeholder="— Choose Semester —"
+                  options={semesters.map((sem) => ({
+                    value: sem,
+                    label: sem.toUpperCase(),
+                  }))}
+                />
+              </div>
+
+              <div className="mock-selector-group">
+                <label className="mock-label" htmlFor="mock-subject-select">
+                  Select Subject
+                </label>
+                <CustomSelect
+                  id="mock-subject-select"
+                  value={subjectId}
+                  onChange={(val) => setSubjectId(val)}
+                  placeholder="— Choose Subject —"
+                  options={filteredSubjects.map((s) => ({
+                    value: String(s.id),
+                    label: s.name,
+                  }))}
+                />
+              </div>
             </div>
 
             {/* Exam Pattern Selector */}
