@@ -88,11 +88,11 @@ export default function TopBar() {
 
           <div className="topbar-right">
             <a
-              href="https://mail.google.com/mail/?view=cm&fs=1&to=2305113@kiit.ac.in&su=Feedback%20for%20Orchids"
+              href="https://forms.gle/jtiSNesy9nXf8sN67"
               target="_blank"
               rel="noopener noreferrer"
               className="topbar-feedback-btn desktop-only"
-              title="Send Feedback to 2305113@kiit.ac.in via Gmail"
+              title="Share Feedback on Orchids"
             >
               <Mail size={14} />
               Feedback
@@ -229,12 +229,12 @@ export default function TopBar() {
                 </Link>
 
                 <a
-                  href="https://mail.google.com/mail/?view=cm&fs=1&to=2305113@kiit.ac.in&su=Feedback%20for%20Orchids"
+                  href="https://forms.gle/jtiSNesy9nXf8sN67"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mobile-drawer-link"
                   onClick={closeDrawer}
-                  title="Send Feedback to 2305113@kiit.ac.in via Gmail"
+                  title="Share Feedback on Orchids"
                 >
                   <div className="drawer-link-icon-wrap feedback">
                     <Mail size={18} />
