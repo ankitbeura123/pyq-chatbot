@@ -2140,6 +2140,110 @@ a.plain {
   40% { transform: scale(1.2); opacity: 1; }
 }
 
+/* Claude-Inspired AI Thinking Indicator */
+.thinking-bubble {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  border-radius: 14px !important;
+  padding: 10px 16px !important;
+  display: inline-flex;
+  align-items: center;
+  max-width: fit-content;
+}
+
+.thinking-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.thinking-sparkle {
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: thinkingSparkleGlow 2.4s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes thinkingSparkleGlow {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.thinking-status-text {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #475569;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.thinking-word {
+  display: inline-block;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), filter 0.22s ease;
+  will-change: opacity, transform, filter;
+}
+
+.thinking-word.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.thinking-word.fade-out {
+  opacity: 0;
+  transform: translateY(-2px);
+  filter: blur(1px);
+}
+
+.thinking-dots {
+  display: inline-flex;
+  margin-left: 2px;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.thinking-dot {
+  display: inline-block;
+  animation: thinkingDotPulse 1.4s infinite ease-in-out;
+  opacity: 0.2;
+}
+
+.thinking-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.thinking-dot:nth-child(2) {
+  animation-delay: 0.22s;
+}
+
+.thinking-dot:nth-child(3) {
+  animation-delay: 0.44s;
+}
+
+@keyframes thinkingDotPulse {
+  0%, 80%, 100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+}
+
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;

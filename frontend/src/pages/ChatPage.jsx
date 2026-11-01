@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { OrchidLogo } from '../components/TopBar';
 import CustomSelect from '../components/CustomSelect';
+import ThinkingIndicator from '../components/ThinkingIndicator';
 
 const SESSIONS_STORAGE_KEY = 'orchids_chat_sessions_v2';
 
@@ -696,13 +697,7 @@ export default function ChatPage() {
                   <div className="chat-avatar orchid-avatar">
                     <OrchidLogo size={16} />
                   </div>
-                  <div className="chat-bubble" style={{ background: '#ffffff', padding: '14px 18px', border: '1px solid rgba(15, 23, 42, 0.06)' }}>
-                    <div className="loading-pulse-dots">
-                      <span className="loading-dot" />
-                      <span className="loading-dot" />
-                      <span className="loading-dot" />
-                    </div>
-                  </div>
+                  <ThinkingIndicator />
                 </div>
               )}
             </div>
